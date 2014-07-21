@@ -19,7 +19,7 @@
  * This file replaces the legacy STATEMENTS section in db/install.xml,
  * lib.php/modulename_install() post installation hook and partially defaults.php
  *
- * @package    mod_newmodule
+ * @package    mod_quizgame
  * @copyright  2011 Your Name <your@email.adress>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,7 +29,7 @@
  *
  * @see upgrade_plugins_modules()
  */
-function xmldb_newmodule_install() {
+function xmldb_quizgame_install() {
 }
 
 /**
@@ -37,5 +37,5 @@ function xmldb_newmodule_install() {
  *
  * @see upgrade_plugins_modules()
  */
-function xmldb_newmodule_install_recovery() {
+function xmldb_quizgame_install_recovery() {
 }

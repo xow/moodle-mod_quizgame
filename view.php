@@ -16,32 +16,32 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Prints a particular instance of newmodule
+ * Prints a particular instance of quizgame
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package    mod_newmodule
+ * @package    mod_quizgame
  * @copyright  2011 Your Name
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/// (Replace newmodule with the name of your module and remove this line)
+/// (Replace quizgame with the name of your module and remove this line)
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
-$n  = optional_param('n', 0, PARAM_INT);  // newmodule instance ID - it should be named as the first character of the module
+$n  = optional_param('n', 0, PARAM_INT);  // quizgame instance ID - it should be named as the first character of the module
 
 if ($id) {
-    $cm         = get_coursemodule_from_id('newmodule', $id, 0, false, MUST_EXIST);
+    $cm         = get_coursemodule_from_id('quizgame', $id, 0, false, MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $newmodule  = $DB->get_record('newmodule', array('id' => $cm->instance), '*', MUST_EXIST);
+    $quizgame  = $DB->get_record('quizgame', array('id' => $cm->instance), '*', MUST_EXIST);
 } elseif ($n) {
-    $newmodule  = $DB->get_record('newmodule', array('id' => $n), '*', MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $newmodule->course), '*', MUST_EXIST);
-    $cm         = get_coursemodule_from_instance('newmodule', $newmodule->id, $course->id, false, MUST_EXIST);
+    $quizgame  = $DB->get_record('quizgame', array('id' => $n), '*', MUST_EXIST);
+    $course     = $DB->get_record('course', array('id' => $quizgame->course), '*', MUST_EXIST);
+    $cm         = get_coursemodule_from_instance('quizgame', $quizgame->id, $course->id, false, MUST_EXIST);
 } else {
     error('You must specify a course_module ID or an instance ID');
 }
@@ -49,29 +49,28 @@ if ($id) {
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-add_to_log($course->id, 'newmodule', 'view', "view.php?id={$cm->id}", $newmodule->name, $cm->id);
-
 /// Print the page header
 
-$PAGE->set_url('/mod/newmodule/view.php', array('id' => $cm->id));
-$PAGE->set_title(format_string($newmodule->name));
+$PAGE->set_url('/mod/quizgame/view.php', array('id' => $cm->id));
+$PAGE->set_title(format_string($quizgame->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
 // other things you may want to set - remove if not needed
 //$PAGE->set_cacheable(false);
 //$PAGE->set_focuscontrol('some-html-id');
-//$PAGE->add_body_class('newmodule-'.$somevar);
+//$PAGE->add_body_class('quizgame-'.$somevar);
 
 // Output starts here
 echo $OUTPUT->header();
 
-if ($newmodule->intro) { // Conditions to show the intro can change to look for own settings or whatever
-    echo $OUTPUT->box(format_module_intro('newmodule', $newmodule, $cm->id), 'generalbox mod_introbox', 'newmoduleintro');
+if ($quizgame->intro) { // Conditions to show the intro can change to look for own settings or whatever
+    echo $OUTPUT->box(format_module_intro('quizgame', $quizgame, $cm->id), 'generalbox mod_introbox', 'quizgameintro');
 }
 
-// Replace the following lines with you own code
-echo $OUTPUT->heading('Yay! It works!');
+echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
+
+// game here
 
 // Finish the page
 echo $OUTPUT->footer();

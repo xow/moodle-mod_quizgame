@@ -17,24 +17,24 @@
 
 
 /**
- * English strings for newmodule
+ * English strings for quizgame
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package    mod_newmodule
+ * @package    mod_quizgame
  * @copyright  2011 Your Name
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'newmodule';
-$string['modulenameplural'] = 'newmodules';
-$string['modulename_help'] = 'Use the newmodule module for... | The newmodule module allows...';
-$string['newmodulefieldset'] = 'Custom example fieldset';
-$string['newmodulename'] = 'newmodule name';
-$string['newmodulename_help'] = 'This is the content of the help tooltip associated with the newmodulename field. Markdown syntax is supported.';
-$string['newmodule'] = 'newmodule';
-$string['pluginadministration'] = 'newmodule administration';
-$string['pluginname'] = 'newmodule';
+$string['modulename'] = 'Quizventure';
+$string['modulenameplural'] = 'Quizventure games';
+$string['modulename_help'] = 'Use the Quizventure module to give the students a fun way of learning';
+$string['quizgamefieldset'] = 'Custom example fieldset';
+$string['quizgamename'] = 'Quizventure name';
+$string['quizgamename_help'] = 'What is the name of this Quizventure?';
+$string['quizgame'] = 'Quizventure';
+$string['pluginadministration'] = 'Quizventure administration';
+$string['pluginname'] = 'Quizventure';
