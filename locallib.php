@@ -54,19 +54,20 @@ function quizgame_addgame($enemies) {
 
     $questions = question_load_questions(null);
 
-    $display .= "<ul>";
+    $display .= "<script>var questions = [\n";
 
     foreach ($questions as $question) {
-        $display .= "<li>" . $question->questiontext . "<ul>";
+        $display .= "{\nquestion: \"" . strip_tags($question->questiontext) . "\",\nanswers: [";
         foreach ($question->options->answers as $answer) {
-            $display .= "<li>" . ($answer->fraction == 1 ? "<strong>" : "") . $answer->answer . ($answer->fraction == 1 ? "</strong>" : "") . "</li>";
+            $display .= "\"" . strip_tags($answer->answer) . "\",\n";
+            //$display .= "\"" . ($answer->fraction == 1 ? "<strong>" : "") . $answer->answer . ($answer->fraction == 1 ? "</strong>" : "") . "\",\n";
         }
-        $display .= "</ul></li>";
+        $display .= "]\n},\n";
     }
 
-    $display .= "<ul>";
+    $display .= "];</script>";
 
-    $display = "<canvas id=\"mod_quizgame_game\"></canvas>";
+    $display .= "<canvas id=\"mod_quizgame_game\"></canvas>";
 
     return $display;
 }
