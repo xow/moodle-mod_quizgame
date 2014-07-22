@@ -30,6 +30,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
+require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // quizgame instance ID - it should be named as the first character of the module
@@ -71,6 +72,8 @@ if ($quizgame->intro) { // Conditions to show the intro can change to look for o
 echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
 
 // game here
+
+echo quizgame_addgame(null);
 
 // Finish the page
 echo $OUTPUT->footer();

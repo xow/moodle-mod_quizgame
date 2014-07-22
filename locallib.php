@@ -28,6 +28,46 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->libdir . '/questionlib.php');
+
+/**
+ * Initialises the game and prints it to the screen
+ *
+ * @param array $enemies An array of Enemy objects
+ * @return object
+ */
+function quizgame_startgame($enemies) {
+}
+
+/**
+ * Initialises the game and returns its HTML code
+ *
+ * @param array $enemies An array of Enemy objects
+ * @return string The HTML code of the game
+ */
+function quizgame_addgame($enemies) {
+    $display = "";
+
+    $questions = question_load_questions(null);
+
+    $display .= "<ul>";
+
+    foreach ($questions as $question) {
+        $display .= "<li>" . $question->questiontext . "<ul>";
+        foreach ($question->options->answers as $answer) {
+            $display .= "<li>" . ($answer->fraction == 1 ? "<strong>" : "") . $answer->answer . ($answer->fraction == 1 ? "</strong>" : "") . "</li>";
+        }
+        $display .= "</ul></li>";
+    }
+
+    $display .= "<ul>";
+
+    return $display;
+}
+
+class Enemy extends stdClass {
+}
+
 /**
  * Does something really useful with the passed things
  *
