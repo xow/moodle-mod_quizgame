@@ -46,6 +46,10 @@ function quizgame_startgame($enemies) {
  * @return string The HTML code of the game
  */
 function quizgame_addgame($enemies) {
+    global $PAGE;
+
+    $PAGE->requires->js('/mod/quizgame/quizgame.js');
+
     $display = "";
 
     $questions = question_load_questions(null);
@@ -61,6 +65,8 @@ function quizgame_addgame($enemies) {
     }
 
     $display .= "<ul>";
+
+    $display = "<canvas id=\"mod_quizgame_game\"></canvas>";
 
     return $display;
 }
