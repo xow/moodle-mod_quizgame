@@ -4,12 +4,14 @@ var imagesTotal = 0;
 var imagesLoaded = 0;
 var started = 0;
 var player = new Player("pix/ship.png", 0, 0);
+var level = -1;
+var displayRect = {x: 0, y: 0, width: 0, height: 0};
+var question = "";
 
 function mod_quizgame_startGame() {
 
     var stage = document.getElementById("mod_quizgame_game");
 
-    var displayRect = {x: 0, y: 0, width: 0, height: 0};
     displayRect.width = stage.clientWidth;
     displayRect.height = stage.clientHeight;
 
@@ -19,22 +21,41 @@ function mod_quizgame_startGame() {
     var context = stage.getContext("2d");
 
     gameObjects.push(player);
-    question = runLevel(questions, 0, displayRect);
-
     player.x = displayRect.width/2;
     player.y = displayRect.height/2;
 
+    nextLevel();
+
     setInterval(function() {
             mod_quizgame_draw(context, displayRect, gameObjects, question);
+        }, 40);
+
+    setInterval(function() {
             mod_quizgame_update(displayRect, gameObjects);
-        }, 41);
+        }, 40);
 
 }
 
+function nextLevel() {
+    level++;
+    if (level > questions.length) {
+        level = 0;
+    }
+    question = runLevel(questions, level, displayRect)
+}
 function runLevel(questions, level, bounds) {
+    var team = [];
+    var leader;
     questions[level].answers.forEach(function(answer) {
-        gameObjects.push(new Enemy("pix/enemy.png", Math.random()*bounds.width, -Math.random()*bounds.height/2, answer));
+        var enemy = new Enemy("pix/enemy.png", Math.random()*bounds.width, -Math.random()*bounds.height/2, answer.text, answer.fraction);
+        if (answer.fraction < 1) {
+            team.push(enemy);
+        } else {
+            leader = enemy;
+        }
+        gameObjects.push(enemy);
     });
+    leader.team = team;
     return questions[level].question;
 }
 
@@ -58,6 +79,9 @@ function mod_quizgame_draw(context, displayRect, objects, question) {
 function mod_quizgame_update(bounds, objects) {
     for (var i = 0; i < objects.length; i++) {
         objects[i].update(bounds);
+        for (var j = i+1; j < objects.length; j++) {
+            collide(objects[i], objects[j]);
+        }
         if (!objects[i].alive) {
             objects.splice(i, 1);
             i--;
@@ -115,12 +139,14 @@ Player.prototype.draw = function (context) {
     GameObject.prototype.draw.call(this, context);
 }
 
-function Enemy(src, x, y, text) {
+function Enemy(src, x, y, text, fraction) {
     GameObject.call(this, src, x, y);
     this.movespeed.y /= 2;
     this.movespeed.x /= 2;
     this.direction.y = 1;
     this.text = text;
+    this.fraction = fraction;
+    this.team = [];
 }
 //Enemy.prototype = Object.create(GameObject.prototype);
 Enemy.prototype.update = function (bounds) {
@@ -145,6 +171,7 @@ Enemy.prototype.draw = function (context) {
 
 function Laser(src, x, y, text) {
     GameObject.call(this, src, x, y);
+    this.direction.y = -1;
 }
 Laser.prototype.update = function (bounds) {
     GameObject.prototype.update.call(this, bounds);
@@ -154,10 +181,51 @@ Laser.prototype.update = function (bounds) {
         this.y > bounds.height) {
         this.alive = false;
     }
-    this.velocity.y = -32;
+    this.velocity.y = 24*this.direction.y;
 }
 Laser.prototype.draw = function (context) {
     GameObject.prototype.draw.call(this, context);
+}
+
+function collide(object1, object2) {
+    if (collide_ordered(object1, object2)) {
+        return true;
+    } else {
+        return collide_ordered(object2, object1);
+    }
+}
+
+function collide_ordered(object1, object2) {
+    if (object1 instanceof Laser && object2 instanceof Enemy) {
+        if (intersectRect(
+            {left: object1.x,
+            right: object1.x+object1.image.width,
+            top: object1.y,
+            bottom: object1.y+object1.image.height},
+            {left: object2.x,
+            right: object2.x+object2.image.width,
+            top: object2.y,
+            bottom: object2.y+object2.image.height})) {
+
+            if (object2.fraction >= 1) {
+                object1.alive = object2.alive = false;
+                object2.team.forEach(function (enemy) {
+                    enemy.alive = false;
+                });
+                nextLevel();
+            } else {
+                object1.direction.y = 1;
+            }
+            return true;
+        }
+    }
+}
+
+function intersectRect(r1, r2) {
+    return !(r2.left > r1.right || 
+        r2.right < r1.left || 
+        r2.top > r1.bottom ||
+        r2.bottom < r1.top);
 }
 
 // input

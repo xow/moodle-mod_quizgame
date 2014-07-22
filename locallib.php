@@ -59,7 +59,7 @@ function quizgame_addgame($enemies) {
     foreach ($questions as $question) {
         $display .= "{\nquestion: \"" . strip_tags($question->questiontext) . "\",\nanswers: [";
         foreach ($question->options->answers as $answer) {
-            $display .= "\"" . strip_tags($answer->answer) . "\",\n";
+            $display .= "{text: \"" . strip_tags($answer->answer) . "\", fraction: " . $answer->fraction. "},\n";
             //$display .= "\"" . ($answer->fraction == 1 ? "<strong>" : "") . $answer->answer . ($answer->fraction == 1 ? "</strong>" : "") . "\",\n";
         }
         $display .= "]\n},\n";
