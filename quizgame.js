@@ -1,4 +1,5 @@
 var score = 0;
+var particles = [];
 var gameObjects = [];
 var imagesTotal = 0;
 var imagesLoaded = 0;
@@ -27,11 +28,8 @@ function mod_quizgame_startGame() {
     nextLevel();
 
     setInterval(function() {
-            mod_quizgame_draw(context, displayRect, gameObjects, question);
-        }, 40);
-
-    setInterval(function() {
-            mod_quizgame_update(displayRect, gameObjects);
+            mod_quizgame_draw(context, displayRect, gameObjects, particles, question);
+            mod_quizgame_update(displayRect, gameObjects, particles);
         }, 40);
 
 }
@@ -59,8 +57,12 @@ function runLevel(questions, level, bounds) {
     return questions[level].question;
 }
 
-function mod_quizgame_draw(context, displayRect, objects, question) {
+function mod_quizgame_draw(context, displayRect, objects, particles, question) {
     context.clearRect(0, 0, displayRect.width, displayRect.height);
+
+    for (var i = 0; i < particles.length; i++) {
+        particles[i].draw(context);
+    }
 
     for (var i = 0; i < objects.length; i++) {
         objects[i].draw(context);
@@ -76,7 +78,14 @@ function mod_quizgame_draw(context, displayRect, objects, question) {
     context.font = "18px Sans";
     context.fillText(question, displayRect.width/2, 20);
 }
-function mod_quizgame_update(bounds, objects) {
+function mod_quizgame_update(bounds, objects, particles) {
+    for (var i = 0; i < particles.length; i++) {
+        particles[i].update(bounds);
+        if (!particles[i].alive) {
+            particles.splice(i, 1);
+            i--;
+        }
+    }
     for (var i = 0; i < objects.length; i++) {
         objects[i].update(bounds);
         for (var j = i+1; j < objects.length; j++) {
@@ -90,16 +99,18 @@ function mod_quizgame_update(bounds, objects) {
 }
 
 function GameObject(src, x, y) {
-    this.image = new Image();
-    imagesTotal++;
-    this.image.onload = function() {
-        imagesLoaded++;
-        if (imagesLoaded >= imagesTotal && !started) {
-            mod_quizgame_startGame();
-            started = true;
-        }
-    };
-    this.image.src = src;
+    if (src != null) {
+        this.image = new Image();
+        imagesTotal++;
+        this.image.onload = function() {
+            imagesLoaded++;
+            if (imagesLoaded >= imagesTotal && !started) {
+                mod_quizgame_startGame();
+                started = true;
+            }
+        };
+        this.image.src = src;
+    }
     this.x = x;
     this.y = y;
     this.velocity = {x: 0, y: 0};
@@ -151,6 +162,7 @@ function Enemy(src, x, y, text, fraction) {
 //Enemy.prototype = Object.create(GameObject.prototype);
 Enemy.prototype.update = function (bounds) {
     GameObject.prototype.update.call(this, bounds);
+    particles.push(new Star(bounds));
     if (this.x < bounds.x-this.image.width) {
         this.x = bounds.width;
     } else if (this.x > bounds.width) {
@@ -159,6 +171,7 @@ Enemy.prototype.update = function (bounds) {
     if (this.y > bounds.height) {
         this.x = Math.random()*bounds.width;
         this.y = bounds.y-this.image.height;
+        score -= 100;
     }
 }
 Enemy.prototype.draw = function (context) {
@@ -169,9 +182,10 @@ Enemy.prototype.draw = function (context) {
     context.fillText(this.text, this.x, this.y);
 }
 
-function Laser(src, x, y, text) {
+function Laser(src, x, y) {
     GameObject.call(this, src, x, y);
     this.direction.y = -1;
+    this.fresh = true;
 }
 Laser.prototype.update = function (bounds) {
     GameObject.prototype.update.call(this, bounds);
@@ -181,10 +195,59 @@ Laser.prototype.update = function (bounds) {
         this.y > bounds.height) {
         this.alive = false;
     }
-    this.velocity.y = 24*this.direction.y;
+    this.velocity.y = 24 * this.direction.y;
 }
 Laser.prototype.draw = function (context) {
     GameObject.prototype.draw.call(this, context);
+}
+
+function Particle(x, y, velocity, colour) {
+    GameObject.call(this, null, x, y);
+    this.width = 2;
+    this.height = 2;
+    this.velocity.x = velocity.x;
+    this.velocity.y = velocity.y;
+    this.aliveTime = 0;
+    this.colour = colour;
+}
+Particle.prototype.update = function (bounds) {
+    GameObject.prototype.update.call(this, bounds);
+    if (this.x < bounds.x-this.width ||
+        this.x > bounds.width ||
+        this.y < bounds.y-this.height ||
+        this.y > bounds.height) {
+        this.alive = false;
+    }
+    this.aliveTime++;
+    if (this.aliveTime > (Math.random()*15)+5) {
+        this.alive = false;
+    }
+}
+Particle.prototype.draw = function (context) {
+    context.fillStyle = this.colour;
+    context.fillRect(this.x, this.y, this.width, this.height);
+    context.stroke();
+}
+
+function Star(bounds) {
+    GameObject.call(this, null, Math.random()*bounds.width, 0);
+    this.width = 2;
+    this.height = 2;
+    this.direction.y = 1;
+    this.aliveTime = 0;
+}
+Star.prototype.update = function (bounds) {
+    GameObject.prototype.update.call(this, bounds);
+    if (this.y > bounds.height) {
+        this.alive = false;
+    }
+    this.velocity.x = 0;
+    this.velocity.y = this.direction.y*1;
+}
+Star.prototype.draw = function (context) {
+    context.fillStyle = "#FFFFFF";
+    context.fillRect(this.x, this.y, this.width, this.height);
+    context.stroke();
 }
 
 function collide(object1, object2) {
@@ -196,6 +259,21 @@ function collide(object1, object2) {
 }
 
 function collide_ordered(object1, object2) {
+    if (object1 instanceof Laser && object2 instanceof Player) {
+        if (!object1.fresh && intersectRect(
+            {left: object1.x,
+            right: object1.x+object1.image.width,
+            top: object1.y,
+            bottom: object1.y+object1.image.height},
+            {left: object2.x,
+            right: object2.x+object2.image.width,
+            top: object2.y,
+            bottom: object2.y+object2.image.height})) {
+            Spray(object2.x, object2.y, 100, "#FFCC00");
+            object1.alive = object2.alive = false;
+            return true;
+        }
+    }
     if (object1 instanceof Laser && object2 instanceof Enemy) {
         if (intersectRect(
             {left: object1.x,
@@ -207,14 +285,25 @@ function collide_ordered(object1, object2) {
             top: object2.y,
             bottom: object2.y+object2.image.height})) {
 
+            if (object1.alive && object1.fresh) {
+                if (object2.fraction > 0.5) {
+                    score += object2.fraction * 1000;
+                } else {
+                    score += (object2.fraction-1) * 300;
+                }
+            }
+
             if (object2.fraction >= 1) {
                 object1.alive = object2.alive = false;
+                Spray(object1.x, object1.y, 100, "#FF0000");
                 object2.team.forEach(function (enemy) {
+                    Spray(enemy.x, enemy.y, 25, "#FF0000");
                     enemy.alive = false;
                 });
                 nextLevel();
             } else {
                 object1.direction.y = 1;
+                object1.fresh = false;
             }
             return true;
         }
@@ -228,6 +317,12 @@ function intersectRect(r1, r2) {
         r2.bottom < r1.top);
 }
 
+function Spray(x, y, num, colour) {
+    for (var i = 0; i < num; i++) {
+        particles.push(new Particle(x, y, {x: (Math.random()-0.5)*32, y: (Math.random()-0.5)*32}, colour));
+    }
+}
+
 // input
 
 document.onkeydown = mod_quizgame_keydown;
@@ -236,7 +331,7 @@ document.onkeyup = mod_quizgame_keyup;
 function mod_quizgame_keydown(e) {
     if ([32, 37, 38, 39, 40].indexOf(e.keyCode)!=-1) {
         e.preventDefault();
-        if (e.keyCode == 32) {
+        if (e.keyCode == 32 && player.alive) {
             gameObjects.push(new Laser("pix/laser.png", player.x, player.y));
         } else if (e.keyCode == 37) {
             player.direction.x = -1;

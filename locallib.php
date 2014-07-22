@@ -57,12 +57,13 @@ function quizgame_addgame($enemies) {
     $display .= "<script>var questions = [\n";
 
     foreach ($questions as $question) {
-        $display .= "{\nquestion: \"" . strip_tags($question->questiontext) . "\",\nanswers: [";
-        foreach ($question->options->answers as $answer) {
-            $display .= "{text: \"" . strip_tags($answer->answer) . "\", fraction: " . $answer->fraction. "},\n";
-            //$display .= "\"" . ($answer->fraction == 1 ? "<strong>" : "") . $answer->answer . ($answer->fraction == 1 ? "</strong>" : "") . "\",\n";
+        if ($question->qtype == "multichoice") {
+            $display .= "{\nquestion: \"" . strip_tags($question->questiontext) . "\",\nanswers: [";
+            foreach ($question->options->answers as $answer) {
+                $display .= "{text: \"" . strip_tags($answer->answer) . "\", fraction: " . $answer->fraction. "},\n";
+            }
+            $display .= "]\n},\n";
         }
-        $display .= "]\n},\n";
     }
 
     $display .= "];</script>";
