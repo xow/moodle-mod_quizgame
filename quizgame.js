@@ -4,10 +4,18 @@ var gameObjects = [];
 var imagesTotal = 0;
 var imagesLoaded = 0;
 var started = 0;
-var player = new Player("pix/ship.png", 0, 0);
+var player;
 var level = -1;
 var displayRect = {x: 0, y: 0, width: 0, height: 0};
 var question = "";
+
+showMenu(false);
+
+function showMenu(secondTime) {
+
+    player = new Player("pix/ship.png", 0, 0);
+
+}
 
 function mod_quizgame_startGame() {
 
@@ -21,9 +29,16 @@ function mod_quizgame_startGame() {
 
     var context = stage.getContext("2d");
 
-    gameObjects.push(player);
+    var planet = new GameObject("pix/planet.png", 0, 0);
+    planet.image.width = displayRect.width;
+    planet.image.height = displayRect.height;
+    planet.direction.y = 1;
+    planet.movespeed.y = 1;
+    particles.push(planet);
+
     player.x = displayRect.width/2;
     player.y = displayRect.height/2;
+    gameObjects.push(player);
 
     nextLevel();
 
@@ -117,14 +132,15 @@ function GameObject(src, x, y) {
     this.direction = {x: 0, y: 0};
     this.movespeed = {x: 5, y: 3};
     this.alive = true;
+    this.decay = .7;
 }
 GameObject.prototype.update = function (bounds) {
     this.velocity.x += this.direction.x*this.movespeed.x;
     this.velocity.y += this.direction.y*this.movespeed.y;
     this.x += this.velocity.x;
     this.y += this.velocity.y;
-    this.velocity.y *= .7;
-    this.velocity.x *= .7;
+    this.velocity.y *= this.decay;
+    this.velocity.x *= this.decay;
 }
 GameObject.prototype.draw = function (context) {
     context.drawImage(this.image, this.x, this.y, this.image.width, this.image.height);
@@ -209,6 +225,7 @@ function Particle(x, y, velocity, colour) {
     this.velocity.y = velocity.y;
     this.aliveTime = 0;
     this.colour = colour;
+    this.decay = 1;
 }
 Particle.prototype.update = function (bounds) {
     GameObject.prototype.update.call(this, bounds);
@@ -234,15 +251,15 @@ function Star(bounds) {
     this.width = 2;
     this.height = 2;
     this.direction.y = 1;
+    this.movespeed.y = 1;
     this.aliveTime = 0;
+    this.decay
 }
 Star.prototype.update = function (bounds) {
     GameObject.prototype.update.call(this, bounds);
     if (this.y > bounds.height) {
         this.alive = false;
     }
-    this.velocity.x = 0;
-    this.velocity.y = this.direction.y*1;
 }
 Star.prototype.draw = function (context) {
     context.fillStyle = "#FFFFFF";
@@ -319,7 +336,7 @@ function intersectRect(r1, r2) {
 
 function Spray(x, y, num, colour) {
     for (var i = 0; i < num; i++) {
-        particles.push(new Particle(x, y, {x: (Math.random()-0.5)*32, y: (Math.random()-0.5)*32}, colour));
+        particles.push(new Particle(x, y, {x: (Math.random()-0.5)*16, y: ((Math.random()-0.5)*16)+3}, colour));
     }
 }
 
@@ -332,7 +349,7 @@ function mod_quizgame_keydown(e) {
     if ([32, 37, 38, 39, 40].indexOf(e.keyCode)!=-1) {
         e.preventDefault();
         if (e.keyCode == 32 && player.alive) {
-            gameObjects.push(new Laser("pix/laser.png", player.x, player.y));
+            gameObjects.unshift(new Laser("pix/laser.png", player.x, player.y));
         } else if (e.keyCode == 37) {
             player.direction.x = -1;
         } else if (e.keyCode == 38) {
