@@ -73,7 +73,9 @@ echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
 
 // game here
 
-echo quizgame_addgame(null);
+echo "<link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>";
+echo quizgame_addgame($context);
+echo "<div class=fontloader>Loading game</div>";
 
 // Finish the page
 echo $OUTPUT->footer();

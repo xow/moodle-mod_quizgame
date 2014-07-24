@@ -8,16 +8,11 @@ var player;
 var level = -1;
 var displayRect = {x: 0, y: 0, width: 0, height: 0};
 var question = "";
+var interval;
 
-showMenu(false);
+interval = setInterval(showMenu, 500);
 
-function showMenu(secondTime) {
-
-    player = new Player("pix/ship.png", 0, 0);
-
-}
-
-function mod_quizgame_startGame() {
+function showMenu() {
 
     var stage = document.getElementById("mod_quizgame_game");
 
@@ -26,6 +21,43 @@ function mod_quizgame_startGame() {
 
     stage.width = displayRect.width;
     stage.height = displayRect.height;
+
+    var context = stage.getContext("2d");
+
+    context.fillStyle = '#FFFFFF';
+    context.font = "18px Audiowide";
+    context.textAlign = 'center';
+    context.fillText("Press space to start", displayRect.width/2, displayRect.height/2);
+
+    clearInterval(interval);
+
+    document.onkeyup = null;
+    document.onkeydown = mod_quizgame_menukeydown;
+}
+
+function startGame() {
+    if (player) {
+        player.alive = true;
+        player.direction.x = 0;
+        player.direction.y = 0;
+        score = 0;
+        gameObjects = []
+        particles = [];
+        gameLoaded();
+        clearInterval(interval);
+    } else {
+        player = new Player("pix/ship.png", 0, 0);
+    }
+}
+
+function endGame() {
+    document.onkeyup = null;
+    document.onkeydown = mod_quizgame_menukeydown;
+}
+
+function gameLoaded() {
+
+    var stage = document.getElementById("mod_quizgame_game");
 
     var context = stage.getContext("2d");
 
@@ -42,7 +74,10 @@ function mod_quizgame_startGame() {
 
     nextLevel();
 
-    setInterval(function() {
+    document.onkeydown = mod_quizgame_keydown;
+    document.onkeyup = mod_quizgame_keyup;
+
+    interval = setInterval(function() {
             mod_quizgame_draw(context, displayRect, gameObjects, particles, question);
             mod_quizgame_update(displayRect, gameObjects, particles);
         }, 40);
@@ -83,16 +118,21 @@ function mod_quizgame_draw(context, displayRect, objects, particles, question) {
         objects[i].draw(context);
     }
 
-    // score
-    context.fillStyle = '#FFFFFF';
-    context.font = "18px Sans";
-    context.fillText("Score: " + score, 5, 20);
-    
-    // question
-    context.fillStyle = '#FFFFFF';
-    context.font = "18px Sans";
-    context.fillText(question, displayRect.width/2, 20);
+    if (player.alive) {
+        context.fillStyle = '#FFFFFF';
+        context.font = "18px Audiowide";
+        context.textAlign = 'left';
+        context.fillText("Score: " + score, 5, 20);
+        context.textAlign = 'center';
+        context.fillText(question, displayRect.width/2, 20);
+    } else {
+        context.fillStyle = '#FFFFFF';
+        context.font = "18px Audiowide";
+        context.textAlign = 'center';
+        context.fillText("Your score was: " + score + ". Press space to restart", displayRect.width/2, displayRect.height/2);
+    }
 }
+
 function mod_quizgame_update(bounds, objects, particles) {
     for (var i = 0; i < particles.length; i++) {
         particles[i].update(bounds);
@@ -120,7 +160,7 @@ function GameObject(src, x, y) {
         this.image.onload = function() {
             imagesLoaded++;
             if (imagesLoaded >= imagesTotal && !started) {
-                mod_quizgame_startGame();
+                gameLoaded();
                 started = true;
             }
         };
@@ -187,15 +227,18 @@ Enemy.prototype.update = function (bounds) {
     if (this.y > bounds.height) {
         this.x = Math.random()*bounds.width;
         this.y = bounds.y-this.image.height;
-        score -= 100;
+        if (player.alive) {
+            score -= 100;
+        }
     }
 }
 Enemy.prototype.draw = function (context) {
     GameObject.prototype.draw.call(this, context);
 
     context.fillStyle = '#FFFFFF';
-    context.font = "15px Sans";
-    context.fillText(this.text, this.x, this.y);
+    context.font = "15px Audiowide";
+    context.textAlign = 'center';
+    context.fillText(this.text, this.x + this.image.width/2, this.y-5);
 }
 
 function Laser(src, x, y) {
@@ -286,8 +329,9 @@ function collide_ordered(object1, object2) {
             right: object2.x+object2.image.width,
             top: object2.y,
             bottom: object2.y+object2.image.height})) {
-            Spray(object2.x, object2.y, 100, "#FFCC00");
+            Spray(object2.x+object2.image.width/2, object2.y+object2.image.height/2, 100, "#FFCC00");
             object1.alive = object2.alive = false;
+            endGame();
             return true;
         }
     }
@@ -312,9 +356,9 @@ function collide_ordered(object1, object2) {
 
             if (object2.fraction >= 1) {
                 object1.alive = object2.alive = false;
-                Spray(object1.x, object1.y, 100, "#FF0000");
+                Spray(object2.x+object2.image.width, object2.y+object2.image.height, 100, "#FF0000");
                 object2.team.forEach(function (enemy) {
-                    Spray(enemy.x, enemy.y, 25, "#FF0000");
+                    Spray(enemy.x+enemy.image.width, enemy.y+enemy.image.height, 25, "#FF0000");
                     enemy.alive = false;
                 });
                 nextLevel();
@@ -342,8 +386,14 @@ function Spray(x, y, num, colour) {
 
 // input
 
-document.onkeydown = mod_quizgame_keydown;
-document.onkeyup = mod_quizgame_keyup;
+function mod_quizgame_menukeydown(e) {
+    if ([32, 37, 38, 39, 40].indexOf(e.keyCode)!=-1) {
+        e.preventDefault();
+        if (e.keyCode == 32) {
+            startGame();
+        }
+    }
+}
 
 function mod_quizgame_keydown(e) {
     if ([32, 37, 38, 39, 40].indexOf(e.keyCode)!=-1) {

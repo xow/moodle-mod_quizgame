@@ -1,3 +1,8 @@
+div.fontloader
+{
+    font-family: 'Audiowide', Sans;
+    visibility:hidden;
+}
 #mod_quizgame_game
 {
     background-color: #000;

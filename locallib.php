@@ -31,21 +31,12 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/questionlib.php');
 
 /**
- * Initialises the game and prints it to the screen
- *
- * @param array $enemies An array of Enemy objects
- * @return object
- */
-function quizgame_startgame($enemies) {
-}
-
-/**
  * Initialises the game and returns its HTML code
  *
- * @param array $enemies An array of Enemy objects
+ * @param context $context The context
  * @return string The HTML code of the game
  */
-function quizgame_addgame($enemies) {
+function quizgame_addgame($context) {
     global $PAGE;
 
     $PAGE->requires->js('/mod/quizgame/quizgame.js');
@@ -57,10 +48,10 @@ function quizgame_addgame($enemies) {
     $display .= "<script>var questions = [\n";
 
     foreach ($questions as $question) {
-        if ($question->qtype == "multichoice") {
-            $display .= "{\nquestion: \"" . strip_tags($question->questiontext) . "\",\nanswers: [";
+        if ($question->qtype == "multichoice" && $question->category != 3) {
+            $display .= "{\nquestion: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\nanswers: [";
             foreach ($question->options->answers as $answer) {
-                $display .= "{text: \"" . strip_tags($answer->answer) . "\", fraction: " . $answer->fraction. "},\n";
+                $display .= "{text: \"" . preg_replace('/\n/', ' ', strip_tags($answer->answer)) . "\", fraction: " . $answer->fraction. "},\n";
             }
             $display .= "]\n},\n";
         }
