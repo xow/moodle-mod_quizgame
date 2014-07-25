@@ -36,19 +36,23 @@ require_once($CFG->libdir . '/questionlib.php');
  * @param context $context The context
  * @return string The HTML code of the game
  */
-function quizgame_addgame($context) {
-    global $PAGE;
+function quizgame_addgame($context, $course) {
+    global $PAGE, $DB;
 
     $PAGE->requires->js('/mod/quizgame/quizgame.js');
 
-    $display = "";
+    $categories = $DB->get_records('question_categories', array('contextid' => $context->get_parent_context()->__get('id')));
+    $category_ids = [];
+    foreach ($categories as $category) {
+        $category_ids[] = $category->id;
+    }
 
     $questions = question_load_questions(null);
 
-    $display .= "<script>var questions = [\n";
+    $display = "<script>var questions = [\n";
 
     foreach ($questions as $question) {
-        if ($question->qtype == "multichoice" && $question->category != 3) {
+        if ($question->qtype == "multichoice" && in_array($question->category, $category_ids)) {
             $display .= "{\nquestion: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\nanswers: [";
             foreach ($question->options->answers as $answer) {
                 $display .= "{text: \"" . preg_replace('/\n/', ' ', strip_tags($answer->answer)) . "\", fraction: " . $answer->fraction. "},\n";
@@ -62,9 +66,6 @@ function quizgame_addgame($context) {
     $display .= "<canvas id=\"mod_quizgame_game\"></canvas>";
 
     return $display;
-}
-
-class Enemy extends stdClass {
 }
 
 /**

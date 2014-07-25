@@ -9,6 +9,7 @@ var level = -1;
 var displayRect = {x: 0, y: 0, width: 0, height: 0};
 var question = "";
 var interval;
+var enemySpeed = 1.5;
 
 interval = setInterval(showMenu, 500);
 
@@ -43,6 +44,7 @@ function startGame() {
         score = 0;
         gameObjects = []
         particles = [];
+        level = -1;
         gameLoaded();
         clearInterval(interval);
     } else {
@@ -86,8 +88,9 @@ function gameLoaded() {
 
 function nextLevel() {
     level++;
-    if (level > questions.length) {
+    if (level >= questions.length) {
         level = 0;
+        enemySpeed *= 1.3;
     }
     question = runLevel(questions, level, displayRect)
 }
@@ -208,8 +211,8 @@ Player.prototype.draw = function (context) {
 
 function Enemy(src, x, y, text, fraction) {
     GameObject.call(this, src, x, y);
-    this.movespeed.y /= 2;
-    this.movespeed.x /= 2;
+    this.movespeed.x = enemySpeed*1.6;
+    this.movespeed.y = enemySpeed;
     this.direction.y = 1;
     this.text = text;
     this.fraction = fraction;
@@ -239,6 +242,34 @@ Enemy.prototype.draw = function (context) {
     context.font = "15px Audiowide";
     context.textAlign = 'center';
     context.fillText(this.text, this.x + this.image.width/2, this.y-5);
+}
+Enemy.prototype.die = function(shot) {
+    this.alive = false;
+    if (shot) {
+        shot.alive = false;
+    }
+
+    if (this.fraction >= 1) {
+        score += this.fraction * 1000;
+        Spray(this.x+this.image.width, this.y+this.image.height, 100, "#FF0000");
+        this.team.forEach(function (enemy) {
+                enemy.die();
+            });
+        nextLevel();
+    } else if (this.fraction > 0.5) {
+        score += this.fraction * 1000;
+        Spray(this.x+this.image.width, this.y+this.image.height, 25, "#FF0000");
+    } else {
+        if (shot) {
+            this.alive = true;
+            shot.alive = true;
+            shot.direction.y = 1;
+            shot.fresh = false;
+            score += (this.fraction-0.5) * 600;
+        } else {
+            Spray(this.x+this.image.width, this.y+this.image.height, 25, "#FF0000");
+        }
+    }
 }
 
 function Laser(src, x, y) {
@@ -294,7 +325,7 @@ function Star(bounds) {
     this.width = 2;
     this.height = 2;
     this.direction.y = 1;
-    this.movespeed.y = 1;
+    this.movespeed.y = 0.5+(Math.random()/2);
     this.aliveTime = 0;
     this.decay
 }
@@ -347,25 +378,9 @@ function collide_ordered(object1, object2) {
             bottom: object2.y+object2.image.height})) {
 
             if (object1.alive && object1.fresh) {
-                if (object2.fraction > 0.5) {
-                    score += object2.fraction * 1000;
-                } else {
-                    score += (object2.fraction-1) * 300;
-                }
+                object2.die(object1);
             }
 
-            if (object2.fraction >= 1) {
-                object1.alive = object2.alive = false;
-                Spray(object2.x+object2.image.width, object2.y+object2.image.height, 100, "#FF0000");
-                object2.team.forEach(function (enemy) {
-                    Spray(enemy.x+enemy.image.width, enemy.y+enemy.image.height, 25, "#FF0000");
-                    enemy.alive = false;
-                });
-                nextLevel();
-            } else {
-                object1.direction.y = 1;
-                object1.fresh = false;
-            }
             return true;
         }
     }
