@@ -45,6 +45,7 @@ function startGame() {
         gameObjects = []
         particles = [];
         level = -1;
+        enemySpeed = .8;
         gameLoaded();
         clearInterval(interval);
     } else {
@@ -220,17 +221,30 @@ function Enemy(src, x, y, text, fraction) {
     this.text = text;
     this.fraction = fraction;
     this.team = [];
-    this.clock = 0;
+    this.movementClock = 0;
+    this.shotClock = (1+Math.random())*30;
 }
 //Enemy.prototype = Object.create(GameObject.prototype);
 Enemy.prototype.update = function (bounds) {
     GameObject.prototype.update.call(this, bounds);
 
-    this.clock--;
+    this.movementClock--;
 
-    if (this.clock <= 0) {
+    if (this.movementClock <= 0) {
         this.direction.x = Math.floor(Math.random()*3)-1;
-        this.clock = 30+(Math.random()*30);
+        this.movementClock = (2+Math.random())*20;
+    }
+
+    this.shotClock -= enemySpeed;
+
+    if (this.shotClock <= 0) {
+        if (this.y < bounds.height*.4) {
+            var laser = new Laser("pix/laser.png", this.x, this.y);
+            laser.direction.y = 1;
+            laser.fresh = false;
+            gameObjects.unshift(laser);
+            this.shotClock = (4+Math.random())*30;
+        }
     }
     
     if (this.x < bounds.x-this.image.width) {
@@ -238,11 +252,16 @@ Enemy.prototype.update = function (bounds) {
     } else if (this.x > bounds.width) {
         this.x = bounds.x-this.image.width;
     }
-    if (this.y > bounds.height+this.image.height) {
-        this.x = Math.random()*bounds.width;
-        this.y = bounds.y-this.image.height;
-        if (player.alive) {
-            score -= 100;
+    if (this.y > bounds.height+this.image.height && this.alive) {
+        this.alive = false;
+        if (this.fraction >= 1) {
+            this.team.forEach(function (enemy) {
+                    enemy.movespeed.y *= 4;
+                });
+            if (player.alive) {
+                score -= 1000;
+                nextLevel();
+            }
         }
     }
 }
@@ -414,6 +433,8 @@ function Spray(x, y, num, colour) {
 
 // input
 
+var canShoot = true;
+
 function mod_quizgame_menukeydown(e) {
     if ([32, 37, 38, 39, 40].indexOf(e.keyCode)!=-1) {
         e.preventDefault();
@@ -426,8 +447,9 @@ function mod_quizgame_menukeydown(e) {
 function mod_quizgame_keydown(e) {
     if ([32, 37, 38, 39, 40].indexOf(e.keyCode)!=-1) {
         e.preventDefault();
-        if (e.keyCode == 32 && player.alive) {
+        if (e.keyCode == 32 && player.alive && canShoot) {
             gameObjects.unshift(new Laser("pix/laser.png", player.x, player.y));
+            canShoot = false;
         } else if (e.keyCode == 37) {
             player.direction.x = -1;
         } else if (e.keyCode == 38) {
@@ -441,7 +463,9 @@ function mod_quizgame_keydown(e) {
 }
 
 function mod_quizgame_keyup(e) {
-    if ([37, 39].indexOf(e.keyCode)!=-1) {
+    if (e.keyCode == 32) {
+        canShoot = true;
+    } else if ([37, 39].indexOf(e.keyCode)!=-1) {
         player.direction.x = 0;
     } else if ([38, 40].indexOf(e.keyCode)!=-1) {
         player.direction.y = 0;
