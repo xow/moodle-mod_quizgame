@@ -9,7 +9,7 @@ var level = -1;
 var displayRect = {x: 0, y: 0, width: 0, height: 0};
 var question = "";
 var interval;
-var enemySpeed = 1.5;
+var enemySpeed = .8;
 
 interval = setInterval(showMenu, 500);
 
@@ -67,7 +67,7 @@ function gameLoaded() {
     planet.image.width = displayRect.width;
     planet.image.height = displayRect.height;
     planet.direction.y = 1;
-    planet.movespeed.y = 1;
+    planet.movespeed.y = .7;
     particles.push(planet);
 
     player.x = displayRect.width/2;
@@ -137,6 +137,9 @@ function mod_quizgame_draw(context, displayRect, objects, particles, question) {
 }
 
 function mod_quizgame_update(bounds, objects, particles) {
+    for (var i = 0; i < 3; i++) {
+        particles.push(new Star(bounds));
+    }
     for (var i = 0; i < particles.length; i++) {
         particles[i].update(bounds);
         if (!particles[i].alive) {
@@ -211,23 +214,31 @@ Player.prototype.draw = function (context) {
 
 function Enemy(src, x, y, text, fraction) {
     GameObject.call(this, src, x, y);
-    this.movespeed.x = enemySpeed*1.6;
-    this.movespeed.y = enemySpeed;
+    this.movespeed.x = enemySpeed*1.3;
+    this.movespeed.y = enemySpeed*(2+Math.random())/3;
     this.direction.y = 1;
     this.text = text;
     this.fraction = fraction;
     this.team = [];
+    this.clock = 0;
 }
 //Enemy.prototype = Object.create(GameObject.prototype);
 Enemy.prototype.update = function (bounds) {
     GameObject.prototype.update.call(this, bounds);
-    particles.push(new Star(bounds));
+
+    this.clock--;
+
+    if (this.clock <= 0) {
+        this.direction.x = Math.floor(Math.random()*3)-1;
+        this.clock = 30+(Math.random()*30);
+    }
+    
     if (this.x < bounds.x-this.image.width) {
         this.x = bounds.width;
     } else if (this.x > bounds.width) {
         this.x = bounds.x-this.image.width;
     }
-    if (this.y > bounds.height) {
+    if (this.y > bounds.height+this.image.height) {
         this.x = Math.random()*bounds.width;
         this.y = bounds.y-this.image.height;
         if (player.alive) {
@@ -244,30 +255,32 @@ Enemy.prototype.draw = function (context) {
     context.fillText(this.text, this.x + this.image.width/2, this.y-5);
 }
 Enemy.prototype.die = function(shot) {
-    this.alive = false;
-    if (shot) {
-        shot.alive = false;
-    }
-
-    if (this.fraction >= 1) {
-        score += this.fraction * 1000;
-        Spray(this.x+this.image.width, this.y+this.image.height, 100, "#FF0000");
-        this.team.forEach(function (enemy) {
-                enemy.die();
-            });
-        nextLevel();
-    } else if (this.fraction > 0.5) {
-        score += this.fraction * 1000;
-        Spray(this.x+this.image.width, this.y+this.image.height, 25, "#FF0000");
-    } else {
+    if (this.alive) {
+        this.alive = false;
         if (shot) {
-            this.alive = true;
-            shot.alive = true;
-            shot.direction.y = 1;
-            shot.fresh = false;
-            score += (this.fraction-0.5) * 600;
+            shot.alive = false;
+        }
+
+        if (this.fraction >= 1) {
+            score += this.fraction * 1000;
+            Spray(this.x+this.image.width, this.y+this.image.height, 200, "#FF0000");
+            this.team.forEach(function (enemy) {
+                        enemy.die();
+                });
+            nextLevel();
+        } else if (this.fraction > 0.5) {
+            score += this.fraction * 1000;
+            Spray(this.x+this.image.width, this.y+this.image.height, 50, "#FF0000");
         } else {
-            Spray(this.x+this.image.width, this.y+this.image.height, 25, "#FF0000");
+            if (shot) {
+                this.alive = true;
+                shot.alive = true;
+                shot.direction.y = 1;
+                shot.fresh = false;
+                score += (this.fraction-0.5) * 600;
+            } else {
+                Spray(this.x+this.image.width, this.y+this.image.height, 50, "#FF0000");
+            }
         }
     }
 }
@@ -325,7 +338,7 @@ function Star(bounds) {
     this.width = 2;
     this.height = 2;
     this.direction.y = 1;
-    this.movespeed.y = 0.5+(Math.random()/2);
+    this.movespeed.y = 0.2+(Math.random()/2);
     this.aliveTime = 0;
     this.decay
 }
@@ -336,7 +349,7 @@ Star.prototype.update = function (bounds) {
     }
 }
 Star.prototype.draw = function (context) {
-    context.fillStyle = "#FFFFFF";
+    context.fillStyle = '#9999AA';
     context.fillRect(this.x, this.y, this.width, this.height);
     context.stroke();
 }
@@ -360,7 +373,7 @@ function collide_ordered(object1, object2) {
             right: object2.x+object2.image.width,
             top: object2.y,
             bottom: object2.y+object2.image.height})) {
-            Spray(object2.x+object2.image.width/2, object2.y+object2.image.height/2, 100, "#FFCC00");
+            Spray(object2.x+object2.image.width/2, object2.y+object2.image.height/2, 200, "#FFCC00");
             object1.alive = object2.alive = false;
             endGame();
             return true;
