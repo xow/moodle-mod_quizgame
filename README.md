@@ -1,5 +1,5 @@
-Pitch
-=====
+Quizventure
+===========
 
 Students procastinating too much? Are they playing games instead of studying? Well now you can motivate them by allowing them to do both at once!
 
@@ -17,3 +17,4 @@ Details and Setup
 It only supports multiple choice questions for now (other questions types wil be ignored).
 
 Just copy the questions into the courses default category, and add the game to your course.
+
