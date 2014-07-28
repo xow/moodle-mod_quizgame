@@ -37,6 +37,8 @@ function showMenu() {
 }
 
 function startGame() {
+    shuffle(questions);
+
     if (player) {
         player.alive = true;
         player.direction.x = 0;
@@ -222,7 +224,7 @@ function Enemy(src, x, y, text, fraction) {
     this.fraction = fraction;
     this.team = [];
     this.movementClock = 0;
-    this.shotClock = (1+Math.random())*30;
+    this.shotClock = (1+Math.random())*40;
 }
 //Enemy.prototype = Object.create(GameObject.prototype);
 Enemy.prototype.update = function (bounds) {
@@ -470,4 +472,26 @@ function mod_quizgame_keyup(e) {
     } else if ([38, 40].indexOf(e.keyCode)!=-1) {
         player.direction.y = 0;
     }
+}
+
+function shuffle(array) {
+  var currentIndex = array.length
+    , temporaryValue
+    , randomIndex
+    ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
 }
