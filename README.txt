@@ -1,48 +1,19 @@
-The following steps should get you up and running with
-this module template code.
+Pitch
+=====
 
-* DO NOT PANIC!
+Students procastinating too much? Are they playing games instead of studying? Well now you can motivate them by allowing them to do both at once!
 
-* Unzip the archive and read this file
+Quizventure is an activity module that loads quiz questions from the course it's added to.
+The possible answers come down as space ships and you have to shoot the correct one.
 
-* Rename the newmodule/ folder to the name of your module (eg "widget").
-  The module folder MUST be lower case and can't contain underscores. You should check the CVS contrib
-  area at http://cvs.moodle.org/contrib/plugins/mod/ to make sure that
-  your name is not already used by an other module. Registering the plugin
-  name @ http://moodle.org/plugins will secure it for you.
+Module Installation
+===================
 
-* Edit all the files in this directory and its subdirectories and change
-  all the instances of the string "newmodule" to your module name
-  (eg "widget"). If you are using Linux, you can use the following command
-  $ find . -type f -exec sed -i 's/newmodule/widget/g' {} \;
-  
-  On a mac, use:
-  $ find . -type f -exec sed -i '' 's/newmodule/widget/g' {} \;
+To install, click "Download ZIP" on the right, then extract the contents into mod/quizgame. Login to your moodle site as admin, go to Site Administration>Notifications and follow the prompts
 
-* Rename the file lang/en/newmodule.php to lang/en/widget.php
-  where "widget" is the name of your module
+Details and Setup
+=================
 
-* Place the widget folder into the /mod folder of the moodle
-  directory.
+It only supports multiple choice questions for now (other questions types wil be ignored).
 
-* Go to Settings > Site Administration > Development > XMLDB editor
-  and modify the module's tables.
-  Make sure, that the web server has write-access to the db/ folder.
-  You need at least one table, even if your module doesn't use it.
-
-* Modify version.php and set the initial version of you module.
-
-* Visit Settings > Site Administration > Notifications, you should find
-  the module's tables successfully created
-
-* Go to Site Administration > Plugins > Activity modules > Manage activities
-  and you should find that this newmodule has been added to the list of
-  installed modules.
-
-* You may now proceed to run your own code in an attempt to develop
-  your module. You will probably want to modify mod_form.php and view.php
-  as a first step. Check db/access.php to add capabilities.
-
-We encourage you to share your code and experience - visit http://moodle.org
-
-Good luck!
+Just copy the questions into the courses default category, and add the game to your course.
