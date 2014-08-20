@@ -28,7 +28,7 @@ function showMenu() {
     context.fillStyle = '#FFFFFF';
     context.font = "18px Audiowide";
     context.textAlign = 'center';
-    context.fillText("Press space to start", displayRect.width/2, displayRect.height/2);
+    context.fillText(M.util.get_string('spacetostart', 'mod_quizgame'), displayRect.width/2, displayRect.height/2);
 
     clearInterval(interval);
 
@@ -44,10 +44,10 @@ function startGame() {
         player.direction.x = 0;
         player.direction.y = 0;
         score = 0;
-        gameObjects = []
+        gameObjects = [];
         particles = [];
         level = -1;
-        enemySpeed = .8;
+        enemySpeed = 0.8;
         gameLoaded();
         clearInterval(interval);
     } else {
@@ -128,14 +128,14 @@ function mod_quizgame_draw(context, displayRect, objects, particles, question) {
         context.fillStyle = '#FFFFFF';
         context.font = "18px Audiowide";
         context.textAlign = 'left';
-        context.fillText("Score: " + score, 5, 20);
+        context.fillText(M.util.get_string('score', 'mod_quizgame', score), 5, 20);
         context.textAlign = 'center';
         context.fillText(question, displayRect.width/2, 20);
     } else {
         context.fillStyle = '#FFFFFF';
         context.font = "18px Audiowide";
         context.textAlign = 'center';
-        context.fillText("Your score was: " + score + ". Press space to restart", displayRect.width/2, displayRect.height/2);
+        context.fillText(M.util.get_string('endofgame', 'mod_quizgame', score), displayRect.width/2, displayRect.height/2);
     }
 }
 
@@ -143,14 +143,14 @@ function mod_quizgame_update(bounds, objects, particles) {
     for (var i = 0; i < 3; i++) {
         particles.push(new Star(bounds));
     }
-    for (var i = 0; i < particles.length; i++) {
+    for (i = 0; i < particles.length; i++) {
         particles[i].update(bounds);
         if (!particles[i].alive) {
             particles.splice(i, 1);
             i--;
         }
     }
-    for (var i = 0; i < objects.length; i++) {
+    for (i = 0; i < objects.length; i++) {
         objects[i].update(bounds);
         for (var j = i+1; j < objects.length; j++) {
             collide(objects[i], objects[j]);

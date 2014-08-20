@@ -39,6 +39,11 @@ require_once($CFG->libdir . '/questionlib.php');
 function quizgame_addgame($context, $course) {
     global $PAGE, $DB;
 
+    $PAGE->requires->strings_for_js(array(
+            'score',
+            'endofgame',
+            'spacetostart'
+        ), 'mod_quizgame');
     $PAGE->requires->js('/mod/quizgame/quizgame.js');
 
     $categories = $DB->get_records('question_categories', array('contextid' => $context->get_parent_context()->__get('id')));

@@ -29,6 +29,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['endofgame'] = 'Your score was: {$a}. Press space to restart';
 $string['modulename_help'] = 'Use the Quizventure module to give the students a fun way of learning';
 $string['modulenameplural'] = 'Quizventure games';
 $string['modulename'] = 'Quizventure';
@@ -38,3 +39,5 @@ $string['quizgamefieldset'] = 'Custom example fieldset';
 $string['quizgamename_help'] = 'What is the name of this Quizventure?';
 $string['quizgamename'] = 'Quizventure name';
 $string['quizgame'] = 'Quizventure';
+$string['score'] = 'Score: {$a}';
+$string['spacetostart'] = 'Press space to start';
