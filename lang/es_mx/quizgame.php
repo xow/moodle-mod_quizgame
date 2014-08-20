@@ -15,26 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * English strings for quizgame
+ * Local language pack from http://127.0.0.1
  *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
- *
- * @package    mod_quizgame
- * @copyright  2011 Your Name
+ * @package    mod
+ * @subpackage quizgame
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename_help'] = 'Use the Quizventure module to give the students a fun way of learning';
-$string['modulenameplural'] = 'Quizventure games';
-$string['modulename'] = 'Quizventure';
-$string['pluginadministration'] = 'Quizventure administration';
-$string['pluginname'] = 'Quizventure';
-$string['quizgamefieldset'] = 'Custom example fieldset';
-$string['quizgamename_help'] = 'What is the name of this Quizventure?';
-$string['quizgamename'] = 'Quizventure name';
-$string['quizgame'] = 'Quizventure';
+$string['modulename'] = 'Examenaventura';
+$string['modulename_help'] = 'Use el módulo Quizventure (Examenaventura) para darle a los estudiantes una forma divertida de aprender.';
+$string['modulenameplural'] = 'Juegos Quizventure (Examenaventura)';
+$string['pluginadministration'] = 'Administración de Quizventure (Examenaventura)';
+$string['pluginname'] = 'Quizventure (Examenaventura)';
+$string['quizgame'] = 'Quizventure (Examenaventura)';
+$string['quizgamefieldset'] = 'Conjunto_de_campos de ejemplo personalizado';
+$string['quizgamename'] = 'Nombre del Quizventure (Examenaventura)';
+$string['quizgamename_help'] = '¿Cual es el nombre de este Quizventure (Examenaventura)';
