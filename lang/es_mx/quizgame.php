@@ -25,6 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['endofgame'] = 'Tu puntuación fue: {$a}. Presiona la barra espaciadora para reiniciar';
 $string['modulename'] = 'Examenaventura';
 $string['modulename_help'] = 'Use el módulo Quizventure (Examenaventura) para darle a los estudiantes una forma divertida de aprender.';
 $string['modulenameplural'] = 'Juegos Quizventure (Examenaventura)';
@@ -34,3 +35,5 @@ $string['quizgame'] = 'Quizventure (Examenaventura)';
 $string['quizgamefieldset'] = 'Conjunto_de_campos de ejemplo personalizado';
 $string['quizgamename'] = 'Nombre del Quizventure (Examenaventura)';
 $string['quizgamename_help'] = '¿Cual es el nombre de este Quizventure (Examenaventura)';
+$string['score'] = 'Puntuación: {$a}';
+$string['spacetostart'] = 'Presione barra espaciadora para iniciar';
