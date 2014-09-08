@@ -39,5 +39,7 @@ $string['quizgamefieldset'] = 'Custom example fieldset';
 $string['quizgamename_help'] = 'What is the name of this Quizventure?';
 $string['quizgamename'] = 'Quizventure name';
 $string['quizgame'] = 'Quizventure';
+$string['quizgame:addinstance'] = 'Add a Quizventure instance';
+$string['quizgame:view'] = 'View Quizventure';
 $string['score'] = 'Score: {$a}';
 $string['spacetostart'] = 'Press space to start';
