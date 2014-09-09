@@ -10,16 +10,37 @@ var displayRect = {x: 0, y: 0, width: 0, height: 0};
 var question = "";
 var interval;
 var enemySpeed = 0.8;
+var mouseDown = false;
+
+function sizeScreen(stage, width, height) {
+    displayRect.width = width || stage.clientWidth;
+    displayRect.height = height || stage.clientHeight;
+
+    stage.width = displayRect.width;
+    stage.height = displayRect.height;
+}
+
+function clearEvents() {
+    document.onkeydown = null;
+    document.onkeyup = null;
+    document.onmousedown = null;
+    document.onmouseup = null;
+    document.onmousemove = null;
+    document.ontouchstart = null;
+    document.ontouchend = null;
+    document.ontouchmove = null;
+}
+
+function menuEvents() {
+    clearEvents();
+    document.onkeydown = mod_quizgame_menukeydown;
+    document.onmouseup = startGame;
+}
 
 function showMenu() {
 
     var stage = document.getElementById("mod_quizgame_game");
-
-    displayRect.width = stage.clientWidth;
-    displayRect.height = stage.clientHeight;
-
-    stage.width = displayRect.width;
-    stage.height = displayRect.height;
+    sizeScreen(stage);
 
     var context = stage.getContext("2d");
 
@@ -30,11 +51,22 @@ function showMenu() {
 
     clearInterval(interval);
 
-    document.onkeyup = null;
-    document.onkeydown = mod_quizgame_menukeydown;
+    menuEvents();
 }
 
 function startGame() {
+    var stage = document.getElementById("mod_quizgame_game");
+    if (stage.requestFullscreen) {
+          stage.requestFullscreen();
+    } else if (stage.msRequestFullscreen) {
+          stage.msRequestFullscreen();
+    } else if (stage.mozRequestFullScreen) {
+          stage.mozRequestFullScreen();
+    } else if (stage.webkitRequestFullscreen) {
+          stage.webkitRequestFullscreen();
+    }
+    sizeScreen(stage, window.screen.width, window.screen.height);
+
     shuffle(questions);
 
     if (player) {
@@ -54,8 +86,7 @@ function startGame() {
 }
 
 function endGame() {
-    document.onkeyup = null;
-    document.onkeydown = mod_quizgame_menukeydown;
+    menuEvents();
 }
 
 function gameLoaded() {
@@ -77,8 +108,14 @@ function gameLoaded() {
 
     nextLevel();
 
-    document.onkeydown = mod_quizgame_keydown;
     document.onkeyup = mod_quizgame_keyup;
+    document.onkeydown = mod_quizgame_keydown;
+    document.onmouseup = mod_quizgame_mouseup;
+    document.onmousedown = mod_quizgame_mousedown;
+    document.onmousemove = mod_quizgame_mousemove;
+    document.ontouchstart = mod_quizgame_touchstart;
+    document.ontouchend = mod_quizgame_mouseup;
+    document.ontouchmove = mod_quizgame_touchmove;
 
     interval = setInterval(function() {
             mod_quizgame_draw(context, displayRect, gameObjects, particles, question);
@@ -195,8 +232,25 @@ GameObject.prototype.draw = function (context) {
 
 function Player(src, x, y) {
     GameObject.call(this, src, x, y);
+    this.mouse = {x: 0, y: 0};
 }
 Player.prototype.update = function (bounds) {
+    if (mouseDown) {
+        if (this.x < this.mouse.x) {
+            player.direction.x = 1;
+        } else if (this.x > this.mouse.x + this.image.width) {
+            player.direction.x = -1;
+        } else {
+            player.direction.x = 0;
+        }
+        if (this.y < this.mouse.y) {
+            player.direction.y = 1;
+        } else if (this.y > this.mouse.y + this.image.height) {
+            player.direction.y = -1;
+        } else {
+            player.direction.y = 0;
+        }
+    }
     GameObject.prototype.update.call(this, bounds);
     if (this.x < bounds.x-this.image.width) {
         this.x = bounds.width;
@@ -231,7 +285,7 @@ Enemy.prototype.update = function (bounds) {
 
     if (this.movementClock <= 0) {
         this.direction.x = Math.floor(Math.random()*3)-1;
-        this.movementClock = (2+Math.random())*20;
+        this.movementClock = (2+Math.random())*40;
     }
 
     this.shotClock -= enemySpeed;
@@ -242,7 +296,7 @@ Enemy.prototype.update = function (bounds) {
             laser.direction.y = 1;
             laser.fresh = false;
             gameObjects.unshift(laser);
-            this.shotClock = (4+Math.random())*30;
+            this.shotClock = (4+Math.random())*60;
         }
     }
     
@@ -468,6 +522,40 @@ function mod_quizgame_keyup(e) {
     } else if ([38, 40].indexOf(e.keyCode) !== -1) {
         player.direction.y = 0;
     }
+}
+
+function mod_quizgame_mousedown(e) {
+    playerWasClicked = 1;
+    if (playerWasClicked && player.alive) {
+        gameObjects.unshift(new Laser("pix/laser.png", player.x, player.y));
+    }
+    if (!mouseDown) {
+        player.mouse.x = e.offsetX;
+        player.mouse.y = e.offsetY;
+        mouseDown = true;
+    }
+}
+
+function mod_quizgame_mouseup(e) {
+    player.direction.x = 0;
+    player.direction.y = 0;
+    mouseDown = false;
+}
+
+function mod_quizgame_mousemove(e) {
+    player.mouse.x = e.offsetX;
+    player.mouse.y = e.offsetY;
+}
+
+function mod_quizgame_touchstart(e) {
+    mouseDown = true;
+    player.mouse.x = e.touches[0].clientX - player.image.width;
+    player.mouse.y = e.touches[0].clientY - player.image.height*3;
+}
+
+function mod_quizgame_touchmove(e) {
+    player.mouse.x = e.touches[0].clientX - player.image.width;
+    player.mouse.y = e.touches[0].clientY - player.image.height*3;
 }
 
 function shuffle(array) {

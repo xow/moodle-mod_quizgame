@@ -29,7 +29,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['endofgame'] = 'Your score was: {$a}. Press space to restart';
+$string['endofgame'] = 'Your score was: {$a}. Press space or click to restart';
 $string['modulename_help'] = 'Use the Quizventure module to give the students a fun way of learning';
 $string['modulenameplural'] = 'Quizventure games';
 $string['modulename'] = 'Quizventure';
@@ -42,4 +42,4 @@ $string['quizgame'] = 'Quizventure';
 $string['quizgame:addinstance'] = 'Add a Quizventure instance';
 $string['quizgame:view'] = 'View Quizventure';
 $string['score'] = 'Score: {$a}';
-$string['spacetostart'] = 'Press space to start';
+$string['spacetostart'] = 'Press space or click to start';
