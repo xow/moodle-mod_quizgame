@@ -12,6 +12,12 @@ var interval;
 var enemySpeed = 0.8;
 var mouseDown = false;
 
+function playSound(sound) {
+    var sound = document.getElementById("mod_quizgame_sound_"+sound);
+    sound.currentTime = 0;
+    sound.play();
+}
+
 function sizeScreen(stage, width, height) {
     displayRect.width = width || stage.clientWidth;
     displayRect.height = height || stage.clientHeight;
@@ -266,6 +272,11 @@ Player.prototype.update = function (bounds) {
 Player.prototype.draw = function (context) {
     GameObject.prototype.draw.call(this, context);
 };
+Player.prototype.Shoot = function () {
+    playSound("laser");
+    gameObjects.unshift(new Laser("pix/laser.png", player.x, player.y));
+    canShoot = false;
+};
 
 function Enemy(src, x, y, text, fraction) {
     GameObject.call(this, src, x, y);
@@ -285,18 +296,19 @@ Enemy.prototype.update = function (bounds) {
 
     if (this.movementClock <= 0) {
         this.direction.x = Math.floor(Math.random()*3)-1;
-        this.movementClock = (2+Math.random())*40;
+        this.movementClock = (2+Math.random())*30;
     }
 
     this.shotClock -= enemySpeed;
 
     if (this.shotClock <= 0) {
-        if (this.y < bounds.height*0.4) {
+        if (this.y < bounds.height*0.6) {
+            playSound("enemylaser");
             var laser = new Laser("pix/laser.png", this.x, this.y);
             laser.direction.y = 1;
             laser.fresh = false;
             gameObjects.unshift(laser);
-            this.shotClock = (4+Math.random())*60;
+            this.shotClock = (1+Math.random())*40;
         }
     }
     
@@ -335,6 +347,7 @@ Enemy.prototype.die = function(shot) {
 
         if (this.fraction >= 1) {
             score += this.fraction * 1000;
+            playSound("explosion");
             spray(this.x+this.image.width, this.y+this.image.height, 200, "#FF0000");
             this.team.forEach(function (enemy) {
                         enemy.die();
@@ -342,9 +355,11 @@ Enemy.prototype.die = function(shot) {
             nextLevel();
         } else if (this.fraction > 0.5) {
             score += this.fraction * 1000;
+            playSound("explosion");
             spray(this.x+this.image.width, this.y+this.image.height, 50, "#FF0000");
         } else {
             if (shot) {
+                playSound("deflect");
                 this.alive = true;
                 shot.alive = true;
                 shot.direction.y = 1;
@@ -444,6 +459,7 @@ function collide_ordered(object1, object2) {
             right: object2.x+object2.image.width,
             top: object2.y,
             bottom: object2.y+object2.image.height})) {
+            playSound("explosion");
             spray(object2.x+object2.image.width/2, object2.y+object2.image.height/2, 200, "#FFCC00");
             object1.alive = object2.alive = false;
             endGame();
@@ -500,8 +516,7 @@ function mod_quizgame_keydown(e) {
     if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
         e.preventDefault();
         if (e.keyCode === 32 && player.alive && canShoot) {
-            gameObjects.unshift(new Laser("pix/laser.png", player.x, player.y));
-            canShoot = false;
+            player.Shoot();
         } else if (e.keyCode === 37) {
             player.direction.x = -1;
         } else if (e.keyCode === 38) {
@@ -527,7 +542,7 @@ function mod_quizgame_keyup(e) {
 function mod_quizgame_mousedown(e) {
     playerWasClicked = 1;
     if (playerWasClicked && player.alive) {
-        gameObjects.unshift(new Laser("pix/laser.png", player.x, player.y));
+        player.Shoot();
     }
     if (!mouseDown) {
         player.mouse.x = e.offsetX;

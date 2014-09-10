@@ -68,7 +68,19 @@ function quizgame_addgame($context, $course) {
 
     $display .= "];</script>";
 
-    $display .= "<canvas id=\"mod_quizgame_game\"></canvas>";
+    $display .= '<canvas id="mod_quizgame_game"></canvas>';
+    $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">'.
+                '<source src="sound/Laser.wav" type="audio/wav" />'.
+                '</audio>';
+    $display .= '<audio id="mod_quizgame_sound_explosion" preload="auto">'.
+                '<source src="sound/Explosion.wav" type="audio/wav" />'.
+                '</audio>';
+    $display .= '<audio id="mod_quizgame_sound_deflect" preload="auto">'.
+                '<source src="sound/Deflect.wav" type="audio/wav" />'.
+                '</audio>';
+    $display .= '<audio id="mod_quizgame_sound_enemylaser" preload="auto">'.
+                '<source src="sound/EnemyLaser.wav" type="audio/wav" />'.
+                '</audio>';
 
     return $display;
 }
