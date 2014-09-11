@@ -1,5 +1,6 @@
 M.mod_quizgame = (function(){
 
+    var stage;
     var score = 0;
     var particles = [];
     var gameObjects = [];
@@ -47,7 +48,9 @@ M.mod_quizgame = (function(){
 
     function showMenu() {
 
-        var stage = document.getElementById("mod_quizgame_game");
+        clearInterval(interval);
+
+        stage = document.getElementById("mod_quizgame_game");
         sizeScreen(stage);
 
         var context = stage.getContext("2d");
@@ -55,15 +58,16 @@ M.mod_quizgame = (function(){
         context.fillStyle = '#FFFFFF';
         context.font = "18px Audiowide";
         context.textAlign = 'center';
-        context.fillText(M.util.get_string('spacetostart', 'mod_quizgame'), displayRect.width/2, displayRect.height/2);
 
-        clearInterval(interval);
-
-        menuEvents();
+        if (questions !== null && questions.length > 0) {
+            context.fillText(M.util.get_string('spacetostart', 'mod_quizgame'), displayRect.width/2, displayRect.height/2);
+            menuEvents();
+        } else {
+            context.fillText(M.util.get_string('emptyquiz', 'mod_quizgame'), displayRect.width/2, displayRect.height/2);
+        }
     }
 
     function startGame() {
-        var stage = document.getElementById("mod_quizgame_game");
         if (stage.requestFullscreen) {
               stage.requestFullscreen();
         } else if (stage.msRequestFullscreen) {
@@ -98,8 +102,6 @@ M.mod_quizgame = (function(){
     }
 
     function gameLoaded() {
-
-        var stage = document.getElementById("mod_quizgame_game");
 
         var context = stage.getContext("2d");
 

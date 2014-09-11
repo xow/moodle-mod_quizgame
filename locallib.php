@@ -41,6 +41,7 @@ function quizgame_addgame($context, $course) {
 
     $PAGE->requires->strings_for_js(array(
             'score',
+            'emptyquiz',
             'endofgame',
             'spacetostart'
         ), 'mod_quizgame');
