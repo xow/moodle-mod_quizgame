@@ -43,7 +43,7 @@ M.mod_quizgame = (function(){
     function menuEvents() {
         clearEvents();
         document.onkeydown = menukeydown;
-        document.onmouseup = startGame;
+        document.onmouseup = menumousedown;
     }
 
     function showMenu() {
@@ -516,6 +516,12 @@ M.mod_quizgame = (function(){
         }
     }
 
+    function menumousedown(e) {
+        if (e.target === stage) {
+            startGame();
+        }
+    }
+
     function keydown(e) {
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
@@ -544,14 +550,16 @@ M.mod_quizgame = (function(){
     }
 
     function mousedown(e) {
-        playerWasClicked = 1;
-        if (playerWasClicked && player.alive) {
-            player.Shoot();
-        }
-        if (!mouseDown) {
-            player.mouse.x = e.offsetX;
-            player.mouse.y = e.offsetY;
-            mouseDown = true;
+        if (e.target === stage) {
+            playerWasClicked = 1;
+            if (playerWasClicked && player.alive) {
+                player.Shoot();
+            }
+            if (!mouseDown) {
+                player.mouse.x = e.offsetX;
+                player.mouse.y = e.offsetY;
+                mouseDown = true;
+            }
         }
     }
 
