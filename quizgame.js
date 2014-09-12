@@ -514,6 +514,12 @@ M.mod_quizgame = (function(){
                 return true;
             }
         }
+        if (object1 instanceof Player && object2 instanceof Enemy) {
+            if (objectsIntersect(object1, object2)) {
+                player.die(object1);
+                return true;
+            }
+        }
     }
 
     function objectsIntersect(object1, object2) {
