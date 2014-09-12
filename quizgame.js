@@ -572,7 +572,7 @@ M.mod_quizgame = (function(){
         }
     }
 
-    function mouseup(e) {
+    function mouseup() {
         player.direction.x = 0;
         player.direction.y = 0;
         mouseDown = false;
@@ -584,14 +584,15 @@ M.mod_quizgame = (function(){
     }
 
     function touchstart(e) {
-        mouseDown = true;
-        player.mouse.x = e.touches[0].clientX - player.image.width;
-        player.mouse.y = e.touches[0].clientY - player.image.height*3;
+        if (e.target === stage) {
+            mouseDown = true;
+            touchmove(e);
+        }
     }
 
     function touchmove(e) {
-        player.mouse.x = e.touches[0].clientX - player.image.width;
-        player.mouse.y = e.touches[0].clientY - player.image.height*3;
+        player.mouse.x = e.touches[0].clientX;
+        player.mouse.y = e.touches[0].clientY - player.image.height;
     }
 
     function shuffle(array) {
