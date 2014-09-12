@@ -15,6 +15,7 @@ M.mod_quizgame = (function(){
     var question = "";
     var interval;
     var enemySpeed;
+    var touchDown = false;
     var mouseDown = false;
 
     function playSound(soundName) {
@@ -125,6 +126,8 @@ M.mod_quizgame = (function(){
         particles = [];
         level = -1;
         enemySpeed = 0.8;
+        touchDown = false;
+        mouseDown = false;
 
         player = new Player("pix/ship.png", 0, 0);
         player.x = displayRect.width/2;
@@ -146,7 +149,7 @@ M.mod_quizgame = (function(){
         document.onmousedown = mousedown;
         document.onmousemove = mousemove;
         document.ontouchstart = touchstart;
-        document.ontouchend = mouseup;
+        document.ontouchend = touchend;
         document.ontouchmove = touchmove;
 
     }
@@ -294,7 +297,7 @@ M.mod_quizgame = (function(){
     }
     Player.prototype = Object.create(GameObject.prototype);
     Player.prototype.update = function (bounds) {
-        if (mouseDown) {
+        if (mouseDown || touchDown) {
             if (this.x < this.mouse.x - (this.image.width)) {
                 player.direction.x = 1;
             } else if (this.x > this.mouse.x) {
@@ -606,10 +609,22 @@ M.mod_quizgame = (function(){
     }
 
     function touchstart(e) {
-        if (e.target === stage) {
-            mouseDown = true;
-            touchmove(e);
+        if (e.target === stage ) {
+            if (player.alive && e.touches.length > 1) {
+                player.Shoot();
+            } else {
+                touchDown = true;
+                touchmove(e);
+            }
         }
+    }
+
+    function touchend(e) {
+        if (e.touches.length === 0) {
+            touchDown = false;
+        }
+        player.direction.x = 0;
+        player.direction.y = 0;
     }
 
     function touchmove(e) {
