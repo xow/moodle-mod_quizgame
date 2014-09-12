@@ -301,10 +301,10 @@ M.mod_quizgame = (function(){
         } else if (this.x > bounds.width) {
             this.x = bounds.x-this.image.width;
         }
-        if (this.y < bounds.y-this.image.height) {
-            this.y = bounds.height;
-        } else if (this.y > bounds.height) {
-            this.y = bounds.y-this.image.height;
+        if (this.y < bounds.y) {
+            this.y = bounds.y;
+        } else if (this.y > bounds.height-this.image.height) {
+            this.y = bounds.height-this.image.height;
         }
     };
     Player.prototype.Shoot = function () {
