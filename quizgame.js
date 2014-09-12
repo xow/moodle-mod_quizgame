@@ -207,6 +207,33 @@ M.mod_quizgame = (function(){
         }
     }
 
+    function Rectangle(left, top, width, height)
+    {
+        this.left = left || 0;
+        this.top = top || 0;
+        this.width = width || 0;
+        this.height = height || 0;
+    }
+    Rectangle.prototype.right = function () {
+        return this.left + this.width;
+    };
+    Rectangle.prototype.bottom = function () {
+        return this.top + this.height;
+    };
+    Rectangle.prototype.Contains = function (point) {
+        return point.x > this.left && 
+            point.x < this.right() && 
+            point.y > this.top &&
+            point.y < this.bottom();
+    };
+    Rectangle.prototype.Intersect = function (rectangle) {
+        var retval = !(rectangle.left > this.right() || 
+            rectangle.right() < this.left || 
+            rectangle.top > this.bottom() ||
+            rectangle.bottom() < this.top);
+        return retval;
+    };
+
     function GameObject(src, x, y) {
         if (src !== null) {
             this.image = new Image();
@@ -239,23 +266,30 @@ M.mod_quizgame = (function(){
     GameObject.prototype.draw = function (context) {
         context.drawImage(this.image, this.x, this.y, this.image.width, this.image.height);
     };
+    GameObject.prototype.getRect = function () {
+        return new Rectangle(this.x, this.y, this.image.width, this.image.height);
+    };
+    GameObject.prototype.die = function () {
+        this.alive = false;
+    };
 
     function Player(src, x, y) {
         GameObject.call(this, src, x, y);
         this.mouse = {x: 0, y: 0};
     }
+    Player.prototype = Object.create(GameObject.prototype);
     Player.prototype.update = function (bounds) {
         if (mouseDown) {
-            if (this.x < this.mouse.x) {
+            if (this.x < this.mouse.x - (this.image.width)) {
                 player.direction.x = 1;
-            } else if (this.x > this.mouse.x + this.image.width) {
+            } else if (this.x > this.mouse.x) {
                 player.direction.x = -1;
             } else {
                 player.direction.x = 0;
             }
-            if (this.y < this.mouse.y) {
+            if (this.y < this.mouse.y - (this.image.height)) {
                 player.direction.y = 1;
-            } else if (this.y > this.mouse.y + this.image.height) {
+            } else if (this.y > this.mouse.y) {
                 player.direction.y = -1;
             } else {
                 player.direction.y = 0;
@@ -273,13 +307,16 @@ M.mod_quizgame = (function(){
             this.y = bounds.y-this.image.height;
         }
     };
-    Player.prototype.draw = function (context) {
-        GameObject.prototype.draw.call(this, context);
-    };
     Player.prototype.Shoot = function () {
         playSound("laser");
         gameObjects.unshift(new Laser("pix/laser.png", player.x, player.y));
         canShoot = false;
+    };
+    Player.prototype.die = function() {
+        GameObject.prototype.die.call(this);
+        playSound("explosion");
+        spray(this.x+this.image.width/2, this.y+this.image.height/2, 200, "#FFCC00");
+        endGame();
     };
 
     function Enemy(src, x, y, text, fraction) {
@@ -293,6 +330,7 @@ M.mod_quizgame = (function(){
         this.movementClock = 0;
         this.shotClock = (1+Math.random())*40;
     }
+    Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function (bounds) {
         GameObject.prototype.update.call(this, bounds);
 
@@ -342,37 +380,27 @@ M.mod_quizgame = (function(){
         context.textAlign = 'center';
         context.fillText(this.text, this.x + this.image.width/2, this.y-5);
     };
-    Enemy.prototype.die = function(shot) {
-        if (this.alive) {
-            this.alive = false;
-            if (shot) {
-                shot.alive = false;
-            }
-
-            if (this.fraction >= 1) {
-                score += this.fraction * 1000;
-                playSound("explosion");
-                spray(this.x+this.image.width, this.y+this.image.height, 200, "#FF0000");
-                this.team.forEach(function (enemy) {
-                            enemy.die();
-                    });
-                nextLevel();
-            } else if (this.fraction > 0.5) {
-                score += this.fraction * 1000;
-                playSound("explosion");
-                spray(this.x+this.image.width, this.y+this.image.height, 50, "#FF0000");
-            } else {
-                if (shot) {
-                    playSound("deflect");
-                    this.alive = true;
-                    shot.alive = true;
-                    shot.direction.y = 1;
-                    shot.fresh = false;
-                    score += (this.fraction-0.5) * 600;
-                } else {
-                    spray(this.x+this.image.width, this.y+this.image.height, 50, "#FF0000");
-                }
-            }
+    Enemy.prototype.die = function() {
+        GameObject.prototype.die.call(this);
+        if (this.fraction >= 1) {
+            this.team.forEach(function (enemy) {
+                    if (enemy.alive) {
+                        enemy.die();
+                    }
+                });
+            nextLevel();
+        }
+        spray(this.x+this.image.width, this.y+this.image.height, 50+(this.fraction*150), "#FF0000");
+        score += this.fraction * 1000;
+        playSound("explosion");
+    };
+    Enemy.prototype.gotShot = function(shot) {
+        if (this.fraction > 0) {
+            shot.die();
+            this.die();
+        } else {
+            score += (this.fraction-0.5) * 600;
+            shot.deflect();
         }
     };
 
@@ -381,6 +409,7 @@ M.mod_quizgame = (function(){
         this.direction.y = -1;
         this.fresh = true;
     }
+    Laser.prototype = Object.create(GameObject.prototype);
     Laser.prototype.update = function (bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.x < bounds.x-this.image.width ||
@@ -391,8 +420,10 @@ M.mod_quizgame = (function(){
         }
         this.velocity.y = 24 * this.direction.y;
     };
-    Laser.prototype.draw = function (context) {
-        GameObject.prototype.draw.call(this, context);
+    Laser.prototype.deflect = function () {
+        this.direction.y *= -1;
+        this.fresh = !this.fresh;
+        playSound("deflect");
     };
 
     function Particle(x, y, velocity, colour) {
@@ -405,6 +436,7 @@ M.mod_quizgame = (function(){
         this.colour = colour;
         this.decay = 1;
     }
+    Particle.prototype = Object.create(GameObject.prototype);
     Particle.prototype.update = function (bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.x < bounds.x-this.width ||
@@ -417,6 +449,9 @@ M.mod_quizgame = (function(){
         if (this.aliveTime > (Math.random()*15)+5) {
             this.alive = false;
         }
+    };
+    Particle.prototype.getRect = function () {
+        return new Rectangle(this.x, this.y, this.width, this.height);
     };
     Particle.prototype.draw = function (context) {
         context.fillStyle = this.colour;
@@ -432,6 +467,7 @@ M.mod_quizgame = (function(){
         this.movespeed.y = 0.2+(Math.random()/2);
         this.aliveTime = 0;
     }
+    Star.prototype = Object.create(GameObject.prototype);
     Star.prototype.update = function (bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.y > bounds.height) {
@@ -445,56 +481,29 @@ M.mod_quizgame = (function(){
     };
 
     function collide(object1, object2) {
-        if (collide_ordered(object1, object2)) {
-            return true;
-        } else {
-            return collide_ordered(object2, object1);
-        }
+        return object1.alive && object2.alive && (collide_ordered(object1, object2) || collide_ordered(object2, object1));
     }
 
     function collide_ordered(object1, object2) {
         if (object1 instanceof Laser && object2 instanceof Player) {
-            if (!object1.fresh && intersectRect(
-                {left: object1.x,
-                right: object1.x+object1.image.width,
-                top: object1.y,
-                bottom: object1.y+object1.image.height},
-                {left: object2.x,
-                right: object2.x+object2.image.width,
-                top: object2.y,
-                bottom: object2.y+object2.image.height})) {
-                playSound("explosion");
-                spray(object2.x+object2.image.width/2, object2.y+object2.image.height/2, 200, "#FFCC00");
-                object1.alive = object2.alive = false;
-                endGame();
+            if (!object1.fresh && objectsIntersect(object1, object2)) {
+                object1.die();
+                object2.die();
                 return true;
             }
         }
         if (object1 instanceof Laser && object2 instanceof Enemy) {
-            if (intersectRect(
-                {left: object1.x,
-                right: object1.x+object1.image.width,
-                top: object1.y,
-                bottom: object1.y+object1.image.height},
-                {left: object2.x,
-                right: object2.x+object2.image.width,
-                top: object2.y,
-                bottom: object2.y+object2.image.height})) {
-
-                if (object1.alive && object1.fresh) {
-                    object2.die(object1);
-                }
-
+            if (object1.fresh && objectsIntersect(object1, object2)) {
+                object2.gotShot(object1);
                 return true;
             }
         }
     }
 
-    function intersectRect(r1, r2) {
-        return !(r2.left > r1.right || 
-            r2.right < r1.left || 
-            r2.top > r1.bottom ||
-            r2.bottom < r1.top);
+    function objectsIntersect(object1, object2) {
+        var rect1 = object1.getRect();
+        var rect2 = object2.getRect();
+        return rect1.Intersect(rect2);
     }
 
     function spray(x, y, num, colour) {
@@ -551,7 +560,7 @@ M.mod_quizgame = (function(){
 
     function mousedown(e) {
         if (e.target === stage) {
-            playerWasClicked = 1;
+            playerWasClicked = player.getRect().Contains({x: e.offsetX, y: e.offsetY});
             if (playerWasClicked && player.alive) {
                 player.Shoot();
             }
