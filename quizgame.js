@@ -4,15 +4,17 @@ M.mod_quizgame = (function(){
     var score = 0;
     var particles = [];
     var gameObjects = [];
-    var imagesTotal = 0;
+    var images = ['pix/enemy.png', 'pix/ship.png', 'pix/laser.png', 'pix/icon.gif', 'pix/enemylaser.png', 'pix/planet.png'];
     var imagesLoaded = 0;
-    var started = 0;
+    var loaded = false;
+    var playing = false;
     var player;
+    var planet;
     var level = -1;
     var displayRect = {x: 0, y: 0, width: 0, height: 0};
     var question = "";
     var interval;
-    var enemySpeed = 0.8;
+    var enemySpeed;
     var mouseDown = false;
 
     function playSound(soundName) {
@@ -67,7 +69,7 @@ M.mod_quizgame = (function(){
         }
     }
 
-    function startGame() {
+    function loadGame() {
         if (stage.requestFullscreen) {
               stage.requestFullscreen();
         } else if (stage.msRequestFullscreen) {
@@ -81,19 +83,20 @@ M.mod_quizgame = (function(){
 
         shuffle(questions);
 
-        if (player) {
-            player.alive = true;
-            player.direction.x = 0;
-            player.direction.y = 0;
-            score = 0;
-            gameObjects = [];
-            particles = [];
-            level = -1;
-            enemySpeed = 0.8;
-            gameLoaded();
-            clearInterval(interval);
+        if (!loaded) {
+            images.forEach(function(src) {
+                var image = new Image();
+                image.src = src;
+                image.onload = function() {
+                    imagesLoaded++;
+                    if (imagesLoaded >= images.length) {
+                        gameLoaded();
+                    }
+                };
+            });
+            loaded = true;
         } else {
-            player = new Player("pix/ship.png", 0, 0);
+            startGame();
         }
     }
 
@@ -103,18 +106,37 @@ M.mod_quizgame = (function(){
 
     function gameLoaded() {
 
+        playing = true;
+
         var context = stage.getContext("2d");
 
-        var planet = new GameObject("pix/planet.png", 0, 0);
+        interval = setInterval(function() {
+                draw(context, displayRect, gameObjects, particles, question);
+                update(displayRect, gameObjects, particles);
+            }, 40);
+
+        startGame();
+    }
+
+    function startGame() { 
+
+        score = 0;
+        gameObjects = [];
+        particles = [];
+        level = -1;
+        enemySpeed = 0.8;
+
+        player = new Player("pix/ship.png", 0, 0);
+        player.x = displayRect.width/2;
+        player.y = displayRect.height/2;
+        gameObjects.push(player);
+
+        planet = new GameObject("pix/planet.png", 0, 0);
         planet.image.width = displayRect.width;
         planet.image.height = displayRect.height;
         planet.direction.y = 1;
         planet.movespeed.y = 0.7;
         particles.push(planet);
-
-        player.x = displayRect.width/2;
-        player.y = displayRect.height/2;
-        gameObjects.push(player);
 
         nextLevel();
 
@@ -126,11 +148,6 @@ M.mod_quizgame = (function(){
         document.ontouchstart = touchstart;
         document.ontouchend = mouseup;
         document.ontouchmove = touchmove;
-
-        interval = setInterval(function() {
-                draw(context, displayRect, gameObjects, particles, question);
-                update(displayRect, gameObjects, particles);
-            }, 40);
 
     }
 
@@ -236,16 +253,7 @@ M.mod_quizgame = (function(){
 
     function GameObject(src, x, y) {
         if (src !== null) {
-            this.image = new Image();
-            imagesTotal++;
-            this.image.onload = function() {
-                imagesLoaded++;
-                if (imagesLoaded >= imagesTotal && !started) {
-                    gameLoaded();
-                    started = true;
-                }
-            };
-            this.image.src = src;
+            this.image = this.loadImage(src);
         }
         this.x = x;
         this.y = y;
@@ -255,6 +263,13 @@ M.mod_quizgame = (function(){
         this.alive = true;
         this.decay = 0.7;
     }
+    GameObject.prototype.loadImage = function (src) {
+        if (!this.image) {
+            this.image = new Image();
+        }
+        this.image.src = src;
+        return this.image;
+    };
     GameObject.prototype.update = function () {
         this.velocity.x += this.direction.x*this.movespeed.x;
         this.velocity.y += this.direction.y*this.movespeed.y;
@@ -309,7 +324,7 @@ M.mod_quizgame = (function(){
     };
     Player.prototype.Shoot = function () {
         playSound("laser");
-        gameObjects.unshift(new Laser("pix/laser.png", player.x, player.y));
+        gameObjects.unshift(new Laser(player.x, player.y, true));
         canShoot = false;
     };
     Player.prototype.die = function() {
@@ -346,9 +361,9 @@ M.mod_quizgame = (function(){
         if (this.shotClock <= 0) {
             if (this.y < bounds.height*0.6) {
                 playSound("enemylaser");
-                var laser = new Laser("pix/laser.png", this.x, this.y);
+                var laser = new Laser(this.x, this.y);
                 laser.direction.y = 1;
-                laser.fresh = false;
+                laser.friendly = false;
                 gameObjects.unshift(laser);
                 this.shotClock = (1+Math.random())*40;
             }
@@ -404,10 +419,10 @@ M.mod_quizgame = (function(){
         }
     };
 
-    function Laser(src, x, y) {
-        GameObject.call(this, src, x, y);
+    function Laser(x, y, friendly) {
+        GameObject.call(this, friendly ? "pix/laser.png" : "pix/enemylaser.png", x, y);
         this.direction.y = -1;
-        this.fresh = true;
+        this.friendly = friendly ? 1 : 0;
     }
     Laser.prototype = Object.create(GameObject.prototype);
     Laser.prototype.update = function (bounds) {
@@ -421,8 +436,9 @@ M.mod_quizgame = (function(){
         this.velocity.y = 24 * this.direction.y;
     };
     Laser.prototype.deflect = function () {
+        this.image = this.loadImage("pix/enemylaser.png");
         this.direction.y *= -1;
-        this.fresh = !this.fresh;
+        this.friendly = !this.friendly;
         playSound("deflect");
     };
 
@@ -486,14 +502,14 @@ M.mod_quizgame = (function(){
 
     function collide_ordered(object1, object2) {
         if (object1 instanceof Laser && object2 instanceof Player) {
-            if (!object1.fresh && objectsIntersect(object1, object2)) {
+            if (!object1.friendly && objectsIntersect(object1, object2)) {
                 object1.die();
                 object2.die();
                 return true;
             }
         }
         if (object1 instanceof Laser && object2 instanceof Enemy) {
-            if (object1.fresh && objectsIntersect(object1, object2)) {
+            if (object1.friendly && objectsIntersect(object1, object2)) {
                 object2.gotShot(object1);
                 return true;
             }
@@ -520,14 +536,14 @@ M.mod_quizgame = (function(){
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
             if (e.keyCode === 32) {
-                startGame();
+                loadGame();
             }
         }
     }
 
     function menumousedown(e) {
         if (e.target === stage) {
-            startGame();
+            loadGame();
         }
     }
 
