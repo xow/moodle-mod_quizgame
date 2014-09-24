@@ -239,25 +239,6 @@ function quizgame_scale_used($quizgameid, $scaleid) {
 }
 
 /**
- * Checks if scale is being used by any instance of quizgame.
- *
- * This is used to find out if scale used anywhere.
- *
- * @param $scaleid int
- * @return boolean true if the scale is used by any quizgame instance
- */
-function quizgame_scale_used_anywhere($scaleid) {
-    global $DB;
-
-    /** @example */
-    if ($scaleid and $DB->record_exists('quizgame', array('grade' => -$scaleid))) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
  * Creates or updates grade item for the give quizgame instance
  *
  * Needed by grade_update_mod_grades() in lib/gradelib.php
