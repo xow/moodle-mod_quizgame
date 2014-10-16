@@ -184,7 +184,6 @@ function quizgame_get_recent_mod_activity(&$activities, &$index, $timestart, $co
 
 /**
  * Prints single activity item prepared by {@see quizgame_get_recent_mod_activity()}
-
  * @return void
  */
 function quizgame_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
