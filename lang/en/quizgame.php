@@ -44,3 +44,4 @@ $string['quizgame:addinstance'] = 'Add a Quizventure instance';
 $string['quizgame:view'] = 'View Quizventure';
 $string['score'] = 'Score: {$a}';
 $string['spacetostart'] = 'Press space or click to start';
+$string['highscore'] = 'Quizventure highscore';
