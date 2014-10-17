@@ -30,7 +30,7 @@ function xmldb_quizgame_uninstall() {
     global $DB, $CFG;
     require_once($CFG->dirroot.'/mod/quizgame/lib.php');
     // remove the category
-    $strhighscore = get_string('highscore', 'mod_quizgame');
+    $strhighscore = get_string('modulename', 'mod_quizgame');
     if ($DB->count_records('user_info_category', array('name'=>$strhighscore))) {
         $DB->delete_records('user_info_category', array('name'=>$strhighscore));
     }

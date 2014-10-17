@@ -33,7 +33,7 @@ function xmldb_quizgame_install() {
     global $DB, $CFG;
     require_once($CFG->dirroot.'/mod/quizgame/lib.php');
     //check or add the category
-    $strhighscore = get_string('highscore', 'mod_quizgame');
+    $strhighscore = get_string('modulename', 'mod_quizgame');
     if (!$category = $DB->get_record('user_info_category', array('name'=>$strhighscore))) {
         $sql = 'SELECT MAX(sortorder) FROM {user_info_category}';
         if ($sort = $DB->get_record_sql($sql)) {
