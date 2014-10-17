@@ -34,7 +34,7 @@ function xmldb_quizgame_install() {
     require_once($CFG->dirroot.'/mod/quizgame/lib.php');
     //check or add the category
     $strhighscore = get_string('highscore', 'mod_quizgame');
-    if (!$category = $DB->get_record('user_info_category', array('shortname'=>'quizgame_highscore'))) {
+    if (!$category = $DB->get_record('user_info_category', array('name'=>$strhighscore))) {
         $sql = 'SELECT MAX(sortorder) FROM {user_info_category}';
         if ($sort = $DB->get_record_sql($sql)) {
             $sortorder = $sort->max;
@@ -47,7 +47,7 @@ function xmldb_quizgame_install() {
         $category->id = $DB->insert_record('user_info_category', $category);
     }
     //check or add the user profile field
-    if (!$DB->count_records('user_info_field', array('shortname'=>'profilevisibility'))) {
+    if (!$DB->count_records('user_info_field', array('shortname'=>'quizgame_highscore'))) {
         $field = new StdClass;
         $field->shortname = 'quizgame_highscore';
         $field->name = $strhighscore;
