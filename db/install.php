@@ -51,7 +51,7 @@ function xmldb_quizgame_install() {
         $field = new StdClass;
         $field->shortname = 'quizgame_highscore';
         $field->name = $strhighscore;
-        $field->datatype = 'int';
+        $field->datatype = 'text';
         $field->description = 'The highest score that the user has gotten in any quizventure game';
         $field->descriptionformat = 1;
         $field->categoryid = $category->id;
@@ -61,7 +61,7 @@ function xmldb_quizgame_install() {
         $field->visible = 1;
         $field->forceunique = 0;
         $field->signup = 0;
-        $field->defaultdata = 0;
+        $field->defaultdata = '0';
         $field->defaultdataformat = 0;
         $DB->insert_record('user_info_field', $field);
     }
