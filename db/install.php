@@ -30,41 +30,6 @@
  * @see upgrade_plugins_modules()
  */
 function xmldb_quizgame_install() {
-    global $DB, $CFG;
-    require_once($CFG->dirroot.'/mod/quizgame/lib.php');
-    //check or add the category
-    $strhighscore = get_string('modulename', 'mod_quizgame');
-    if (!$category = $DB->get_record('user_info_category', array('name'=>$strhighscore))) {
-        $sql = 'SELECT MAX(sortorder) FROM {user_info_category}';
-        if ($sort = $DB->get_record_sql($sql)) {
-            $sortorder = $sort->max;
-        } else {
-            $sortorder = 0;
-        }
-        $category = new StdClass;
-        $category->name = $strhighscore;
-        $category->sortorder = $sortorder + 1;
-        $category->id = $DB->insert_record('user_info_category', $category);
-    }
-    //check or add the user profile field
-    if (!$DB->count_records('user_info_field', array('shortname'=>'quizgame_highscore'))) {
-        $field = new StdClass;
-        $field->shortname = 'quizgame_highscore';
-        $field->name = $strhighscore;
-        $field->datatype = 'text';
-        $field->description = 'The highest score that the user has gotten in any quizventure game';
-        $field->descriptionformat = 1;
-        $field->categoryid = $category->id;
-        $field->sortorder = 1;
-        $field->required = 0;
-        $field->locked = 0;
-        $field->visible = 1;
-        $field->forceunique = 0;
-        $field->signup = 0;
-        $field->defaultdata = '0';
-        $field->defaultdataformat = 0;
-        $DB->insert_record('user_info_field', $field);
-    }
 }
 
 /**
