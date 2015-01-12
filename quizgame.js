@@ -17,6 +17,8 @@ M.mod_quizgame = (function(){
     var enemySpeed;
     var touchDown = false;
     var mouseDown = false;
+    var currentTeam = [];
+    var currentPointsLeft = 0;
 
     function playSound(soundName) {
         var soundElement = document.getElementById("mod_quizgame_sound_"+soundName);
@@ -163,18 +165,18 @@ M.mod_quizgame = (function(){
         question = runLevel(questions, level, displayRect);
     }
     function runLevel(questions, level, bounds) {
-        var team = [];
-        var leader;
+        currentTeam = [];
+        currentPointsLeft = 0;
         questions[level].answers.forEach(function(answer) {
             var enemy = new Enemy("pix/enemy.png", Math.random()*bounds.width, -Math.random()*bounds.height/2, answer.text, answer.fraction);
             if (answer.fraction < 1) {
-                team.push(enemy);
-            } else {
-                leader = enemy;
+                currentTeam.push(enemy);
+                if (answer.fraction > 0) {
+                    currentPointsLeft += answer.fraction;
+                }
             }
             gameObjects.push(enemy);
         });
-        leader.team = team;
         return questions[level].question;
     }
 
@@ -344,9 +346,9 @@ M.mod_quizgame = (function(){
         this.direction.y = 1;
         this.text = text;
         this.fraction = fraction;
-        this.team = [];
         this.movementClock = 0;
         this.shotClock = (1+Math.random())*40;
+        this.level = level;
     }
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function (bounds) {
@@ -379,14 +381,12 @@ M.mod_quizgame = (function(){
         }
         if (this.y > bounds.height+this.image.height && this.alive) {
             this.alive = false;
-            if (this.fraction >= 1) {
-                this.team.forEach(function (enemy) {
-                        enemy.movespeed.y *= 4;
-                    });
-                if (player.alive) {
-                    score -= 1000;
-                    nextLevel();
-                }
+            if (this.fraction > 0) {
+                currentPointsLeft -= this.fraction;
+                score -= 1000*this.fraction;
+            }
+            if (currentPointsLeft <= 0 && this.level == level && player.alive) {
+                nextLevel();
             }
         }
     };
@@ -400,12 +400,16 @@ M.mod_quizgame = (function(){
     };
     Enemy.prototype.die = function() {
         GameObject.prototype.die.call(this);
-        if (this.fraction >= 1) {
-            this.team.forEach(function (enemy) {
+        if (this.fraction > 0) {
+            currentPointsLeft -= this.fraction;
+        }
+        if (this.fraction >= 1 || (this.fraction > 0 && currentPointsLeft <= 0)) {
+            currentTeam.forEach(function (enemy) {
                     if (enemy.alive) {
                         enemy.die();
                     }
                 });
+            currentTeam = [];
             nextLevel();
         }
         spray(this.x+this.image.width, this.y+this.image.height, 50+(this.fraction*150), "#FF0000");
