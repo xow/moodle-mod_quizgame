@@ -29,6 +29,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->dirroot.'/lib/questionlib.php');
 
 /**
  * Module instance settings form
@@ -59,6 +60,11 @@ class mod_quizgame_mod_form extends moodleform_mod {
 
         // Adding the standard "intro" and "introformat" fields
         $this->add_intro_editor();
+
+        $context = $this->context->get_parent_context();
+        $categories = question_category_options(array($context), false, 0);
+
+        $mform->addElement('selectgroups', 'questioncategory', get_string('category', 'question'), $categories);
 
         //-------------------------------------------------------------------------------
         // Adding the rest of quizgame settings, spreeading all them into this fieldset

@@ -62,6 +62,21 @@ function xmldb_quizgame_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2014091101, 'quizgame');
     }
 
+    if ($oldversion < 2015011300) {
+
+        // Define field questioncategory to be added to quizgame.
+        $table = new xmldb_table('quizgame');
+        $field = new xmldb_field('questioncategory', XMLDB_TYPE_TEXT, null, null, null, null, null, 'timemodified');
+
+        // Conditionally launch add field questioncategory.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Quizgame savepoint reached.
+        upgrade_mod_savepoint(true, 2015011300, 'quizgame');
+    }
+
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }
