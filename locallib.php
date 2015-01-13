@@ -81,6 +81,8 @@ function quizgame_addgame($quizgame, $context) {
                 '<source src="sound/EnemyLaser.wav" type="audio/wav" />'.
                 '</audio>';
 
+    $display .= html_writer::checkbox('sound', '', true, get_string('sound', 'mod_quizgame'), array('id' => 'mod_quizgame_sound_on'));
+
     return $display;
 }
 

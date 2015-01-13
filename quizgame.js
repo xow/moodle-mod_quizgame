@@ -21,9 +21,11 @@ M.mod_quizgame = (function(){
     var currentPointsLeft = 0;
 
     function playSound(soundName) {
-        var soundElement = document.getElementById("mod_quizgame_sound_"+soundName);
-        soundElement.currentTime = 0;
-        soundElement.play();
+        if (document.getElementById("mod_quizgame_sound_on").checked) {
+            var soundElement = document.getElementById("mod_quizgame_sound_"+soundName);
+            soundElement.currentTime = 0;
+            soundElement.play();
+        }
     }
 
     function sizeScreen(stage, width, height) {
