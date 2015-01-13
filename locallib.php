@@ -33,10 +33,11 @@ require_once($CFG->libdir . '/questionlib.php');
 /**
  * Initialises the game and returns its HTML code
  *
+ * @param stdClass $quizgame The quizgame to be added
  * @param context $context The context
  * @return string The HTML code of the game
  */
-function quizgame_addgame($context, $course) {
+function quizgame_addgame($quizgame, $context) {
     global $PAGE, $DB;
 
     $PAGE->requires->strings_for_js(array(
@@ -47,13 +48,10 @@ function quizgame_addgame($context, $course) {
         ), 'mod_quizgame');
     $PAGE->requires->js('/mod/quizgame/quizgame.js');
 
-    $categories = $DB->get_records('question_categories', array('contextid' => $context->get_parent_context()->__get('id')));
-    $category_ids = [];
-    foreach ($categories as $category) {
-        $category_ids[] = $category->id;
-    }
-
     $questions = question_load_questions(null);
+
+    $category_ids = [];
+    $category_ids[] = explode(',', $quizgame->questioncategory)[0];
 
     $display = "<script>var questions = [\n";
 
