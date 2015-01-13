@@ -56,12 +56,23 @@ function quizgame_addgame($quizgame, $context) {
     $display = "<script>var questions = [\n";
 
     foreach ($questions as $question) {
-        if ($question->qtype == "multichoice" && in_array($question->category, $category_ids)) {
-            $display .= "{\nquestion: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\nanswers: [";
-            foreach ($question->options->answers as $answer) {
-                $display .= "{text: \"" . preg_replace('/\n/', ' ', strip_tags($answer->answer)) . "\", fraction: " . $answer->fraction. "},\n";
+        if (in_array($question->category, $category_ids)) {
+            if ($question->qtype == "multichoice") {
+                $display .= "{\nquestion: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\nanswers: [";
+                foreach ($question->options->answers as $answer) {
+                    $display .= "{text: \"" . preg_replace('/\n/', ' ', strip_tags($answer->answer)) . "\", fraction: " . $answer->fraction. "},\n";
+                }
+                $display .= "]\n},\n";
             }
-            $display .= "]\n},\n";
+            if ($question->qtype == "match") {
+                $display .= "{\nquestion: \"" . preg_replace('/\n/', ' ', strip_tags($question->options->subquestions[key($question->options->subquestions)]->questiontext)) . "\",\nanswers: [";
+                $fraction = 1;
+                foreach ($question->options->subquestions as $subquestion) {
+                    $display .= "{text: \"" . preg_replace('/\n/', ' ', strip_tags($subquestion->answertext)) . "\", fraction: " . $fraction . "},\n";
+                    $fraction = 0;
+                }
+                $display .= "]\n},\n";
+            }
         }
     }
 
