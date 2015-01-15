@@ -326,6 +326,7 @@ M.mod_quizgame = (function(){
     function Player(src, x, y) {
         GameObject.call(this, src, x, y);
         this.mouse = {x: 0, y: 0};
+        this.movespeed = {x: 6, y: 4};
         this.lives = 3;
     }
     Player.prototype = Object.create(GameObject.prototype);
@@ -383,8 +384,10 @@ M.mod_quizgame = (function(){
 
     function Enemy(src, x, y, text, fraction) {
         GameObject.call(this, src, x, y);
-        this.movespeed.x = enemySpeed*1.3;
-        this.movespeed.y = enemySpeed*(2+Math.random())/3;
+        this.xspeed = enemySpeed;
+        this.yspeed = enemySpeed*(2+Math.random())/3.5;
+        this.movespeed.x = 0;
+        this.movespeed.y = 0;
         this.direction.y = 1;
         this.text = text;
         this.fraction = fraction;
@@ -395,6 +398,15 @@ M.mod_quizgame = (function(){
     }
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function (bounds) {
+
+        if (this.y < bounds.height/8 || this.y > bounds.height*7/8) {
+            this.movespeed.x = this.xspeed*4;
+            this.movespeed.y = this.yspeed*4;
+        } else {
+            this.movespeed.x = this.xspeed;
+            this.movespeed.y = this.yspeed;
+        }
+
         GameObject.prototype.update.call(this, bounds);
 
         this.movementClock--;
