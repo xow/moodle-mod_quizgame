@@ -4,7 +4,18 @@ M.mod_quizgame = (function(){
     var score = 0;
     var particles = [];
     var gameObjects = [];
-    var images = ['pix/enemy.png', 'pix/ship.png', 'pix/laser.png', 'pix/icon.gif', 'pix/enemylaser.png', 'pix/planet.png'];
+    var images = [
+        'pix/icon.gif',
+        'pix/planet.png',
+        'pix/ship.png',
+        'pix/enemy.png',
+        'pix/enemystem.png',
+        'pix/enemychoice.png',
+        'pix/enemystemselected.png',
+        'pix/enemychoiceselected.png',
+        'pix/laser.png',
+        'pix/enemylaser.png'
+    ];
     var imagesLoaded = 0;
     var loaded = false;
     var playing = false;
@@ -18,7 +29,9 @@ M.mod_quizgame = (function(){
     var touchDown = false;
     var mouseDown = false;
     var currentTeam = [];
+    var lastShot = 0;
     var currentPointsLeft = 0;
+    var lives = 3;
 
     function playSound(soundName) {
         if (document.getElementById("mod_quizgame_sound_on").checked) {
@@ -155,7 +168,6 @@ M.mod_quizgame = (function(){
         document.ontouchstart = touchstart;
         document.ontouchend = touchend;
         document.ontouchmove = touchmove;
-
     }
 
     function nextLevel() {
@@ -168,17 +180,34 @@ M.mod_quizgame = (function(){
     }
     function runLevel(questions, level, bounds) {
         currentTeam = [];
+        lastShot = 0;
         currentPointsLeft = 0;
-        questions[level].answers.forEach(function(answer) {
-            var enemy = new Enemy("pix/enemy.png", Math.random()*bounds.width, -Math.random()*bounds.height/2, answer.text, answer.fraction);
-            if (answer.fraction < 1) {
-                currentTeam.push(enemy);
-                if (answer.fraction > 0) {
-                    currentPointsLeft += answer.fraction;
+
+        if (questions[level].type == 'multichoice') {
+            questions[level].answers.forEach(function(answer) {
+                var enemy = new MultiEnemy(Math.random()*bounds.width, -Math.random()*bounds.height/2, answer.text, answer.fraction);
+                if (answer.fraction < 1) {
+                    currentTeam.push(enemy);
+                    if (answer.fraction > 0) {
+                        currentPointsLeft += answer.fraction;
+                    }
                 }
-            }
-            gameObjects.push(enemy);
-        });
+                gameObjects.push(enemy);
+            });
+        } else if (questions[level].type == 'match') {
+            var i = 0;
+            var fraction = 1/questions[level].stems.length;
+            currentPointsLeft += 1;
+            questions[level].stems.forEach(function(stem) {
+                i++;
+                var question = new MatchEnemy(Math.random()*bounds.width, -Math.random()*bounds.height/2, stem.question, fraction, -i, true);
+                var answer = new MatchEnemy(Math.random()*bounds.width, -Math.random()*bounds.height/2, stem.answer, fraction, i);
+                currentTeam.push(question);
+                currentTeam.push(answer);
+                gameObjects.push(question);
+                gameObjects.push(answer);
+            });
+        }
         return questions[level].question;
     }
 
@@ -331,7 +360,7 @@ M.mod_quizgame = (function(){
     };
     Player.prototype.Shoot = function () {
         playSound("laser");
-        gameObjects.unshift(new Laser(player.x, player.y, true));
+        gameObjects.unshift(new Laser(player.x, player.y, true, 24));
         canShoot = false;
     };
     Player.prototype.die = function() {
@@ -349,7 +378,8 @@ M.mod_quizgame = (function(){
         this.text = text;
         this.fraction = fraction;
         this.movementClock = 0;
-        this.shotClock = (1+Math.random())*40;
+        this.shotFrequency = 80;
+        this.shotClock = (1+Math.random())*this.shotFrequency;
         this.level = level;
     }
     Enemy.prototype = Object.create(GameObject.prototype);
@@ -372,7 +402,7 @@ M.mod_quizgame = (function(){
                 laser.direction.y = 1;
                 laser.friendly = false;
                 gameObjects.unshift(laser);
-                this.shotClock = (1+Math.random())*40;
+                this.shotClock = (1+Math.random())*this.shotFrequency;
             }
         }
         
@@ -402,6 +432,19 @@ M.mod_quizgame = (function(){
     };
     Enemy.prototype.die = function() {
         GameObject.prototype.die.call(this);
+        spray(this.x+this.image.width, this.y+this.image.height, 50+(this.fraction*150), "#FF0000");
+        score += this.fraction * 1000;
+        playSound("explosion");
+    };
+    Enemy.prototype.gotShot = function(shot) {
+    };
+
+    function MultiEnemy(x, y, text, fraction) {
+        Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
+    }
+    MultiEnemy.prototype = Object.create(Enemy.prototype);
+    MultiEnemy.prototype.die = function() {
+        Enemy.prototype.die.call(this);
         if (this.fraction > 0) {
             currentPointsLeft -= this.fraction;
         }
@@ -414,11 +457,8 @@ M.mod_quizgame = (function(){
             currentTeam = [];
             nextLevel();
         }
-        spray(this.x+this.image.width, this.y+this.image.height, 50+(this.fraction*150), "#FF0000");
-        score += this.fraction * 1000;
-        playSound("explosion");
     };
-    Enemy.prototype.gotShot = function(shot) {
+    MultiEnemy.prototype.gotShot = function(shot) {
         if (this.fraction > 0) {
             shot.die();
             this.die();
@@ -428,10 +468,76 @@ M.mod_quizgame = (function(){
         }
     };
 
-    function Laser(x, y, friendly) {
+    function MatchEnemy(x, y, text, fraction, pairid, stem) {
+        this.stem = stem ? true : false;
+        if (this.stem) {
+            Enemy.call(this, "pix/enemystem.png", x, y, text, fraction);
+        } else {
+            Enemy.call(this, "pix/enemychoice.png", x, y, text, fraction);
+        }
+        this.pairid = pairid;
+        this.shotFrequency = 160;
+        this.hightlighted = false;
+    }
+    MatchEnemy.prototype = Object.create(Enemy.prototype);
+    MatchEnemy.prototype.die = function() {
+        Enemy.prototype.die.call(this);
+    };
+    MatchEnemy.prototype.gotShot = function(shot) {
+        if (shot.alive && this.alive) {
+            if (lastShot == -this.pairid) {
+                shot.die();
+                this.die();
+                var alives = 0;
+                currentTeam.forEach(function(match) {
+                    if (match.pairid == lastShot) {
+                        match.die();
+                    }
+                    if (match.alive) {
+                        alives++;
+                    }
+                });
+                if (alives <= 0) {
+                    nextLevel();
+                }
+            } else {
+                if (lastShot == this.pairid) {
+                    shot.deflect();
+                } else {
+                    shot.die();
+                    this.hightlight();
+                    lastShot = this.pairid;
+                }
+            }
+        }
+    };
+    MatchEnemy.prototype.hightlight = function() {
+        currentTeam.forEach(function(match) {
+            match.unhightlight();
+        });
+        if (this.stem) {
+            this.loadImage("pix/enemystemselected.png");
+        } else {
+            this.loadImage("pix/enemychoiceselected.png");
+        }
+        this.hightlighted = true;
+    }
+    MatchEnemy.prototype.unhightlight = function() {
+        if (this.hightlighted) {
+            if (this.stem) {
+                this.loadImage("pix/enemystem.png");
+            } else {
+                this.loadImage("pix/enemychoice.png");
+            }
+        }
+        this.hightlighted = false;
+    }
+
+    function Laser(x, y, friendly, laserSpeed) {
         GameObject.call(this, friendly ? "pix/laser.png" : "pix/enemylaser.png", x, y);
         this.direction.y = -1;
         this.friendly = friendly ? 1 : 0;
+        this.laserSpeed = laserSpeed || 12;
     }
     Laser.prototype = Object.create(GameObject.prototype);
     Laser.prototype.update = function (bounds) {
@@ -442,7 +548,7 @@ M.mod_quizgame = (function(){
             this.y > bounds.height) {
             this.alive = false;
         }
-        this.velocity.y = 24 * this.direction.y;
+        this.velocity.y = this.laserSpeed * this.direction.y;
     };
     Laser.prototype.deflect = function () {
         this.image = this.loadImage("pix/enemylaser.png");

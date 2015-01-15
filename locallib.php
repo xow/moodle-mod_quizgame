@@ -58,20 +58,18 @@ function quizgame_addgame($quizgame, $context) {
     foreach ($questions as $question) {
         if (in_array($question->category, $category_ids)) {
             if ($question->qtype == "multichoice") {
-                $display .= "{\nquestion: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\nanswers: [";
+                $display .= "{\n    question: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\n    answers: [\n";
                 foreach ($question->options->answers as $answer) {
-                    $display .= "{text: \"" . preg_replace('/\n/', ' ', strip_tags($answer->answer)) . "\", fraction: " . $answer->fraction. "},\n";
+                    $display .= "        {text: \"" . preg_replace('/\n/', ' ', strip_tags($answer->answer)) . "\", fraction: " . $answer->fraction. "},\n";
                 }
-                $display .= "]\n},\n";
+                $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
             }
             if ($question->qtype == "match") {
-                $display .= "{\nquestion: \"" . preg_replace('/\n/', ' ', strip_tags($question->options->subquestions[key($question->options->subquestions)]->questiontext)) . "\",\nanswers: [";
-                $fraction = 1;
+                $display .= "{\n    question: \"Match\",\n    stems: [\n";
                 foreach ($question->options->subquestions as $subquestion) {
-                    $display .= "{text: \"" . preg_replace('/\n/', ' ', strip_tags($subquestion->answertext)) . "\", fraction: " . $fraction . "},\n";
-                    $fraction = 0;
+                    $display .= "        {question: \"" . preg_replace('/\n/', ' ', strip_tags($subquestion->questiontext)) . "\", answer: \"" . strip_tags($subquestion->answertext) . "\"},\n";
                 }
-                $display .= "]\n},\n";
+                $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
             }
         }
     }
