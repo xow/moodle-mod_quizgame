@@ -31,7 +31,6 @@ M.mod_quizgame = (function(){
     var currentTeam = [];
     var lastShot = 0;
     var currentPointsLeft = 0;
-    var lives = 3;
 
     function playSound(soundName) {
         if (document.getElementById("mod_quizgame_sound_on").checked) {
@@ -136,7 +135,7 @@ M.mod_quizgame = (function(){
         startGame();
     }
 
-    function startGame() { 
+    function startGame() {
 
         score = 0;
         gameObjects = [];
@@ -226,7 +225,7 @@ M.mod_quizgame = (function(){
             context.fillStyle = '#FFFFFF';
             context.font = "18px Audiowide";
             context.textAlign = 'left';
-            context.fillText(M.util.get_string('score', 'mod_quizgame', score), 5, 20);
+            context.fillText(M.util.get_string('score', 'mod_quizgame', {"score": Math.round(score), "lives": player.lives}), 5, 20);
             context.textAlign = 'center';
             context.fillText(question, displayRect.width/2, 20);
         } else {
@@ -327,6 +326,7 @@ M.mod_quizgame = (function(){
     function Player(src, x, y) {
         GameObject.call(this, src, x, y);
         this.mouse = {x: 0, y: 0};
+        this.lives = 3;
     }
     Player.prototype = Object.create(GameObject.prototype);
     Player.prototype.update = function (bounds) {
@@ -368,6 +368,17 @@ M.mod_quizgame = (function(){
         playSound("explosion");
         spray(this.x+this.image.width/2, this.y+this.image.height/2, 200, "#FFCC00");
         endGame();
+    };
+    Player.prototype.gotShot = function(shot)
+    {
+        if (shot.alive) {
+            if (this.lives <= 1) {
+                this.die()
+            } else {
+                this.lives--;
+                spray(this.x+this.image.width/2, this.y+this.image.height/2, 100, "#FFCC00");
+            }
+        }
     };
 
     function Enemy(src, x, y, text, fraction) {
@@ -618,8 +629,8 @@ M.mod_quizgame = (function(){
     function collide_ordered(object1, object2) {
         if (object1 instanceof Laser && object2 instanceof Player) {
             if (!object1.friendly && objectsIntersect(object1, object2)) {
+                object2.gotShot(object1);
                 object1.die();
-                object2.die();
                 return true;
             }
         }
@@ -631,7 +642,7 @@ M.mod_quizgame = (function(){
         }
         if (object1 instanceof Player && object2 instanceof Enemy) {
             if (objectsIntersect(object1, object2)) {
-                player.die(object1);
+                object1.die();
                 return true;
             }
         }

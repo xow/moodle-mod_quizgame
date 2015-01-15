@@ -42,6 +42,6 @@ $string['quizgamename'] = 'Quizventure name';
 $string['quizgame'] = 'Quizventure';
 $string['quizgame:addinstance'] = 'Add a Quizventure instance';
 $string['quizgame:view'] = 'View Quizventure';
-$string['score'] = 'Score: {$a}';
+$string['score'] = 'Score: {$a->score} Lives: {$a->lives}';
 $string['spacetostart'] = 'Press space or click to start';
 $string['sound'] = 'Sound';
