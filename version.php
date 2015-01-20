@@ -35,4 +35,4 @@ $plugin->requires  = 2014051200.00;      // Requires this Moodle version (2.7)
 $plugin->cron      = 0;               // Period for cron to check this module (secs)
 $plugin->component = 'mod_quizgame'; // To check on upgrade, that module sits in correct place
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = 'v2.8-r2';
+$plugin->release = 'v2.8-r3';
