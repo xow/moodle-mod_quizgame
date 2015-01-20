@@ -60,7 +60,7 @@ function quizgame_addgame($quizgame, $context) {
             if ($question->qtype == "multichoice") {
                 $display .= "{\n    question: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\n    answers: [\n";
                 foreach ($question->options->answers as $answer) {
-                    $display .= "        {text: \"" . preg_replace('/\n/', ' ', strip_tags($answer->answer)) . "\", fraction: " . $answer->fraction. "},\n";
+                    $display .= "        {text: \"" . preg_replace('/\n/', ' ', strip_tags(preg_replace("/\"/", '\"', $answer->answer))) . "\", fraction: " . $answer->fraction . "},\n";
                 }
                 $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
             }

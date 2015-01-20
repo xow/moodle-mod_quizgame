@@ -385,7 +385,7 @@ M.mod_quizgame = (function(){
     function Enemy(src, x, y, text, fraction) {
         GameObject.call(this, src, x, y);
         this.xspeed = enemySpeed;
-        this.yspeed = enemySpeed*(2+Math.random())/3.5;
+        this.yspeed = enemySpeed*(2+Math.random())/4;
         this.movespeed.x = 0;
         this.movespeed.y = 0;
         this.direction.y = 1;
@@ -399,9 +399,9 @@ M.mod_quizgame = (function(){
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function (bounds) {
 
-        if (this.y < bounds.height/8 || this.y > bounds.height*7/8) {
-            this.movespeed.x = this.xspeed*4;
-            this.movespeed.y = this.yspeed*4;
+        if (this.y < bounds.height/10 || this.y > bounds.height*9/10) {
+            this.movespeed.x = this.xspeed*1;
+            this.movespeed.y = this.yspeed*5;
         } else {
             this.movespeed.x = this.xspeed;
             this.movespeed.y = this.yspeed;
