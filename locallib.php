@@ -48,29 +48,27 @@ function quizgame_addgame($quizgame, $context) {
         ), 'mod_quizgame');
     $PAGE->requires->js('/mod/quizgame/quizgame.js');
 
-    $questions = question_load_questions(null);
 
-    $category_ids = [];
-    $category_ids[] = explode(',', $quizgame->questioncategory)[0];
+    $category_id = explode(',', $quizgame->questioncategory)[0];
+    $question_ids = array_keys($DB->get_records('question', array('category' => intval($category_id)), '', 'id'));
+    $questions = question_load_questions($question_ids);
 
     $display = "<script>var questions = [\n";
 
     foreach ($questions as $question) {
-        if (in_array($question->category, $category_ids)) {
-            if ($question->qtype == "multichoice") {
-                $display .= "{\n    question: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\n    answers: [\n";
-                foreach ($question->options->answers as $answer) {
-                    $display .= "        {text: \"" . preg_replace('/\n/', ' ', strip_tags(preg_replace("/\"/", '\"', $answer->answer))) . "\", fraction: " . $answer->fraction . "},\n";
-                }
-                $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
+        if ($question->qtype == "multichoice") {
+            $display .= "{\n    question: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\n    answers: [\n";
+            foreach ($question->options->answers as $answer) {
+                $display .= "        {text: \"" . preg_replace('/\n/', ' ', strip_tags(preg_replace("/\"/", '\"', $answer->answer))) . "\", fraction: " . $answer->fraction . "},\n";
             }
-            if ($question->qtype == "match") {
-                $display .= "{\n    question: \"Match\",\n    stems: [\n";
-                foreach ($question->options->subquestions as $subquestion) {
-                    $display .= "        {question: \"" . preg_replace('/\n/', ' ', strip_tags($subquestion->questiontext)) . "\", answer: \"" . strip_tags($subquestion->answertext) . "\"},\n";
-                }
-                $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
+            $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
+        }
+        if ($question->qtype == "match") {
+            $display .= "{\n    question: \"Match\",\n    stems: [\n";
+            foreach ($question->options->subquestions as $subquestion) {
+                $display .= "        {question: \"" . preg_replace('/\n/', ' ', strip_tags($subquestion->questiontext)) . "\", answer: \"" . strip_tags($subquestion->answertext) . "\"},\n";
             }
+            $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
         }
     }
 
