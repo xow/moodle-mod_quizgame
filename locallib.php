@@ -57,16 +57,20 @@ function quizgame_addgame($quizgame, $context) {
 
     foreach ($questions as $question) {
         if ($question->qtype == "multichoice") {
-            $display .= "{\n    question: \"" . preg_replace('/\n/', ' ', strip_tags($question->questiontext)) . "\",\n    answers: [\n";
+            $questiontext = quizgame_cleanup($question->questiontext);
+            $display .= "{\n    question: \"" . $questiontext . "\",\n    answers: [\n";
             foreach ($question->options->answers as $answer) {
-                $display .= "        {text: \"" . preg_replace('/\n/', ' ', strip_tags(preg_replace("/\"/", '\"', $answer->answer))) . "\", fraction: " . $answer->fraction . "},\n";
+                $answertext = quizgame_cleanup($answer->answer);
+                $display .= "        {text: \"" . $answertext . "\", fraction: " . $answer->fraction . "},\n";
             }
             $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
         }
         if ($question->qtype == "match") {
             $display .= "{\n    question: \"Match\",\n    stems: [\n";
             foreach ($question->options->subquestions as $subquestion) {
-                $display .= "        {question: \"" . preg_replace('/\n/', ' ', strip_tags($subquestion->questiontext)) . "\", answer: \"" . strip_tags($subquestion->answertext) . "\"},\n";
+                $questiontext = quizgame_cleanup($subquestion->questiontext);
+                $answertext = quizgame_cleanup($subquestion->answertext);
+                $display .= "        {question: \"" . $questiontext . "\", answer: \"" . $answertext . "\"},\n";
             }
             $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
         }
@@ -88,9 +92,15 @@ function quizgame_addgame($quizgame, $context) {
                 '<source src="sound/EnemyLaser.wav" type="audio/wav" />'.
                 '</audio>';
 
-    $display .= html_writer::checkbox('sound', '', true, get_string('sound', 'mod_quizgame'), array('id' => 'mod_quizgame_sound_on'));
+    $display .= html_writer::checkbox('sound', '', false, get_string('sound', 'mod_quizgame'), array('id' => 'mod_quizgame_sound_on'));
 
     return $display;
+}
+function quizgame_cleanup($string) {
+    $string = strip_tags($string);
+    $string = preg_replace('/"/', '\"', $string);
+    $string = preg_replace('/[\n\r]/', ' ', $string);
+    return $string;
 }
 
 /**
