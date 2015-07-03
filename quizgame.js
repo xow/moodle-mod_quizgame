@@ -41,12 +41,22 @@ M.mod_quizgame = (function(){
         }
     }
 
-    function sizeScreen(stage, width, height) {
+    function sizeScreen(stage, width, height, fullscreen) {
         displayRect.width = width || stage.clientWidth;
         displayRect.height = height || stage.clientHeight;
 
+        ratio = displayRect.width / displayRect.height;
+
+        displayRect.height = 700;
+        displayRect.width = displayRect.height*ratio;
+
+        if (fullscreen) {
+            stage.style.width = screen.width + "px";
+            stage.style.height = "100%";
+        }
         stage.width = displayRect.width;
         stage.height = displayRect.height;
+        context.imageSmoothingEnabled = false;
     }
 
     function clearEvents() {
@@ -71,9 +81,9 @@ M.mod_quizgame = (function(){
         clearInterval(interval);
 
         stage = document.getElementById("mod_quizgame_game");
-        sizeScreen(stage);
 
         context = stage.getContext("2d");
+        sizeScreen(stage);
 
         context.fillStyle = '#FFFFFF';
         context.font = "18px Audiowide";
@@ -87,17 +97,19 @@ M.mod_quizgame = (function(){
         }
     }
 
-    function loadGame() {
-        if (stage.requestFullscreen) {
-              stage.requestFullscreen();
-        } else if (stage.msRequestFullscreen) {
-              stage.msRequestFullscreen();
-        } else if (stage.mozRequestFullScreen) {
-              stage.mozRequestFullScreen();
-        } else if (stage.webkitRequestFullscreen) {
-              stage.webkitRequestFullscreen();
+    function loadGame(e) {
+        if (!e.shiftKey) {
+            if (stage.requestFullscreen) {
+                  stage.requestFullscreen();
+            } else if (stage.msRequestFullscreen) {
+                  stage.msRequestFullscreen();
+            } else if (stage.mozRequestFullScreen) {
+                  stage.mozRequestFullScreen();
+            } else if (stage.webkitRequestFullscreen) {
+                  stage.webkitRequestFullscreen();
+            }
+            sizeScreen(stage, window.screen.width, window.screen.height, true);
         }
-        sizeScreen(stage, window.screen.width, window.screen.height);
 
         shuffle(questions);
 
@@ -679,14 +691,14 @@ M.mod_quizgame = (function(){
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
             if (e.keyCode === 32) {
-                loadGame();
+                loadGame(e);
             }
         }
     }
 
     function menumousedown(e) {
         if (e.target === stage) {
-            loadGame();
+            loadGame(e);
         }
     }
 
