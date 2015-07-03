@@ -152,7 +152,7 @@ M.mod_quizgame = (function(){
         gameObjects = [];
         particles = [];
         level = -1;
-        enemySpeed = 0.8;
+        enemySpeed = 0.5;
         touchDown = false;
         mouseDown = false;
 
