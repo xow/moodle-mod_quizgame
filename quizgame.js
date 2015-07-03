@@ -243,7 +243,7 @@ M.mod_quizgame = (function(){
             context.fillStyle = '#FFFFFF';
             context.font = "18px Audiowide";
             context.textAlign = 'center';
-            context.fillText(M.util.get_string('endofgame', 'mod_quizgame', score), displayRect.width/2, displayRect.height/2);
+            context.fillText(M.util.get_string('endofgame', 'mod_quizgame', Math.round(player.lastScore)), displayRect.width/2, displayRect.height/2);
         }
     }
 
@@ -339,6 +339,7 @@ M.mod_quizgame = (function(){
         this.mouse = {x: 0, y: 0};
         this.movespeed = {x: 6, y: 4};
         this.lives = 3;
+        this.lastScore = 0;
     }
     Player.prototype = Object.create(GameObject.prototype);
     Player.prototype.update = function (bounds) {
@@ -379,6 +380,7 @@ M.mod_quizgame = (function(){
         GameObject.prototype.die.call(this);
         playSound("explosion");
         spray(this.x+this.image.width/2, this.y+this.image.height/2, 200, "#FFCC00");
+        this.lastScore = score;
         endGame();
     };
     Player.prototype.gotShot = function(shot)
