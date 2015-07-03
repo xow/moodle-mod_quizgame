@@ -31,6 +31,7 @@ M.mod_quizgame = (function(){
     var currentTeam = [];
     var lastShot = 0;
     var currentPointsLeft = 0;
+    var context;
 
     function playSound(soundName) {
         if (document.getElementById("mod_quizgame_sound_on").checked) {
@@ -72,7 +73,7 @@ M.mod_quizgame = (function(){
         stage = document.getElementById("mod_quizgame_game");
         sizeScreen(stage);
 
-        var context = stage.getContext("2d");
+        context = stage.getContext("2d");
 
         context.fillStyle = '#FFFFFF';
         context.font = "18px Audiowide";
@@ -124,8 +125,6 @@ M.mod_quizgame = (function(){
     function gameLoaded() {
 
         playing = true;
-
-        var context = stage.getContext("2d");
 
         interval = setInterval(function() {
                 draw(context, displayRect, gameObjects, particles, question);
