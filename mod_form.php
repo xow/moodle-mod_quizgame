@@ -40,6 +40,7 @@ class mod_quizgame_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
+        global $CFG;
 
         $mform = $this->_form;
 
@@ -59,7 +60,11 @@ class mod_quizgame_mod_form extends moodleform_mod {
         $mform->addHelpButton('name', 'quizgamename', 'quizgame');
 
         // Adding the standard "intro" and "introformat" fields
-        $this->add_intro_editor();
+        if ($CFG->branch >= 29) {
+            $this->standard_intro_elements();
+        } else {
+            $this->add_intro_editor();
+        }
 
         $context = $this->context->get_parent_context();
         $categories = question_category_options(array($context), false, 0);
