@@ -31,6 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['endofgame'] = 'Your score was: {$a}. Press space or click to restart.';
 $string['emptyquiz'] = 'There are no multiple choice questions in the selected category.';
+$string['fullscreen'] = 'Fullscreen';
 $string['modulename_help'] = 'Use the Quizventure module to give the students a fun way of learning.';
 $string['modulenameplural'] = 'Quizventure games';
 $string['modulename'] = 'Quizventure';

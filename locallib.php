@@ -38,7 +38,7 @@ require_once($CFG->libdir . '/questionlib.php');
  * @return string The HTML code of the game
  */
 function quizgame_addgame($quizgame, $context) {
-    global $PAGE, $DB;
+    global $PAGE, $DB, $OUTPUT;
 
     $PAGE->requires->strings_for_js(array(
             'score',
@@ -92,6 +92,7 @@ function quizgame_addgame($quizgame, $context) {
                 '<source src="sound/EnemyLaser.wav" type="audio/wav" />'.
                 '</audio>';
 
+    $display .= '<input type="button" value="' . get_string('fullscreen', 'mod_quizgame') . '" onclick="M.mod_quizgame.goFullscreen()"> ';
     $display .= html_writer::checkbox('sound', '', false, get_string('sound', 'mod_quizgame'), array('id' => 'mod_quizgame_sound_on'));
 
     return $display;

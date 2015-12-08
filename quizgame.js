@@ -32,6 +32,7 @@ M.mod_quizgame = (function(){
     var lastShot = 0;
     var currentPointsLeft = 0;
     var context;
+    var inFullscreen = 0;
 
     function playSound(soundName) {
         if (document.getElementById("mod_quizgame_sound_on").checked) {
@@ -41,19 +42,46 @@ M.mod_quizgame = (function(){
         }
     }
 
-    function sizeScreen(stage, width, height, fullscreen) {
-        displayRect.width = width || stage.clientWidth;
-        displayRect.height = height || stage.clientHeight;
+    function smallscreen() {
+        stage.removeAttribute("width");
+        stage.removeAttribute("height");
+        stage.removeAttribute("style");
 
-        ratio = displayRect.width / displayRect.height;
+        displayRect.width = stage.clientWidth;
+        displayRect.height = stage.clientHeight;
+        stage.style.width = displayRect.width;
+        stage.style.height = displayRect.height;
+        sizeScreen(stage);
+    }
 
-        displayRect.height = 700;
-        displayRect.width = displayRect.height*ratio;
-
-        if (fullscreen) {
-            stage.style.width = screen.width + "px";
-            stage.style.height = "100%";
+    function fschange() {
+        inFullscreen--;
+        if (inFullscreen < 1) {
+            smallscreen();
         }
+    }
+
+    function fullscreen() {
+        displayRect.width = window.screen.width || stage.clientWidth;
+        displayRect.height = window.screen.height || stage.clientHeight;
+
+        if (stage.requestFullscreen) {
+              stage.requestFullscreen();
+        } else if (stage.msRequestFullscreen) {
+              stage.msRequestFullscreen();
+        } else if (stage.mozRequestFullScreen) {
+              stage.mozRequestFullScreen();
+        } else if (stage.webkitRequestFullscreen) {
+              stage.webkitRequestFullscreen();
+        }
+        inFullscreen = 2;
+        stage.style.width = screen.width + "px";
+        stage.style.height = "100%";
+        sizeScreen(stage);
+    }
+
+    function sizeScreen(stage) {
+
         stage.width = displayRect.width;
         stage.height = displayRect.height;
         context.imageSmoothingEnabled = false;
@@ -78,12 +106,7 @@ M.mod_quizgame = (function(){
 
     function showMenu() {
 
-        clearInterval(interval);
-
-        stage = document.getElementById("mod_quizgame_game");
-
-        context = stage.getContext("2d");
-        sizeScreen(stage);
+        context.clearRect(0, 0, displayRect.width, displayRect.height);
 
         context.fillStyle = '#FFFFFF';
         context.font = "18px Audiowide";
@@ -98,18 +121,7 @@ M.mod_quizgame = (function(){
     }
 
     function loadGame(e) {
-        if (!e.shiftKey) {
-            if (stage.requestFullscreen) {
-                  stage.requestFullscreen();
-            } else if (stage.msRequestFullscreen) {
-                  stage.msRequestFullscreen();
-            } else if (stage.mozRequestFullScreen) {
-                  stage.mozRequestFullScreen();
-            } else if (stage.webkitRequestFullscreen) {
-                  stage.webkitRequestFullscreen();
-            }
-            sizeScreen(stage, window.screen.width, window.screen.height, true);
-        }
+        clearInterval(interval);
 
         shuffle(questions);
 
@@ -161,7 +173,7 @@ M.mod_quizgame = (function(){
         player.y = displayRect.height/2;
         gameObjects.push(player);
 
-        planet = new GameObject("pix/planet.png", 0, 0);
+        planet = new Planet("pix/planet.png", 0, 0);
         planet.image.width = displayRect.width;
         planet.image.height = displayRect.height;
         planet.direction.y = 1;
@@ -393,6 +405,16 @@ M.mod_quizgame = (function(){
                 spray(this.x+this.image.width/2, this.y+this.image.height/2, 100, "#FFCC00");
             }
         }
+    };
+
+    function Planet(src, x, y) {
+        GameObject.call(this, src, x, y);
+    }
+    Planet.prototype = Object.create(GameObject.prototype);
+    Planet.prototype.update = function (bounds) {
+        planet.image.width = displayRect.width;
+        planet.image.height = displayRect.height;
+        GameObject.prototype.update.call(this, bounds);
     };
 
     function Enemy(src, x, y, text, fraction) {
@@ -797,10 +819,22 @@ M.mod_quizgame = (function(){
     }
 
     function doInitialize() {
-        interval = setInterval(showMenu, 500);
+        if (document.addEventListener) {
+            document.addEventListener('fullscreenchange', fschange, false);
+            document.addEventListener('MSFullscreenChange', fschange, false);
+            document.addEventListener('mozfullscreenchange', fschange, false);
+            document.addEventListener('webkitfullscreenchange', fschange, false);
+        }
+        stage = document.getElementById("mod_quizgame_game");
+        context = stage.getContext("2d");
+        smallscreen();
+        interval = setInterval(function() {
+            showMenu();
+        }, 500);
     }
     return {
-        initialize: doInitialize
+        initialize: doInitialize,
+        goFullscreen: fullscreen
     };
 })();
 
