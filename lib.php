@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -25,18 +24,11 @@
  * Moodle is performing actions across all modules.
  *
  * @package    mod_quizgame
- * @copyright  2011 Your Name
+ * @copyright  2014 John Okely
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-/** example constant */
-//define('NEWMODULE_ULTIMATE_ANSWER', 42);
-
-////////////////////////////////////////////////////////////////////////////////
-// Moodle core API                                                            //
-////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Returns the information on whether the module supports a feature
@@ -47,10 +39,12 @@ defined('MOODLE_INTERNAL') || die();
  */
 function quizgame_supports($feature) {
     switch($feature) {
-        case FEATURE_MOD_INTRO:         return true;
-        case FEATURE_SHOW_DESCRIPTION:  return true;
-
-        default:                        return null;
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return true;
+        default:
+            return null;
     }
 }
 
@@ -71,7 +65,7 @@ function quizgame_add_instance(stdClass $quizgame, mod_quizgame_mod_form $mform 
 
     $quizgame->timecreated = time();
 
-    # You may have to add extra stuff in here #
+    // TODO: Highscores.
 
     return $DB->insert_record('quizgame', $quizgame);
 }
@@ -93,8 +87,6 @@ function quizgame_update_instance(stdClass $quizgame, mod_quizgame_mod_form $mfo
     $quizgame->timemodified = time();
     $quizgame->id = $quizgame->instance;
 
-    # You may have to add extra stuff in here #
-
     return $DB->update_record('quizgame', $quizgame);
 }
 
@@ -115,7 +107,7 @@ function quizgame_delete_instance($id) {
         return false;
     }
 
-    # Delete any dependent records here #
+    // TODO: Delete highscores.
 
     $DB->delete_records('quizgame', array('id' => $quizgame->id));
 
@@ -160,7 +152,7 @@ function quizgame_user_complete($course, $user, $mod, $quizgame) {
  * @return boolean
  */
 function quizgame_print_recent_activity($course, $viewfullnames, $timestart) {
-    return false;  //  True if anything was printed, otherwise false
+    return false;  //  True if anything was printed, otherwise false.
 }
 
 /**
@@ -211,9 +203,8 @@ function quizgame_get_extra_capabilities() {
     return array();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Gradebook API                                                              //
-////////////////////////////////////////////////////////////////////////////////
+// Gradebook API.
+// TODO: Highscore entries in gradebook.
 
 /**
  * Is a given scale used by the instance of quizgame?
@@ -229,7 +220,6 @@ function quizgame_get_extra_capabilities() {
 function quizgame_scale_used($quizgameid, $scaleid) {
     global $DB;
 
-    /** @example */
     if ($scaleid and $DB->record_exists('quizgame', array('id' => $quizgameid, 'grade' => -$scaleid))) {
         return true;
     } else {
@@ -248,7 +238,6 @@ function quizgame_scale_used($quizgameid, $scaleid) {
 function quizgame_scale_used_anywhere($scaleid) {
     global $DB;
 
-    /** @example */
     return false;
 }
 
@@ -265,7 +254,6 @@ function quizgame_grade_item_update(stdClass $quizgame, $grades=null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
-    /** @example */
     $item = array();
     $item['itemname'] = clean_param($quizgame->name, PARAM_NOTAGS);
     $item['gradetype'] = GRADE_TYPE_VALUE;
@@ -288,15 +276,12 @@ function quizgame_update_grades(stdClass $quizgame, $userid = 0) {
     global $CFG, $DB;
     require_once($CFG->libdir.'/gradelib.php');
 
-    /** @example */
-    $grades = array(); // populate array of grade objects indexed by userid
+    $grades = array(); // Populate array of grade objects indexed by userid.
 
     grade_update('mod/quizgame', $quizgame->course, 'mod', 'quizgame', $quizgame->id, 0, $grades);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// File API                                                                   //
-////////////////////////////////////////////////////////////////////////////////
+// File API.
 
 /**
  * Returns the lists of all browsable file areas within the given module context
@@ -360,9 +345,7 @@ function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     send_file_not_found();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Navigation API                                                             //
-////////////////////////////////////////////////////////////////////////////////
+// Navigation API.
 
 /**
  * Extends the global navigation tree by adding quizgame nodes if there is a relevant content

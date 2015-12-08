@@ -103,13 +103,3 @@ function quizgame_cleanup($string) {
     $string = preg_replace('/[\n\r]/', ' ', $string);
     return $string;
 }
-
-/**
- * Does something really useful with the passed things
- *
- * @param array $things
- * @return object
- */
-//function quizgame_do_something_useful(array $things) {
-//    return new stdClass();
-//}
