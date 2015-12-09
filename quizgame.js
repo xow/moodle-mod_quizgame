@@ -121,7 +121,6 @@ M.mod_quizgame = (function(){
     }
 
     function loadGame(e) {
-        clearInterval(interval);
 
         shuffle(questions);
 
@@ -149,6 +148,8 @@ M.mod_quizgame = (function(){
     function gameLoaded() {
 
         playing = true;
+
+        clearInterval(interval);
 
         interval = setInterval(function() {
                 draw(context, displayRect, gameObjects, particles, question);
