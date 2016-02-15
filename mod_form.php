@@ -69,7 +69,8 @@ class mod_quizgame_mod_form extends moodleform_mod {
         $context = $this->context->get_parent_context();
         $categories = question_category_options(array($context), false, 0);
 
-        $mform->addElement('selectgroups', 'questioncategory', get_string('category', 'question'), $categories);
+        $mform->addElement('selectgroups', 'questioncategory', get_string('questioncategory', 'quizgame'), $categories);
+        $mform->addHelpButton('questioncategory', 'questioncategory', 'quizgame');
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
