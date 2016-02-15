@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -41,11 +40,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_quizgame_upgrade($oldversion) {
     global $DB;
 
-    $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
-
-    // if ($oldversion < YYYYMMDD00) { //New version in version.php
-    //
-    // }
+    $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
     if ($oldversion < 2014091101) {
 

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -49,17 +48,16 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-	'mod/quizgame:addinstance' => array(
-			'riskbitmask' => RISK_XSS,
-	
-			'captype' => 'write',
-			'contextlevel' => CONTEXT_COURSE,
-			'archetypes' => array(
-					'editingteacher' => CAP_ALLOW,
-					'manager' => CAP_ALLOW
-			),
-			'clonepermissionsfrom' => 'moodle/course:manageactivities'
-	),
+    'mod/quizgame:addinstance' => array(
+            'riskbitmask' => RISK_XSS,
+            'captype' => 'write',
+            'contextlevel' => CONTEXT_COURSE,
+            'archetypes' => array(
+                    'editingteacher' => CAP_ALLOW,
+                    'manager' => CAP_ALLOW
+            ),
+            'clonepermissionsfrom' => 'moodle/course:manageactivities'
+    ),
 
     'mod/quizgame:view' => array(
         'captype' => 'read',

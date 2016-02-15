@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,8 +31,8 @@ defined('MOODLE_INTERNAL') || die();
 global $DB;
 
 $logs = array(
-    array('module'=>'quizgame', 'action'=>'add', 'mtable'=>'quizgame', 'field'=>'name'),
-    array('module'=>'quizgame', 'action'=>'update', 'mtable'=>'quizgame', 'field'=>'name'),
-    array('module'=>'quizgame', 'action'=>'view', 'mtable'=>'quizgame', 'field'=>'name'),
-    array('module'=>'quizgame', 'action'=>'view all', 'mtable'=>'quizgame', 'field'=>'name')
+    array('module' => 'quizgame', 'action' => 'add', 'mtable' => 'quizgame', 'field' => 'name'),
+    array('module' => 'quizgame', 'action' => 'update', 'mtable' => 'quizgame', 'field' => 'name'),
+    array('module' => 'quizgame', 'action' => 'view', 'mtable' => 'quizgame', 'field' => 'name'),
+    array('module' => 'quizgame', 'action' => 'view all', 'mtable' => 'quizgame', 'field' => 'name')
 );

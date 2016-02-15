@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -48,10 +47,9 @@ function quizgame_addgame($quizgame, $context) {
         ), 'mod_quizgame');
     $PAGE->requires->js('/mod/quizgame/quizgame.js');
 
-
-    $category_id = explode(',', $quizgame->questioncategory)[0];
-    $question_ids = array_keys($DB->get_records('question', array('category' => intval($category_id)), '', 'id'));
-    $questions = question_load_questions($question_ids);
+    $categoryid = explode(',', $quizgame->questioncategory)[0];
+    $questionids = array_keys($DB->get_records('question', array('category' => intval($categoryid)), '', 'id'));
+    $questions = question_load_questions($questionids);
 
     $display = "<script>var questions = [\n";
 
@@ -92,8 +90,11 @@ function quizgame_addgame($quizgame, $context) {
                 '<source src="sound/EnemyLaser.wav" type="audio/wav" />'.
                 '</audio>';
 
-    $display .= '<input type="button" value="' . get_string('fullscreen', 'mod_quizgame') . '" onclick="M.mod_quizgame.goFullscreen()"> ';
-    $display .= html_writer::checkbox('sound', '', false, get_string('sound', 'mod_quizgame'), array('id' => 'mod_quizgame_sound_on'));
+    $display .= '<input type="button" value="' . get_string('fullscreen', 'mod_quizgame') .
+                '" onclick="M.mod_quizgame.goFullscreen()"> ';
+    $display .= html_writer::checkbox('sound', '', false,
+                                      get_string('sound', 'mod_quizgame'),
+                                      array('id' => 'mod_quizgame_sound_on'));
 
     return $display;
 }

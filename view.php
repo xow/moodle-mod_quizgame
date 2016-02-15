@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -30,14 +29,14 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
 
-$id = optional_param('id', 0, PARAM_INT); // course_module ID, or
-$n  = optional_param('n', 0, PARAM_INT);  // quizgame instance ID - it should be named as the first character of the module
+$id = optional_param('id', 0, PARAM_INT); // Either course_module ID, or ...
+$n  = optional_param('q', 0, PARAM_INT);  // ...quizgame instance ID - it should be named as the first character of the module.
 
 if ($id) {
     $cm         = get_coursemodule_from_id('quizgame', $id, 0, false, MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $quizgame  = $DB->get_record('quizgame', array('id' => $cm->instance), '*', MUST_EXIST);
-} elseif ($n) {
+} else if ($n) {
     $quizgame  = $DB->get_record('quizgame', array('id' => $n), '*', MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $quizgame->course), '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('quizgame', $quizgame->id, $course->id, false, MUST_EXIST);
@@ -48,32 +47,27 @@ if ($id) {
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-/// Print the page header
+// Print the page header.
 
 $PAGE->set_url('/mod/quizgame/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($quizgame->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
+$PAGE->set_focuscontrol('mod_quizgame_game');
 
-// other things you may want to set - remove if not needed
-//$PAGE->set_cacheable(false);
-//$PAGE->set_focuscontrol('some-html-id');
-//$PAGE->add_body_class('quizgame-'.$somevar);
-
-// Output starts here
+// Output starts here.
 echo $OUTPUT->header();
 
-if ($quizgame->intro) { // Conditions to show the intro can change to look for own settings or whatever
+if ($quizgame->intro) {
     echo $OUTPUT->box(format_module_intro('quizgame', $quizgame, $cm->id), 'generalbox mod_introbox', 'quizgameintro');
 }
 
 echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
 
-// game here
-
+// Game here.
 echo "<link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>";
 echo quizgame_addgame($quizgame, $context);
 echo "<div class=fontloader>Loading game</div>";
 
-// Finish the page
+// Finish the page.
 echo $OUTPUT->footer();

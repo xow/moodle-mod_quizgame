@@ -152,7 +152,7 @@ function quizgame_user_complete($course, $user, $mod, $quizgame) {
  * @return boolean
  */
 function quizgame_print_recent_activity($course, $viewfullnames, $timestart) {
-    return false;  //  True if anything was printed, otherwise false.
+    return false;  // True if anything was printed, otherwise false.
 }
 
 /**
