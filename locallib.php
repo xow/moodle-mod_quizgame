@@ -98,6 +98,13 @@ function quizgame_addgame($quizgame, $context) {
 
     return $display;
 }
+
+/**
+ * Function to prepare strings to be printed out as JSON.
+ *
+ * @param stdClass $string The string to be cleaned
+ * @return string The string, ready to be printed as JSON
+ */
 function quizgame_cleanup($string) {
     $string = strip_tags($string);
     $string = preg_replace('/"/', '\"', $string);
