@@ -24,7 +24,7 @@
  * Moodle is performing actions across all modules.
  *
  * @package    mod_quizgame
- * @copyright  2014 John Okely
+ * @copyright  2014 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

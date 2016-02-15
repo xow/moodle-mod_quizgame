@@ -40,7 +40,7 @@
  * The variable name for the capability definitions array is $capabilities
  *
  * @package    mod_quizgame
- * @copyright  2011 Your Name
+ * @copyright  2014 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

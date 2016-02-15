@@ -22,7 +22,7 @@
  * in the previous 1.9 NEWMODULE.
  *
  * @package    mod_quizgame
- * @copyright  2011 Your Name <your@email.adress>
+ * @copyright  2014 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
