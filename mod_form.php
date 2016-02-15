@@ -41,7 +41,7 @@ class mod_quizgame_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG;
+        global $CFG, $COURSE;
 
         $mform = $this->_form;
 
@@ -66,7 +66,7 @@ class mod_quizgame_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        $context = $this->context->get_parent_context();
+        $context = context_course::instance($COURSE->id);
         $categories = question_category_options(array($context), false, 0);
 
         $mform->addElement('selectgroups', 'questioncategory', get_string('questioncategory', 'quizgame'), $categories);
