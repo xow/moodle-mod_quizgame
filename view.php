@@ -54,6 +54,7 @@ $PAGE->set_title(format_string($quizgame->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 $PAGE->set_focuscontrol('mod_quizgame_game');
+$renderer = $PAGE->get_renderer('mod_quizgame');
 
 // Output starts here.
 echo $OUTPUT->header();
@@ -66,7 +67,7 @@ echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
 
 // Game here.
 echo "<link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>";
-echo quizgame_addgame($quizgame, $context);
+echo $renderer->render_game($quizgame, $context);
 echo "<div class=fontloader>Loading game</div>";
 
 // Finish the page.
