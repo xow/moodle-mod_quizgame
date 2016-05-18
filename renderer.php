@@ -76,8 +76,8 @@ class mod_quizgame_renderer extends plugin_renderer_base {
                     '<source src="sound/EnemyLaser.wav" type="audio/wav" />'.
                     '</audio>';
 
-        $display .= '<input type="button" value="' . get_string('fullscreen', 'mod_quizgame') .
-                    '" onclick="M.mod_quizgame.goFullscreen()"> ';
+        $display .= '<input id="mod_quizgame_fullscreen_button" type="button" value="' .
+                    get_string('fullscreen', 'mod_quizgame') . '">';
         $display .= html_writer::checkbox('sound', '', false,
                                           get_string('sound', 'mod_quizgame'),
                                           array('id' => 'mod_quizgame_sound_on'));

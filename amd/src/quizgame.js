@@ -25,7 +25,7 @@
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([], function() {
+define(['jquery'], function($) {
     var stage;
     var score = 0;
     var particles = [];
@@ -59,6 +59,9 @@ define([], function() {
     var currentPointsLeft = 0;
     var context;
     var inFullscreen = 0;
+    $('#mod_quizgame_fullscreen_button').on('click', function () {
+        fullscreen();
+    });
 
     function playSound(soundName) {
         if (document.getElementById("mod_quizgame_sound_on").checked) {
@@ -426,7 +429,7 @@ define([], function() {
     {
         if (shot.alive) {
             if (this.lives <= 1) {
-                this.die()
+                this.die();
             } else {
                 this.lives--;
                 spray(this.x + this.image.width / 2, this.y + this.image.height / 2, 100, "#FFCC00");
@@ -606,7 +609,7 @@ define([], function() {
             this.loadImage("pix/enemychoiceselected.png");
         }
         this.hightlighted = true;
-    }
+    };
     MatchEnemy.prototype.unhightlight = function() {
         if (this.hightlighted) {
             if (this.stem) {
@@ -616,7 +619,7 @@ define([], function() {
             }
         }
         this.hightlighted = false;
-    }
+    };
 
     function Laser(x, y, friendly, laserSpeed) {
         GameObject.call(this, friendly ? "pix/laser.png" : "pix/enemylaser.png", x, y);
@@ -782,7 +785,7 @@ define([], function() {
 
     function mousedown(e) {
         if (e.target === stage) {
-            playerWasClicked = player.getRect().Contains({x: e.offsetX, y: e.offsetY});
+            var playerWasClicked = player.getRect().Contains({x: e.offsetX, y: e.offsetY});
             if (playerWasClicked && player.alive) {
                 player.Shoot();
             }
@@ -861,6 +864,5 @@ define([], function() {
     }
   return {
     init: doInitialize,
-    goFullscreen: fullscreen
   };
 });
