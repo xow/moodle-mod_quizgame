@@ -64,12 +64,12 @@ if ($course->format == 'weeks') {
 foreach ($quizgames as $quizgame) {
     if (!$quizgame->visible) {
         $link = html_writer::link(
-            new moodle_url('/mod/quizgame.php', array('id' => $quizgame->coursemodule)),
+            new moodle_url('/mod/quizgame/view.php', array('id' => $quizgame->coursemodule)),
             format_string($quizgame->name, true),
             array('class' => 'dimmed'));
     } else {
         $link = html_writer::link(
-            new moodle_url('/mod/quizgame.php', array('id' => $quizgame->coursemodule)),
+            new moodle_url('/mod/quizgame/view.php', array('id' => $quizgame->coursemodule)),
             format_string($quizgame->name, true));
     }
 
