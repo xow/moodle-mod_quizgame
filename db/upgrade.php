@@ -72,6 +72,22 @@ function xmldb_quizgame_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015011300, 'quizgame');
     }
 
+    if ($oldversion < 2017011100) {
+
+        // Define field grade to be added to quizgame.
+        $table = new xmldb_table('quizgame');
+        $field = new xmldb_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '100', 'questioncategory');
+
+        // Conditionally launch add field grade.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Quizgame savepoint reached.
+        upgrade_mod_savepoint(true, 2017011100, 'quizgame');
+    }
+
+
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }
