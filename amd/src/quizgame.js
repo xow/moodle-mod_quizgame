@@ -26,6 +26,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery'], function($) {
+    var questions;
     var stage;
     var score = 0;
     var particles = [];
@@ -44,7 +45,6 @@ define(['jquery'], function($) {
     ];
     var imagesLoaded = 0;
     var loaded = false;
-    var playing = false;
     var player;
     var planet;
     var level = -1;
@@ -149,7 +149,7 @@ define(['jquery'], function($) {
         }
     }
 
-    function loadGame(e) {
+    function loadGame() {
 
         shuffle(questions);
 
@@ -175,8 +175,6 @@ define(['jquery'], function($) {
     }
 
     function gameLoaded() {
-
-        playing = true;
 
         clearInterval(interval);
 
@@ -237,7 +235,8 @@ define(['jquery'], function($) {
 
         if (questions[level].type == 'multichoice') {
             questions[level].answers.forEach(function(answer) {
-                var enemy = new MultiEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2, answer.text, answer.fraction);
+                var enemy = new MultiEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2,
+                                           answer.text, answer.fraction);
                 if (answer.fraction < 1) {
                     currentTeam.push(enemy);
                     if (answer.fraction > 0) {
@@ -252,8 +251,10 @@ define(['jquery'], function($) {
             currentPointsLeft += 1;
             questions[level].stems.forEach(function(stem) {
                 i++;
-                var question = new MatchEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2, stem.question, fraction, -i, true);
-                var answer = new MatchEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2, stem.answer, fraction, i);
+                var question = new MatchEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2,
+                                              stem.question, fraction, -i, true);
+                var answer = new MatchEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2,
+                                            stem.answer, fraction, i);
                 currentTeam.push(question);
                 currentTeam.push(answer);
                 gameObjects.push(question);
@@ -278,14 +279,20 @@ define(['jquery'], function($) {
             context.fillStyle = '#FFFFFF';
             context.font = "18px Audiowide";
             context.textAlign = 'left';
-            context.fillText(M.util.get_string('score', 'mod_quizgame', {"score": Math.round(score), "lives": player.lives}), 5, 20);
+            context.fillText(M.util.get_string('score', 'mod_quizgame',
+                                               {
+                                                   "score": Math.round(score), "lives": player.lives
+                                               }),
+                                               5, 20);
             context.textAlign = 'center';
             context.fillText(question, displayRect.width / 2, 20);
         } else {
             context.fillStyle = '#FFFFFF';
             context.font = "18px Audiowide";
             context.textAlign = 'center';
-            context.fillText(M.util.get_string('endofgame', 'mod_quizgame', Math.round(player.lastScore)), displayRect.width / 2, displayRect.height / 2);
+            context.fillText(M.util.get_string('endofgame', 'mod_quizgame',
+                                               Math.round(player.lastScore)),
+                                               displayRect.width / 2, displayRect.height / 2);
         }
     }
 
@@ -525,6 +532,9 @@ define(['jquery'], function($) {
         playSound("explosion");
     };
     Enemy.prototype.gotShot = function(shot) {
+        // Default behaviour, to be overridden.
+        shot.die();
+        this.die();
     };
 
     function MultiEnemy(x, y, text, fraction) {
@@ -745,14 +755,14 @@ define(['jquery'], function($) {
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
             if (e.keyCode === 32) {
-                loadGame(e);
+                loadGame();
             }
         }
     }
 
     function menumousedown(e) {
         if (e.target === stage) {
-            loadGame(e);
+            loadGame();
         }
     }
 
@@ -848,7 +858,8 @@ define(['jquery'], function($) {
         return array;
     }
 
-    function doInitialize() {
+    function doInitialize(q) {
+        questions = q;
         if (document.addEventListener) {
             document.addEventListener('fullscreenchange', fschange, false);
             document.addEventListener('MSFullscreenChange', fschange, false);

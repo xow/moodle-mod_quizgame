@@ -25,44 +25,42 @@ class mod_quizgame_renderer extends plugin_renderer_base {
     function render_game($quizgame, $context) {
         global $DB, $OUTPUT;
 
+        $categoryid = explode(',', $quizgame->questioncategory)[0];
+        $questionids = array_keys($DB->get_records('question', array('category' => intval($categoryid)), '', 'id'));
+        $questions = question_load_questions($questionids);
+
         $this->page->requires->strings_for_js(array(
                 'score',
                 'emptyquiz',
                 'endofgame',
                 'spacetostart'
             ), 'mod_quizgame');
-        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init');
 
-        $categoryid = explode(',', $quizgame->questioncategory)[0];
-        $questionids = array_keys($DB->get_records('question', array('category' => intval($categoryid)), '', 'id'));
-        $questions = question_load_questions($questionids);
-
-        $display = "<script>var questions = [\n";
-
+        $qjson = [];
         foreach ($questions as $question) {
             if ($question->qtype == "multichoice") {
                 $questiontext = quizgame_cleanup($question->questiontext);
-                $display .= "{\n    question: \"" . $questiontext . "\",\n    answers: [\n";
+                $answers = [];
                 foreach ($question->options->answers as $answer) {
                     $answertext = quizgame_cleanup($answer->answer);
-                    $display .= "        {text: \"" . $answertext . "\", fraction: " . $answer->fraction . "},\n";
+                    $answers[] = ["text" => $answertext, "fraction" => $answer->fraction];
                 }
-                $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
+                $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype];
             }
             if ($question->qtype == "match") {
-                $display .= "{\n    question: \"Match\",\n    stems: [\n";
+                $subquestions = [];
                 foreach ($question->options->subquestions as $subquestion) {
                     $questiontext = quizgame_cleanup($subquestion->questiontext);
                     $answertext = quizgame_cleanup($subquestion->answertext);
-                    $display .= "        {question: \"" . $questiontext . "\", answer: \"" . $answertext . "\"},\n";
+                    $subquestions[] = ["question" => $questiontext, "answer" => $answertext];
                 }
-                $display .= "    ],\n    type: \"" . $question->qtype . "\"\n},\n";
+                $qjson[] = ["question" => get_string("match", "quiz"), "stems" => $subquestions, "type" => $question->qtype];
             }
         }
 
-        $display .= "];</script>";
+        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson));
 
-        $display .= '<canvas id="mod_quizgame_game"></canvas>';
+        $display = '<canvas id="mod_quizgame_game"></canvas>';
         $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">'.
                     '<source src="sound/Laser.wav" type="audio/wav" />'.
                     '</audio>';
