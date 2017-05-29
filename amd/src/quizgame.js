@@ -26,6 +26,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery'], function($) {
+    var degrees = Math.PI / 180;
+
     var camera, scene, renderer;
     var effect, controls;
     var element, container;
@@ -33,6 +35,7 @@ define(['jquery'], function($) {
     var clock = new THREE.Clock();
 
     var objects = [];
+    var crosshairs;
 
     init();
     animate();
@@ -109,7 +112,7 @@ define(['jquery'], function($) {
       var loader = new THREE.ColladaLoader();
       loader.load('models/enemy.dae', function (result) {
           // Create lots of enemies
-          for (var i = 0; i < 100; i++) {
+          for (var i = 0; i < 8; i++) {
               var model = result.scene.clone();
               scene.add(model);
               objects.push(new Enemy(model));
@@ -135,6 +138,44 @@ define(['jquery'], function($) {
       skyboxMesh.scale.set(-1,1,1);
       // Add it to the scene.
       scene.add(skyboxMesh);*/
+
+      // Cross hairs.
+      var texture = textureLoader.load(
+        'textures/crosshairs.png'
+      );
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.anisotropy = renderer.getMaxAnisotropy();
+
+      var material = new THREE.MeshBasicMaterial({
+        transparent: true,
+        map: texture,
+      });
+
+      var geometry = new THREE.PlaneGeometry(0.1, 0.1);
+
+      crosshairs = new THREE.Mesh(geometry, material);
+      camera.add(crosshairs);
+      crosshairs.translateZ(-1);
+
+      var width = screen.width/2;
+      var height = screen.height;
+      var hudCanvas = document.createElement('canvas');
+      hudCanvas.width = width;
+      hudCanvas.height = height;
+      var hudBitmap = hudCanvas.getContext('2d');
+      hudBitmap.font = "40px Arial";
+      hudBitmap.textAlign = 'center';
+      hudBitmap.fillStyle = "rgba(255,140,0,1)";
+      hudBitmap.fillText('Score: 0', width / 2, height * 0.8);
+      var hudTexture = new THREE.Texture(hudCanvas)
+      hudTexture.needsUpdate = true;
+      var material = new THREE.MeshBasicMaterial( {map: hudTexture } );
+      material.transparent = true;
+      var planeGeometry = new THREE.PlaneGeometry( 1, 1 );
+      var hudPlane = new THREE.Mesh( planeGeometry, material );
+      camera.add( hudPlane );
+      hudPlane.translateZ(-1);
     }
 
     function resize() {
@@ -182,6 +223,13 @@ define(['jquery'], function($) {
     }
 
     function updateObjects(dt) {
+        /*crosshairs.position.x = camera.position.x;
+        crosshairs.position.y = camera.position.y;
+        crosshairs.position.z = camera.position.z;
+        crosshairs.rotation.x = camera.rotation.x;
+        crosshairs.rotation.y = camera.rotation.y;
+        crosshairs.rotation.z = camera.rotation.z;
+        crosshairs.translateZ(-0.5);*/
         for (var i = 0; i < objects.length; i++) {
             var object = objects[i];
             object.update(dt);
@@ -207,14 +255,33 @@ define(['jquery'], function($) {
      */
     function Enemy(object3d) {
         GameObject.call(this, object3d);
-        var degrees = Math.PI / 180;
         object3d.rotation.x = -90 * degrees;
         object3d.rotation.z = -90 * degrees;
         object3d.position.y = Math.random()*15;
-        object3d.position.x = 20+Math.random()*180;
-        object3d.position.z = (Math.random()*100)-50;
+        object3d.position.x = 40+Math.random()*20;
+        object3d.position.z = (Math.random()*50)-25;
         this.object3d = object3d;
         this.velocity = new THREE.Vector3(0, -(Math.random()*1)-1, 0);
+        this.answer = 'Quizventure answer';
+        var width = 1024;
+        var height = 768;
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = width;
+        this.canvas.height = height;
+        context = this.canvas.getContext('2d');
+        context.font = "40px Arial";
+        context.textAlign = 'center';
+        context.fillStyle = "rgba(255,140,0,1)";
+        context.fillText(this.answer, width / 2, height / 2);
+        var hudTexture = new THREE.Texture(this.canvas);
+        hudTexture.needsUpdate = true;
+        var material = new THREE.MeshBasicMaterial( {map: hudTexture } );
+        material.transparent = true;
+        var planeGeometry = new THREE.PlaneGeometry( 1024, 768 );
+        this.questionPlane = new THREE.Mesh( planeGeometry, material );
+        object3d.add(this.questionPlane);
+        this.questionPlane.translateZ(50);
+        this.questionPlane.rotateX(90*degrees);
     }
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function(dt) {
