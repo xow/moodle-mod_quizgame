@@ -49,6 +49,7 @@ $context = context_module::instance($cm->id);
 
 // Print the page header.
 
+$PAGE->set_pagelayout('embedded');
 $PAGE->set_url('/mod/quizgame/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($quizgame->name));
 $PAGE->set_heading(format_string($course->fullname));
@@ -68,7 +69,6 @@ echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
 // Game here.
 echo "<link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>";
 echo $renderer->render_game($quizgame, $context);
-echo "<div class=fontloader>Loading game</div>";
 
 // Finish the page.
 echo $OUTPUT->footer();
