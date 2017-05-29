@@ -32,7 +32,7 @@ define(['jquery'], function($) {
 
     var clock = new THREE.Clock();
 
-    var enemy;
+    var objects = [];
 
     init();
     animate();
@@ -77,15 +77,16 @@ define(['jquery'], function($) {
       window.addEventListener('deviceorientation', setOrientationControls, true);
 
 
-      var light = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 0.8);
+      var light = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 1);
       scene.add(light);
 
-      var texture = THREE.ImageUtils.loadTexture(
-        'textures/patterns/checker.png'
+      var textureLoader = new THREE.TextureLoader();
+      /*var texture = textureLoader.load(
+        'textures/patterns/grid.png'
       );
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat = new THREE.Vector2(50, 50);
+      texture.repeat = new THREE.Vector2(768, 786);
       texture.anisotropy = renderer.getMaxAnisotropy();
 
       var material = new THREE.MeshPhongMaterial({
@@ -100,17 +101,40 @@ define(['jquery'], function($) {
 
       var mesh = new THREE.Mesh(geometry, material);
       mesh.rotation.x = -Math.PI / 2;
-      scene.add(mesh);
+      scene.add(mesh);*/
 
       window.addEventListener('resize', resize, false);
       setTimeout(resize, 1);
 
       var loader = new THREE.ColladaLoader();
-      var degrees = Math.PI / 180;
       loader.load('models/enemy.dae', function (result) {
-          var enemy = result.scene;
-          scene.add(enemy);
+          // Create lots of enemies
+          for (var i = 0; i < 100; i++) {
+              var model = result.scene.clone();
+              scene.add(model);
+              objects.push(new Enemy(model));
+          }
       });
+
+      var skyGeo = new THREE.SphereGeometry(700, 25, 25);
+      var texture = textureLoader.load("textures/Panorama.jpg");
+      var material = new THREE.MeshBasicMaterial({
+          map: texture
+      });
+      var sky = new THREE.Mesh(skyGeo, material);
+      sky.material.side = THREE.BackSide;
+      scene.add(sky);
+      /*var urlPrefix = "textures/patterns/spacebox/";
+      var urls = [ urlPrefix + "posx.jpg", urlPrefix + "negx.jpg",
+      urlPrefix + "posy.jpg", urlPrefix + "negy.jpg",
+      urlPrefix + "posz.jpg", urlPrefix + "negz.jpg" ];
+      var cubeLoader = new THREE.CubeTextureLoader();
+      var textureCube = cubeLoader.load( urls );
+      // Build the skybox Mesh.
+      skyboxMesh = new THREE.Mesh( new THREE.CubeGeometry( 100000, 100000, 100000, 1, 1, 1, null, true ), material );
+      skyboxMesh.scale.set(-1,1,1);
+      // Add it to the scene.
+      scene.add(skyboxMesh);*/
     }
 
     function resize() {
@@ -130,6 +154,8 @@ define(['jquery'], function($) {
       camera.updateProjectionMatrix();
 
       controls.update(dt);
+
+      updateObjects(dt);
     }
 
     function render(dt) {
@@ -153,5 +179,45 @@ define(['jquery'], function($) {
       } else if (container.webkitRequestFullscreen) {
         container.webkitRequestFullscreen();
       }
+    }
+
+    function updateObjects(dt) {
+        for (var i = 0; i < objects.length; i++) {
+            var object = objects[i];
+            object.update(dt);
+        }
+    }
+
+    /**
+     * GameObject constructor
+     */
+    function GameObject(object3d) {
+        this.object3d = object3d;
+        this.velocity = new THREE.Vector3(0, 0, 0);
+    }
+    GameObject.prototype.update = function(dt) {
+        this.object3d.translateX(this.velocity.x*dt);
+        this.object3d.translateY(this.velocity.y*dt);
+        this.object3d.translateZ(this.velocity.z*dt);
+        //this.object3d.rotateZ((Math.random()*0.03)-0.015);
+    }
+
+    /**
+     * Enemy constructor
+     */
+    function Enemy(object3d) {
+        GameObject.call(this, object3d);
+        var degrees = Math.PI / 180;
+        object3d.rotation.x = -90 * degrees;
+        object3d.rotation.z = -90 * degrees;
+        object3d.position.y = Math.random()*15;
+        object3d.position.x = 20+Math.random()*180;
+        object3d.position.z = (Math.random()*100)-50;
+        this.object3d = object3d;
+        this.velocity = new THREE.Vector3(0, -(Math.random()*1)-1, 0);
+    }
+    Enemy.prototype = Object.create(GameObject.prototype);
+    Enemy.prototype.update = function(dt) {
+        GameObject.prototype.update.call(this, dt);
     }
 });
