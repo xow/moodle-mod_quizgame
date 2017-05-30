@@ -116,6 +116,26 @@ define(['jquery'], function($) {
           color: 0xFF0000
       });
 
+      /*var sphereGeo = new THREE.SphereGeometry(8, 25, 25);
+      var material = new THREE.MeshBasicMaterial({
+          color: 0x00FF00
+      });
+      var sphere = new THREE.Mesh(sphereGeo, material);
+      sphere.position.z = -10;
+      scene.add(sphere);
+
+      var cylinderGeo = new THREE.CylinderGeometry(0, 5, 5, 25);
+      cylinderGeo.rotateX(90*degrees);
+      cylinderGeo.translate(0, -5, -20);
+      var material = new THREE.MeshPhongMaterial({
+        color: 0x996633,
+        specular: 0x050505,
+        shininess: 100
+      });
+      var cylinder = new THREE.Mesh(cylinderGeo, material);
+      scene.add(cylinder);
+      objects.push(new PowerUp(cylinder));*/
+
       var skyGeo = new THREE.SphereGeometry(horizon, 25, 25);
       var texture = textureLoader.load("textures/Panorama.jpg");
       var material = new THREE.MeshBasicMaterial({
@@ -297,7 +317,7 @@ define(['jquery'], function($) {
     Enemy.prototype.update = function(dt) {
         GameObject.prototype.update.call(this, dt);
         if (this.object3d.position.x < 0) {
-            object3d.position.x = 60;
+            this.object3d.position.x = 60;
         }
     }
 
@@ -318,6 +338,21 @@ define(['jquery'], function($) {
         this.life -= dt;
         if (this.life < 0) {
             this.die();
+        }
+        var direction = new THREE.Vector3( 0, 0, 1 );
+        direction.applyQuaternion( this.object3d.quaternion );
+        raycaster.set( this.object3d.position, direction );
+
+        // calculate objects intersecting the picking ray
+        var intersects = raycaster.intersectObjects( enemies.children, true );
+        for ( var i = 0; i < intersects.length; i++ ) {
+
+            console.log('we got one!');
+            enemies.remove(intersects[i]);
+            scene.remove(intersects[i]);
+            this.die();
+            break;
+
         }
     }
 
