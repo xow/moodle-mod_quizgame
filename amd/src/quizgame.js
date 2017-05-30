@@ -36,7 +36,7 @@ define(['jquery'], function($) {
 
     var objects = [];
     var laserGeo, laserMaterial;
-    var laserFullCharge = 1/3;
+    var laserFullCharge = 0.1;
     var laserWaitTime = 0.6;
     var laserCharge = 0;
     var laserSide = -1;
@@ -115,14 +115,6 @@ define(['jquery'], function($) {
       laserMaterial = new THREE.MeshBasicMaterial({
           color: 0xFF0000
       });
-
-      /*var sphereGeo = new THREE.SphereGeometry(8, 25, 25);
-      var material = new THREE.MeshBasicMaterial({
-          color: 0x00FF00
-      });
-      var sphere = new THREE.Mesh(sphereGeo, material);
-      sphere.position.z = -10;
-      scene.add(sphere);*/
 
       var skyGeo = new THREE.SphereGeometry(horizon, 25, 25);
       var texture = textureLoader.load("textures/Panorama.jpg");
@@ -304,6 +296,9 @@ define(['jquery'], function($) {
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function(dt) {
         GameObject.prototype.update.call(this, dt);
+        if (this.object3d.position.x < 0) {
+            object3d.position.x = 60;
+        }
     }
 
     /**
@@ -313,7 +308,7 @@ define(['jquery'], function($) {
         GameObject.call(this, object3d);
         this.velocity = new THREE.Vector3(0, 0, -40);
         this.object3d.position.set(camera.position.x, camera.position.y-0.2, camera.position.z);
-        this.object3d.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+        this.object3d.rotation.copy(camera.rotation);
         this.object3d.translateX(laserSide*0.2);
         this.life = 3;
     }
