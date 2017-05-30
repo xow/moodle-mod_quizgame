@@ -36,34 +36,37 @@ define(['jquery'], function($) {
 
     var objects = [];
     var crosshairs;
-
-    init();
-    animate();
+    var laserGeo, laserMaterial;
+    var laserFullCharge = 1/3;
+    var laserCharge = 0;
+    var laserSide = -1;
+    var horizon = 800000;
+    var raycaster;
 
     function init() {
+        raycaster = new THREE.Raycaster();
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        element = renderer.domElement;
+        container = document.getElementById('mod_quizgame_game');
+        container.appendChild(element);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      element = renderer.domElement;
-      container = document.getElementById('mod_quizgame_game');
-      container.appendChild(element);
+        effect = new THREE.StereoEffect(renderer);
 
-      effect = new THREE.StereoEffect(renderer);
+        scene = new THREE.Scene();
 
-      scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(90, 1, 0.001, horizon);
+        camera.position.set(0, 10, 0);
+        scene.add(camera);
 
-      camera = new THREE.PerspectiveCamera(90, 1, 0.001, 700);
-      camera.position.set(0, 10, 0);
-      scene.add(camera);
-
-      controls = new THREE.OrbitControls(camera, element);
-      controls.rotateUp(Math.PI / 4);
-      controls.target.set(
-        camera.position.x + 0.1,
-        camera.position.y,
-        camera.position.z
-      );
-      controls.noZoom = true;
-      controls.noPan = true;
+        controls = new THREE.OrbitControls(camera, element);
+        //controls.rotateUp(90*degrees);
+        controls.target.set(
+                camera.position.x + 0.1,
+                camera.position.y,
+                camera.position.z
+            );
+        controls.noZoom = true;
+        controls.noPan = true;
 
       function setOrientationControls(e) {
         if (!e.alpha) {
@@ -83,61 +86,50 @@ define(['jquery'], function($) {
       var light = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 1);
       scene.add(light);
 
-      var textureLoader = new THREE.TextureLoader();
-      /*var texture = textureLoader.load(
-        'textures/patterns/grid.png'
-      );
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat = new THREE.Vector2(768, 786);
-      texture.anisotropy = renderer.getMaxAnisotropy();
-
-      var material = new THREE.MeshPhongMaterial({
-        color: 0xffffff,
-        specular: 0xffffff,
-        shininess: 20,
-        shading: THREE.FlatShading,
-        map: texture
-      });
-
-      var geometry = new THREE.PlaneGeometry(1000, 1000);
-
-      var mesh = new THREE.Mesh(geometry, material);
-      mesh.rotation.x = -Math.PI / 2;
-      scene.add(mesh);*/
-
       window.addEventListener('resize', resize, false);
       setTimeout(resize, 1);
 
-      var loader = new THREE.ColladaLoader();
-      loader.load('models/enemy.dae', function (result) {
+      loadModels();
+    }
+    function loadModels() {
+      var textureLoader = new THREE.TextureLoader();
+      var modelLoader = new THREE.ColladaLoader();
+      modelLoader.options.convertUpAxis = true;
+      modelLoader.options.upAxis = 'X';
+
+      enemies = new THREE.Object3D();
+      scene.add(enemies);
+      modelLoader.load('models/enemy.dae', function (result) {
           // Create lots of enemies
           for (var i = 0; i < 8; i++) {
               var model = result.scene.clone();
-              scene.add(model);
+              enemies.add(model);
               objects.push(new Enemy(model));
           }
       });
+      laserGeo = new THREE.CylinderGeometry(0, 0.04, 2, 4);
+      laserGeo.rotateX(90*degrees);
+      laserMaterial = new THREE.MeshBasicMaterial({
+          color: 0xFF0000
+      });
 
-      var skyGeo = new THREE.SphereGeometry(700, 25, 25);
+      /*var sphereGeo = new THREE.SphereGeometry(8, 25, 25);
+      var material = new THREE.MeshBasicMaterial({
+          color: 0x00FF00
+      });
+      var sphere = new THREE.Mesh(sphereGeo, material);
+      sphere.position.z = -10;
+      scene.add(sphere);*/
+
+      var skyGeo = new THREE.SphereGeometry(horizon, 25, 25);
       var texture = textureLoader.load("textures/Panorama.jpg");
       var material = new THREE.MeshBasicMaterial({
           map: texture
       });
       var sky = new THREE.Mesh(skyGeo, material);
       sky.material.side = THREE.BackSide;
+      sky.name = "sky";
       scene.add(sky);
-      /*var urlPrefix = "textures/patterns/spacebox/";
-      var urls = [ urlPrefix + "posx.jpg", urlPrefix + "negx.jpg",
-      urlPrefix + "posy.jpg", urlPrefix + "negy.jpg",
-      urlPrefix + "posz.jpg", urlPrefix + "negz.jpg" ];
-      var cubeLoader = new THREE.CubeTextureLoader();
-      var textureCube = cubeLoader.load( urls );
-      // Build the skybox Mesh.
-      skyboxMesh = new THREE.Mesh( new THREE.CubeGeometry( 100000, 100000, 100000, 1, 1, 1, null, true ), material );
-      skyboxMesh.scale.set(-1,1,1);
-      // Add it to the scene.
-      scene.add(skyboxMesh);*/
 
       // Cross hairs.
       var texture = textureLoader.load(
@@ -223,13 +215,29 @@ define(['jquery'], function($) {
     }
 
     function updateObjects(dt) {
-        /*crosshairs.position.x = camera.position.x;
-        crosshairs.position.y = camera.position.y;
-        crosshairs.position.z = camera.position.z;
-        crosshairs.rotation.x = camera.rotation.x;
-        crosshairs.rotation.y = camera.rotation.y;
-        crosshairs.rotation.z = camera.rotation.z;
-        crosshairs.translateZ(-0.5);*/
+        // See if we are currently pointing at a ship
+        // update the picking ray with the camera and mouse position
+        raycaster.setFromCamera( new THREE.Vector2(0, 0), camera );
+
+        // calculate objects intersecting the picking ray
+        var intersects = raycaster.intersectObjects( enemies.children, true );
+        var aimed = false;
+
+        for ( var i = 0; i < intersects.length; i++ ) {
+
+            aimed = true;
+            break;
+
+        }
+        if (laserCharge >= laserFullCharge && aimed) {
+            var laser = new THREE.Mesh(laserGeo, laserMaterial);
+            scene.add(laser);
+            objects.push(new Laser(laser));
+            laserCharge = 0;
+            laserSide = -laserSide;
+        } else {
+            laserCharge+=dt;
+        }
         for (var i = 0; i < objects.length; i++) {
             var object = objects[i];
             object.update(dt);
@@ -247,44 +255,74 @@ define(['jquery'], function($) {
         this.object3d.translateX(this.velocity.x*dt);
         this.object3d.translateY(this.velocity.y*dt);
         this.object3d.translateZ(this.velocity.z*dt);
-        //this.object3d.rotateZ((Math.random()*0.03)-0.015);
+    }
+    GameObject.prototype.die = function(dt) {
+        scene.remove(this.object3d);
+        var i = objects.indexOf(this);
+        objects.splice(i, 1);
     }
 
     /**
-     * Enemy constructor
+     * Laser constructor
      */
     function Enemy(object3d) {
         GameObject.call(this, object3d);
-        object3d.rotation.x = -90 * degrees;
-        object3d.rotation.z = -90 * degrees;
         object3d.position.y = Math.random()*15;
         object3d.position.x = 40+Math.random()*20;
         object3d.position.z = (Math.random()*50)-25;
         this.object3d = object3d;
-        this.velocity = new THREE.Vector3(0, -(Math.random()*1)-1, 0);
-        this.answer = 'Quizventure answer';
+        this.velocity = new THREE.Vector3(-(Math.random()*1)-1, 0, 0);
+        this.answer = 'Answer to the question';
         var width = 1024;
-        var height = 768;
+        var height = 64;
         this.canvas = document.createElement('canvas');
         this.canvas.width = width;
         this.canvas.height = height;
         context = this.canvas.getContext('2d');
-        context.font = "40px Arial";
+        context.font = "60px Arial";
         context.textAlign = 'center';
         context.fillStyle = "rgba(255,140,0,1)";
-        context.fillText(this.answer, width / 2, height / 2);
+        context.fillText(this.answer, width / 2, 50);
         var hudTexture = new THREE.Texture(this.canvas);
         hudTexture.needsUpdate = true;
         var material = new THREE.MeshBasicMaterial( {map: hudTexture } );
         material.transparent = true;
-        var planeGeometry = new THREE.PlaneGeometry( 1024, 768 );
+        var planeGeometry = new THREE.PlaneGeometry( 1024, 64 );
         this.questionPlane = new THREE.Mesh( planeGeometry, material );
         object3d.add(this.questionPlane);
-        this.questionPlane.translateZ(50);
-        this.questionPlane.rotateX(90*degrees);
+        this.questionPlane.translateY(50);
+        this.questionPlane.rotateY(-90*degrees);
+        this.object3d.name = "enemy";
     }
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function(dt) {
         GameObject.prototype.update.call(this, dt);
+    }
+
+    /**
+     * Laser constructor
+     */
+    function Laser(object3d) {
+        GameObject.call(this, object3d);
+        this.velocity = new THREE.Vector3(0, 0, -40);
+        this.object3d.position.set(camera.position.x, camera.position.y-0.2, camera.position.z);
+        this.object3d.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+        this.object3d.translateX(laserSide*0.2);
+        this.life = 3;
+    }
+    Laser.prototype = Object.create(GameObject.prototype);
+    Laser.prototype.update = function(dt) {
+        GameObject.prototype.update.call(this, dt);
+        this.life -= dt;
+        if (this.life < 0) {
+            this.die();
+        }
+    }
+
+    return {
+        init: function () {
+            init();
+            animate();
+        }
     }
 });
