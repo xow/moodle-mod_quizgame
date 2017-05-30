@@ -36,12 +36,18 @@ define(['jquery'], function($) {
 
     var objects = [];
     var crosshairs;
+    var crosshairsTargetingTexture;
+    var crosshairsTexture;
     var laserGeo, laserMaterial;
     var laserFullCharge = 1/3;
+    var laserWaitTime = 0.6;
     var laserCharge = 0;
     var laserSide = -1;
     var horizon = 800000;
     var raycaster;
+    var eyeview = {width: Math.max(screen.width, screen.height)/2, height: Math.min(screen.width, screen.height)};
+    var hudBitmap, hudTexture;
+    var aimed = false;
 
     function init() {
         raycaster = new THREE.Raycaster();
@@ -132,7 +138,10 @@ define(['jquery'], function($) {
       scene.add(sky);
 
       // Cross hairs.
-      var texture = textureLoader.load(
+      crosshairsTargetingTexture = textureLoader.load(
+        'textures/crosshairs-targeting.png'
+      );
+      crosshairsTexture = textureLoader.load(
         'textures/crosshairs.png'
       );
       texture.wrapS = THREE.RepeatWrapping;
@@ -141,33 +150,49 @@ define(['jquery'], function($) {
 
       var material = new THREE.MeshBasicMaterial({
         transparent: true,
-        map: texture,
+        map: crosshairsTexture,
       });
 
       var geometry = new THREE.PlaneGeometry(0.1, 0.1);
 
       crosshairs = new THREE.Mesh(geometry, material);
-      camera.add(crosshairs);
+      //camera.add(crosshairs);
       crosshairs.translateZ(-1);
 
-      var width = screen.width/2;
-      var height = screen.height;
       var hudCanvas = document.createElement('canvas');
-      hudCanvas.width = width;
-      hudCanvas.height = height;
-      var hudBitmap = hudCanvas.getContext('2d');
-      hudBitmap.font = "40px Arial";
-      hudBitmap.textAlign = 'center';
-      hudBitmap.fillStyle = "rgba(255,140,0,1)";
-      hudBitmap.fillText('Score: 0', width / 2, height * 0.8);
-      var hudTexture = new THREE.Texture(hudCanvas)
-      hudTexture.needsUpdate = true;
+      hudCanvas.width = eyeview.width;
+      hudCanvas.height = eyeview.height;
+      hudBitmap = hudCanvas.getContext('2d');
+      hudTexture = new THREE.Texture(hudCanvas)
+      updateHUD();
       var material = new THREE.MeshBasicMaterial( {map: hudTexture } );
       material.transparent = true;
       var planeGeometry = new THREE.PlaneGeometry( 1, 1 );
       var hudPlane = new THREE.Mesh( planeGeometry, material );
       camera.add( hudPlane );
       hudPlane.translateZ(-1);
+    }
+
+    function updateHUD() {
+      size = eyeview.height/20;
+      hudBitmap.clearRect(0, 0, eyeview.width, eyeview.height);
+      hudBitmap.font = "20px Arial";
+      hudBitmap.textAlign = 'center';
+      hudBitmap.fillStyle = "#f98012";
+      hudBitmap.fillText('Score: 0', eyeview.width / 2, eyeview.height*1);
+      hudBitmap.beginPath();
+      hudBitmap.lineWidth=2;
+      hudBitmap.strokeStyle="#f98012";
+      hudBitmap.arc(eyeview.width/2,eyeview.height/2,size,0,2*Math.PI);
+      hudBitmap.stroke();
+      hudBitmap.beginPath();
+      if (aimed) {
+          hudBitmap.lineWidth=10;
+          hudBitmap.strokeStyle="#f98012";
+          hudBitmap.arc(eyeview.width/2,eyeview.height/2,size,0,2*Math.PI);
+          hudBitmap.stroke();
+      }
+      hudTexture.needsUpdate = true;
     }
 
     function resize() {
@@ -221,7 +246,9 @@ define(['jquery'], function($) {
 
         // calculate objects intersecting the picking ray
         var intersects = raycaster.intersectObjects( enemies.children, true );
-        var aimed = false;
+        var lastKnownAimed = aimed;
+        aimed = false;
+        crosshairs.material.map = crosshairsTexture;
 
         for ( var i = 0; i < intersects.length; i++ ) {
 
@@ -229,11 +256,17 @@ define(['jquery'], function($) {
             break;
 
         }
-        if (laserCharge >= laserFullCharge && aimed) {
+        if (!aimed) {
+            laserCharge=0;
+        }
+        if (aimed != lastKnownAimed) {
+            updateHUD();
+        }
+        if (laserCharge >= laserWaitTime+laserFullCharge && aimed) {
             var laser = new THREE.Mesh(laserGeo, laserMaterial);
             scene.add(laser);
             objects.push(new Laser(laser));
-            laserCharge = 0;
+            laserCharge = laserWaitTime;
             laserSide = -laserSide;
         } else {
             laserCharge+=dt;
@@ -281,7 +314,7 @@ define(['jquery'], function($) {
         context = this.canvas.getContext('2d');
         context.font = "60px Arial";
         context.textAlign = 'center';
-        context.fillStyle = "rgba(255,140,0,1)";
+        context.fillStyle = "#FFFFFF";
         context.fillText(this.answer, width / 2, 50);
         var hudTexture = new THREE.Texture(this.canvas);
         hudTexture.needsUpdate = true;
