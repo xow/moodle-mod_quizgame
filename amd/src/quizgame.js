@@ -35,9 +35,6 @@ define(['jquery'], function($) {
     var clock = new THREE.Clock();
 
     var objects = [];
-    var crosshairs;
-    var crosshairsTargetingTexture;
-    var crosshairsTexture;
     var laserGeo, laserMaterial;
     var laserFullCharge = 1/3;
     var laserWaitTime = 0.6;
@@ -137,28 +134,6 @@ define(['jquery'], function($) {
       sky.name = "sky";
       scene.add(sky);
 
-      // Cross hairs.
-      crosshairsTargetingTexture = textureLoader.load(
-        'textures/crosshairs-targeting.png'
-      );
-      crosshairsTexture = textureLoader.load(
-        'textures/crosshairs.png'
-      );
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.anisotropy = renderer.getMaxAnisotropy();
-
-      var material = new THREE.MeshBasicMaterial({
-        transparent: true,
-        map: crosshairsTexture,
-      });
-
-      var geometry = new THREE.PlaneGeometry(0.1, 0.1);
-
-      crosshairs = new THREE.Mesh(geometry, material);
-      //camera.add(crosshairs);
-      crosshairs.translateZ(-1);
-
       var hudCanvas = document.createElement('canvas');
       hudCanvas.width = eyeview.width;
       hudCanvas.height = eyeview.height;
@@ -248,7 +223,6 @@ define(['jquery'], function($) {
         var intersects = raycaster.intersectObjects( enemies.children, true );
         var lastKnownAimed = aimed;
         aimed = false;
-        crosshairs.material.map = crosshairsTexture;
 
         for ( var i = 0; i < intersects.length; i++ ) {
 
