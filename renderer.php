@@ -25,6 +25,38 @@ class mod_quizgame_renderer extends plugin_renderer_base {
     function render_game($quizgame, $context) {
         global $DB, $OUTPUT;
 
+        $categoryid = explode(',', $quizgame->questioncategory)[0];
+        $questionids = array_keys($DB->get_records('question', array('category' => intval($categoryid)), '', 'id'));
+        $questions = question_load_questions($questionids);
+        $this->page->requires->strings_for_js(array(
+                    'score',
+                    'emptyquiz',
+                    'endofgame',
+                    'spacetostart'
+                    ), 'mod_quizgame');
+        $qjson = [];
+        foreach ($questions as $question) {
+            if ($question->qtype == "multichoice") {
+                $questiontext = quizgame_cleanup($question->questiontext);
+                $answers = [];
+                foreach ($question->options->answers as $answer) {
+                    $answertext = quizgame_cleanup($answer->answer);
+                    $answers[] = ["text" => $answertext, "fraction" => $answer->fraction];
+                }
+                $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype];
+            }
+            if ($question->qtype == "match") {
+                $subquestions = [];
+                foreach ($question->options->subquestions as $subquestion) {
+                    $questiontext = quizgame_cleanup($subquestion->questiontext);
+                    $answertext = quizgame_cleanup($subquestion->answertext);
+                    $subquestions[] = ["question" => $questiontext, "answer" => $answertext];
+                }
+                $qjson[] = ["question" => get_string("match", "quiz"), "stems" => $subquestions, "type" => $question->qtype];
+            }
+        }
+        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson));
+
         $display = $this->render_from_template('mod_quizgame/play', (object)[]);
 
         return $display;
