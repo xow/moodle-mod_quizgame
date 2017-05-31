@@ -45,6 +45,7 @@ define(['jquery'], function($) {
     var eyeview = {width: Math.max(screen.width, screen.height)/2, height: Math.min(screen.width, screen.height)};
     var hudBitmap, hudTexture;
     var aimed = false;
+    var enemiesSoFar = 0;
 
     function init() {
         raycaster = new THREE.Raycaster();
@@ -143,7 +144,6 @@ define(['jquery'], function($) {
       });
       var sky = new THREE.Mesh(skyGeo, material);
       sky.material.side = THREE.BackSide;
-      sky.name = "sky";
       scene.add(sky);
 
       var hudCanvas = document.createElement('canvas');
@@ -311,7 +311,7 @@ define(['jquery'], function($) {
         object3d.add(this.questionPlane);
         this.questionPlane.translateY(50);
         this.questionPlane.rotateY(-90*degrees);
-        this.object3d.name = "enemy";
+        this.object3d.userData.enemyObj = this;
     }
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function(dt) {
@@ -344,12 +344,11 @@ define(['jquery'], function($) {
         raycaster.set( this.object3d.position, direction );
 
         // calculate objects intersecting the picking ray
-        var intersects = raycaster.intersectObjects( enemies.children, true );
+        var intersects = raycaster.intersectObjects( enemies.children,true );
         for ( var i = 0; i < intersects.length; i++ ) {
-
-            console.log('we got one!');
-            enemies.remove(intersects[i]);
-            scene.remove(intersects[i]);
+            var shipModel = intersects[i].object.parent.parent;
+            enemies.remove(shipModel);
+            scene.remove(shipModel);
             this.die();
             break;
 
