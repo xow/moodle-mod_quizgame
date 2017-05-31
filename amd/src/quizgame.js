@@ -204,9 +204,10 @@ define(['jquery'], function($) {
     }
 
     function loadLevel() {
-        for (var i  = 0; i < currentTeam.length; i++) {
-            currentTeam[i].die();
-        }
+        console.log(currentTeam.length);
+        currentTeam.forEach(function (enemy) {
+            enemy.die();
+        });
         if (questions[level].type == 'multichoice') {
         var answers = questions[level].answers;
             for (var i  = 0; i < answers.length; i++) {
