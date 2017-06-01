@@ -304,6 +304,7 @@ define(['jquery'], function($) {
             objects.push(new Laser(laser));
             laserCharge = laserWaitTime;
             laserSide = -laserSide;
+            playSound("laser");
         } else {
             laserCharge+=dt;
         }
@@ -311,6 +312,11 @@ define(['jquery'], function($) {
             var object = objects[i];
             object.update(dt);
         }
+    }
+    function playSound(soundName) {
+        var soundElement = document.getElementById("mod_quizgame_sound_" + soundName);
+        soundElement.currentTime = 0;
+        soundElement.play();
     }
 
     /**
@@ -386,6 +392,7 @@ define(['jquery'], function($) {
         if (this.fraction >= 1 || (this.fraction > 0 && currentPointsLeft <= 0)) {
             nextLevel();
         }
+	playSound("explosion");
     }
     Enemy.prototype.gotShot = function(shot) {
         if (this.fraction > 0) {
@@ -439,6 +446,7 @@ define(['jquery'], function($) {
         this.object3d.rotateY(180*degrees);
         this.friendly = !this.friendly;
         this.object3d.material = laserMaterialUnfriendly;
+	playSound("deflect");
     }
 
     return {
