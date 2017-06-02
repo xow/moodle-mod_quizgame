@@ -57,6 +57,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         }
         $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson));
 
+        $display = '';
         $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">'.
                     '<source src="sound/Laser.wav" type="audio/wav" />'.
                     '</audio>';

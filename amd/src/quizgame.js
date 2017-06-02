@@ -44,7 +44,7 @@ define(['jquery'], function($) {
     var horizon = 800000;
     var raycaster;
     var eyeview = {width: Math.max(screen.width, screen.height)/2, height: Math.min(screen.width, screen.height)};
-    var hudCanvas, hudTexture;
+    var hudCanvas, hudTexture, hudPlane;
     var aimed = false;
     var currentTeam = [];
     var currentPointsLeft = 0;
@@ -53,9 +53,10 @@ define(['jquery'], function($) {
     var questions;
     var level = 0;
     var score = 0;
+    var vrOn = 0;
+    var soundOn;
 
-    function init(q) {
-        questions = q;
+    function initGame() {
         raycaster = new THREE.Raycaster();
         renderer = new THREE.WebGLRenderer({ antialias: true });
         element = renderer.domElement;
@@ -167,7 +168,7 @@ define(['jquery'], function($) {
       var material = new THREE.MeshBasicMaterial( {map: hudTexture } );
       material.transparent = true;
       var planeGeometry = new THREE.PlaneGeometry( 1, 1 );
-      var hudPlane = new THREE.Mesh( planeGeometry, material );
+      hudPlane = new THREE.Mesh( planeGeometry, material );
       camera.add( hudPlane );
       hudPlane.translateZ(-0.5);
       return promise;
@@ -204,10 +205,13 @@ define(['jquery'], function($) {
     }
 
     function loadLevel() {
-        console.log(currentTeam.length);
-        currentTeam.forEach(function (enemy) {
-            enemy.die();
-        });
+        for (var i = 0; i < currentTeam.length; i++) {
+            enemy = currentTeam[i];
+            if (enemy.alive) {
+                enemy.die();
+            }
+        }
+        currentTeam = [];
         if (questions[level].type == 'multichoice') {
         var answers = questions[level].answers;
             for (var i  = 0; i < answers.length; i++) {
@@ -254,7 +258,11 @@ define(['jquery'], function($) {
     }
 
     function render(dt) {
-      effect.render(scene, camera);
+      if (vrOn) {
+          effect.render(scene, camera);
+      } else {
+          renderer.render(scene, camera);
+      }
     }
 
     function animate(t) {
@@ -314,9 +322,11 @@ define(['jquery'], function($) {
         }
     }
     function playSound(soundName) {
-        var soundElement = document.getElementById("mod_quizgame_sound_" + soundName);
-        soundElement.currentTime = 0;
-        soundElement.play();
+        if (soundOn) {
+            var soundElement = document.getElementById("mod_quizgame_sound_" + soundName);
+            soundElement.currentTime = 0;
+            soundElement.play();
+        }
     }
 
     /**
@@ -325,16 +335,21 @@ define(['jquery'], function($) {
     function GameObject(object3d) {
         this.object3d = object3d;
         this.velocity = new THREE.Vector3(0, 0, 0);
+        this.alive = true;
     }
     GameObject.prototype.update = function(dt) {
         this.object3d.translateX(this.velocity.x*dt);
         this.object3d.translateY(this.velocity.y*dt);
         this.object3d.translateZ(this.velocity.z*dt);
     }
-    GameObject.prototype.die = function(dt) {
+    GameObject.prototype.remove = function(dt) {
+        console.log('remove this');
         scene.remove(this.object3d);
         var i = objects.indexOf(this);
         objects.splice(i, 1);
+    }
+    GameObject.prototype.die = function(dt) {
+        this.remove(dt);
     }
     GameObject.prototype.gotShot = function(shot) {
         // By default nothing happens.
@@ -381,9 +396,10 @@ define(['jquery'], function($) {
         }
     }
     Enemy.prototype.die = function() {
+        //var i = currentTeam.indexOf(this);
+        //currentTeam.splice(i, 1);
+        this.alive = false;
         enemies.remove(this.object3d);
-        var i = currentTeam.indexOf(this);
-        currentTeam.splice(i, 1);
         GameObject.prototype.die.call(this);
         score += this.fraction * 1000;
         if (this.fraction > 0) {
@@ -392,7 +408,7 @@ define(['jquery'], function($) {
         if (this.fraction >= 1 || (this.fraction > 0 && currentPointsLeft <= 0)) {
             nextLevel();
         }
-	playSound("explosion");
+        playSound("explosion");
     }
     Enemy.prototype.gotShot = function(shot) {
         if (this.fraction > 0) {
@@ -442,16 +458,20 @@ define(['jquery'], function($) {
         }
     }
     Laser.prototype.deflect = function() {
-        // Rotate the other way;
         this.object3d.rotateY(180*degrees);
         this.friendly = !this.friendly;
         this.object3d.material = laserMaterialUnfriendly;
-	playSound("deflect");
+        playSound("deflect");
     }
 
     return {
         init: function (q) {
-            init(q);
+            questions = q;
+        },
+        startGame(sound, vr) {
+            soundOn = sound;
+            vrOn = vr;
+            initGame();
             animate();
         }
     }
