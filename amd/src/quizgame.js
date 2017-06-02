@@ -152,6 +152,7 @@ define(['jquery'], function($) {
       objects.push(new PowerUp(cylinder));*/
 
       var skyGeo = new THREE.SphereGeometry(horizon, 25, 25);
+      skyGeo.rotateY(90*degrees);
       var texture = textureLoader.load("textures/Panorama.jpg");
       var material = new THREE.MeshBasicMaterial({
           map: texture
@@ -186,7 +187,7 @@ define(['jquery'], function($) {
         hudBitmap.textAlign = 'center';
         hudBitmap.fillStyle = "#f98012";
         var qnum = Math.min(level, questions.length-1);
-        hudBitmap.fillText(questions[qnum].question, eyeview.width / 2, (eyeview.height*0.25)+fontsize);
+        wrapText(hudBitmap, questions[qnum].question, eyeview.width / 2, eyeview.height*0.25, eyeview.width*0.66, fontsize);
         hudBitmap.font = fontsize+"px Arial";
         hudBitmap.textAlign = 'center';
         hudBitmap.fillStyle = "#f98012";
@@ -202,6 +203,25 @@ define(['jquery'], function($) {
         hudBitmap.arc(eyeview.width/2,eyeview.height/2,eyeview.height/20,0,2*Math.PI);
         hudBitmap.stroke();
         hudTexture.needsUpdate = true;
+    }
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        var words = text.split(' ');
+        var line = '';
+
+        for(var n = 0; n < words.length; n++) {
+            var testLine = line + words[n] + ' ';
+            var metrics = context.measureText(testLine);
+            var testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                context.fillText(line, x, y);
+                line = words[n] + ' ';
+                y += lineHeight;
+            }
+            else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, y);
     }
 
     function loadLevel() {
@@ -226,6 +246,7 @@ define(['jquery'], function($) {
                 }
             }
         }
+        updateHUD();
     }
     function nextLevel() {
         level++;
@@ -468,7 +489,7 @@ define(['jquery'], function($) {
         init: function (q) {
             questions = q;
         },
-        startGame(sound, vr) {
+        startGame: function(sound, vr) {
             soundOn = sound;
             vrOn = vr;
             initGame();
