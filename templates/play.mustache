@@ -48,11 +48,11 @@
 <button class="btn btn-default" id="begin">Launch</button>
 <div id="mod_quizgame_game" style="display: none"></div>
 
-<script src="js/third-party/threejs/three.min.js"></script>
-<script src="js/third-party/threejs/StereoEffect.js"></script>
-<script src="js/third-party/threejs/DeviceOrientationControls.js"></script>
-<script src="js/third-party/threejs/OrbitControls.js"></script>
-<script type="text/javascript" src="js/third-party/threejs/ColladaLoader.js"></script>
+<script src="node_modules/three/build/three.min.js"></script>
+<script src="node_modules/three/examples/js/effects/StereoEffect.js"></script>
+<script src="node_modules/three/examples/js/controls/DeviceOrientationControls.js"></script>
+<script src="node_modules/three/examples/js/controls/OrbitControls.js"></script>
+<script src="node_modules/three/examples/js/loaders/ColladaLoader.js"></script>
 {{#js}}
 require(['jquery', 'mod_quizgame/quizgame'], function ($, quizgame) {
     $('#begin').on('click', function() {

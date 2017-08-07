@@ -1,0 +1,16 @@
+{
+  "name": "quizgame",
+  "version": "2.0.0",
+  "description": "Make your moodle quizes interactive and fun!",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xow/moodle-mod_quizgame.git"
+  },
+  "dependencies": {
+    "three": "^0.86.0"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "author": "John Okely <john@moodle.com>",
+  "license": "GPL-3.0"
+}
