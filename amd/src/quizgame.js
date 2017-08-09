@@ -25,7 +25,7 @@
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls) {
     var degrees = Math.PI / 180;
 
     var camera, scene, renderer;
@@ -43,8 +43,8 @@ define(['jquery'], function($) {
     var laserSide = -1;
     var horizon = 800000;
     var raycaster;
-    var eyeview = {width: Math.max(screen.width, screen.height)/2, height: Math.min(screen.width, screen.height)};
-    var hudCanvas, hudTexture, hudPlane;
+    var eyeview = {width: screen.width, height: screen.height};
+    var hudCanvas, hudTexture, hudPlane, hudBitmap, sceneHUD, cameraHUD;
     var aimed = false;
     var currentTeam = [];
     var currentPointsLeft = 0;
@@ -53,12 +53,17 @@ define(['jquery'], function($) {
     var questions;
     var level = 0;
     var score = 0;
-    var vrOn = 0;
+    var vrMode = 0;
     var soundOn;
+    var VR_NONE = 0;
+    var VR_CARDBOARD = 1;
+    var VR_VIVE = 2;
+    var controller1, controller2;
 
     function initGame() {
         raycaster = new THREE.Raycaster();
         renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.autoClear = false;
         element = renderer.domElement;
         container = document.getElementById('mod_quizgame_game');
         container.appendChild(element);
@@ -71,21 +76,15 @@ define(['jquery'], function($) {
         camera.position.set(0, 10, 0);
         scene.add(camera);
 
-        controls = new THREE.OrbitControls(camera, element);
-        //controls.rotateUp(90*degrees);
-        controls.target.set(
-                camera.position.x + 0.1,
-                camera.position.y,
-                camera.position.z
-            );
-        controls.noZoom = true;
-        controls.noPan = true;
+        controls = new QuizgameControls(camera);
+        controls.movementSpeed = 3;
+        controls.lookSpeed = 0.4;
+        controls.noFly = true;
 
       function setOrientationControls(e) {
         if (!e.alpha) {
           return;
         }
-
         controls = new THREE.DeviceOrientationControls(camera, true);
         controls.connect();
         controls.update();
@@ -94,18 +93,75 @@ define(['jquery'], function($) {
         document.body.addEventListener('click', fullscreen, false);
         window.removeEventListener('deviceorientation', setOrientationControls, true);
       }
-      window.addEventListener('deviceorientation', setOrientationControls, true);
 
 
       var light = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 1);
       scene.add(light);
 
-      window.addEventListener('resize', resize, false);
       setTimeout(resize, 1);
 
       loadModels().then(function() {
           loadLevel();
       });
+
+      if (vrMode == VR_VIVE) {
+          initVive();
+      } else if (vrMode == VR_CARDBOARD) {
+          window.addEventListener('deviceorientation', setOrientationControls, true);
+      }
+
+      window.addEventListener('resize', resize, false);
+    }
+
+    function initVive() {
+        // Load controllers
+        var loader = new THREE.OBJLoader();
+        loader.setPath( 'models/obj/vive-controller/' );
+        loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
+
+            var loader = new THREE.TextureLoader();
+            loader.setPath( 'models/obj/vive-controller/' );
+
+            var controller = object.children[ 0 ];
+            controller.material.map = loader.load( 'onepointfive_texture.png' );
+            controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
+
+            controller1.add( object.clone() );
+            controller2.add( object.clone() );
+
+        } );
+
+        renderer.vr.enabled = true;
+        renderer.vr.standing = true;
+
+        controller1 = new THREE.ViveController(0);
+        controller1.standingMatrix = renderer.vr.getStandingMatrix();
+		  controller1.addEventListener( 'triggerdown', handleViveTrigger );
+        scene.add( controller1 );
+
+        controller2 = new THREE.ViveController(1);
+        controller2.standingMatrix = renderer.vr.getStandingMatrix();
+		  controller2.addEventListener( 'triggerdown', handleViveTrigger );
+        scene.add( controller2 );
+
+		  var geometry = new THREE.Geometry();
+		  geometry.vertices.push( new THREE.Vector3( 0, 0, 0 ) );
+		  geometry.vertices.push( new THREE.Vector3( 0, 0, - 1 ) );
+
+		  var line = new THREE.Line( geometry );
+		  line.name = 'line';
+		  line.scale.z = 20;
+
+		  controller1.add( line.clone() );
+		  controller2.add( line.clone() );
+
+        WEBVR.getVRDisplay( function ( display ) {
+        	  renderer.vr.setDevice( display );
+        	  document.body.appendChild( WEBVR.getButton( display, renderer.domElement ) );
+        } );
+        WEBVR.checkAvailability().catch( function( message ) {
+				document.body.appendChild( WEBVR.getMessageContainer( message ) );
+			} );
     }
 
     function loadModels() {
@@ -164,24 +220,34 @@ define(['jquery'], function($) {
       hudCanvas = document.createElement('canvas');
       hudCanvas.width = eyeview.width;
       hudCanvas.height = eyeview.height;
-      hudTexture = new THREE.Texture(hudCanvas)
+      hudTexture = new THREE.Texture(hudCanvas);
       updateHUD();
       var material = new THREE.MeshBasicMaterial( {map: hudTexture } );
       material.transparent = true;
-      var planeGeometry = new THREE.PlaneGeometry( 1, 1 );
-      hudPlane = new THREE.Mesh( planeGeometry, material );
-      camera.add( hudPlane );
-      hudPlane.translateZ(-0.5);
+      if (vrMode == VR_CARDBOARD) {
+          planeGeometry = new THREE.PlaneGeometry( 1, 1 );
+          hudPlane = new THREE.Mesh( planeGeometry, material );
+          camera.add(hudPlane);
+          hudPlane.translateZ(-0.5);
+      } else {
+          planeGeometry = new THREE.PlaneGeometry( eyeview.width, eyeview.height );
+          hudPlane = new THREE.Mesh( planeGeometry, material );
+          new THREE.VRControls(cameraHUD);
+          cameraHUD = new THREE.OrthographicCamera(-eyeview.width/2, eyeview.width/2, eyeview.height/2, -eyeview.height/2, 0, 200 );
+          sceneHUD = new THREE.Scene();
+          sceneHUD.add(hudPlane);
+          hudPlane.translateZ(-100);
+      }
       return promise;
     }
 
     function updateHUD() {
-        eyeview.width = window.innerWidth/2
+        eyeview.width = window.innerWidth;
         eyeview.height = window.innerHeight;
         fontsize = Math.round(eyeview.height/25);
         hudCanvas.width = eyeview.width;
         hudCanvas.height = eyeview.height;
-        var hudBitmap = hudCanvas.getContext('2d');
+        hudBitmap = hudCanvas.getContext('2d');
         hudBitmap.clearRect(0, 0, eyeview.width, eyeview.height);
         hudBitmap.font = fontsize+"px Arial";
         hudBitmap.textAlign = 'center';
@@ -195,11 +261,10 @@ define(['jquery'], function($) {
         hudBitmap.beginPath();
         if (aimed) {
             hudBitmap.lineWidth=eyeview.height/100;
-            hudBitmap.strokeStyle="#f98012";
         } else {
             hudBitmap.lineWidth=eyeview.height/300;
-            hudBitmap.strokeStyle="#f98012";
         }
+        hudBitmap.strokeStyle="#f98012";
         hudBitmap.arc(eyeview.width/2,eyeview.height/2,eyeview.height/20,0,2*Math.PI);
         hudBitmap.stroke();
         hudTexture.needsUpdate = true;
@@ -269,7 +334,6 @@ define(['jquery'], function($) {
     }
 
     function update(dt) {
-      resize();
 
       camera.updateProjectionMatrix();
 
@@ -279,18 +343,31 @@ define(['jquery'], function($) {
     }
 
     function render(dt) {
-      if (vrOn) {
-          effect.render(scene, camera);
-      } else {
-          renderer.render(scene, camera);
-      }
+        switch (vrMode) {
+            case VR_CARDBOARD:
+                effect.render(scene, camera); // Use a simple split screen for Google Cardboard.
+                break;
+            case VR_VIVE:
+                if (vrMode == VR_VIVE) {
+                    controller1.update();
+                    controller2.update();
+                }
+                renderer.render(scene, camera);
+                break;
+            case VR_NONE:
+                renderer.render(scene, camera);
+                break;
+
+        }
+        //renderer.render(sceneHUD, cameraHUD);
     }
 
     function animate(t) {
-      requestAnimationFrame(animate);
 
       update(clock.getDelta());
       render(clock.getDelta());
+
+      requestAnimationFrame(animate);
     }
 
     function fullscreen() {
@@ -306,42 +383,60 @@ define(['jquery'], function($) {
     }
 
     function updateObjects(dt) {
-        // See if we are currently pointing at a ship
-        // update the picking ray with the camera and mouse position
-        raycaster.setFromCamera( new THREE.Vector2(0, 0), camera );
-
-        // calculate objects intersecting the picking ray
-        var intersects = raycaster.intersectObjects( enemies.children, true );
-        var lastKnownAimed = aimed;
-        aimed = false;
-
-        for ( var i = 0; i < intersects.length; i++ ) {
-
-            aimed = true;
-            break;
-
-        }
-        if (!aimed) {
-            laserCharge=0;
-        }
-        if (aimed != lastKnownAimed) {
-            updateHUD();
-        }
-        if (laserCharge >= laserWaitTime+laserFullCharge && aimed) {
-            var laser = new THREE.Mesh(laserGeo, laserMaterialFriendly);
-            scene.add(laser);
-            objects.push(new Laser(laser));
-            laserCharge = laserWaitTime;
-            laserSide = -laserSide;
-            playSound("laser");
-        } else {
-            laserCharge+=dt;
-        }
+        handleLaser(dt);
         for (var i = 0; i < objects.length; i++) {
             var object = objects[i];
             object.update(dt);
         }
     }
+
+    function handleViveTrigger() {
+        var laser = new THREE.Mesh(laserGeo, laserMaterialFriendly);
+        scene.add(laser);
+        objects.push(new Laser(laser));
+        laserCharge = laserWaitTime;
+        laserSide = -laserSide;
+        playSound("laser");
+    }
+
+    function handleLaser(dt) {
+        if (vrMode == VR_VIVE) {
+            // We have controls, so we can have a more interactive way to shoot. See handleViveTrigger
+        } else {
+            // See if we are currently pointing at a ship
+            // update the picking ray with the camera and mouse position
+            raycaster.setFromCamera( new THREE.Vector2(0, 0), camera );
+
+            // calculate objects intersecting the picking ray
+            var intersects = raycaster.intersectObjects( enemies.children, true );
+            var lastKnownAimed = aimed;
+            aimed = false;
+
+            for ( var i = 0; i < intersects.length; i++ ) {
+
+                aimed = true;
+                break;
+
+            }
+            if (!aimed) {
+                laserCharge=0;
+            }
+            if (aimed != lastKnownAimed) {
+                updateHUD();
+            }
+            if (laserCharge >= laserWaitTime+laserFullCharge && aimed) {
+                var laser = new THREE.Mesh(laserGeo, laserMaterialFriendly);
+                scene.add(laser);
+                objects.push(new Laser(laser));
+                laserCharge = laserWaitTime;
+                laserSide = -laserSide;
+                playSound("laser");
+            } else {
+                laserCharge+=dt;
+            }
+        }
+    }
+
     function playSound(soundName) {
         if (soundOn) {
             var soundElement = document.getElementById("mod_quizgame_sound_" + soundName);
@@ -364,7 +459,6 @@ define(['jquery'], function($) {
         this.object3d.translateZ(this.velocity.z*dt);
     }
     GameObject.prototype.remove = function(dt) {
-        console.log('remove this');
         scene.remove(this.object3d);
         var i = objects.indexOf(this);
         objects.splice(i, 1);
@@ -447,7 +541,7 @@ define(['jquery'], function($) {
      */
     function Laser(object3d) {
         GameObject.call(this, object3d);
-        this.velocity = new THREE.Vector3(0, 0, -40);
+        this.velocity = new THREE.Vector3(0, 0, -60);
         this.object3d.position.set(camera.position.x, camera.position.y-0.2, camera.position.z);
         this.object3d.rotation.copy(camera.rotation);
         this.object3d.translateX(laserSide*0.2);
@@ -491,7 +585,7 @@ define(['jquery'], function($) {
         },
         startGame: function(sound, vr) {
             soundOn = sound;
-            vrOn = vr;
+            vrMode = parseInt(vr);
             initGame();
             animate();
         }

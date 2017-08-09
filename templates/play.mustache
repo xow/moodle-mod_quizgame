@@ -44,21 +44,29 @@
   }
 </style>
 <input id="soundoption" type="checkbox"></input><label for="soundoption">Enable sound</label><br/>
-<input id="vroption" type="checkbox" checked></input><label for="vroption">Enable cardboard VR</label><br/>
+<select id="vroption">
+    <option value="0">No VR - Normal 3D mode</option>
+    <option value="1">Google Cardboard / other phone headset</option>
+    <option value="2" selected="selected">HTC Vive</option>
+</select>
+<br/>
 <button class="btn btn-default" id="begin">Launch</button>
 <div id="mod_quizgame_game" style="display: none"></div>
 
-<script src="node_modules/three/build/three.min.js"></script>
+<script src="node_modules/three/build/three.js"></script>
 <script src="node_modules/three/examples/js/effects/StereoEffect.js"></script>
 <script src="node_modules/three/examples/js/controls/DeviceOrientationControls.js"></script>
-<script src="node_modules/three/examples/js/controls/OrbitControls.js"></script>
+<script src="node_modules/three/examples/js/controls/VRControls.js"></script>
 <script src="node_modules/three/examples/js/loaders/ColladaLoader.js"></script>
+<script src="node_modules/three/examples/js/loaders/OBJLoader.js"></script>
+<script src="node_modules/three/examples/js/vr/ViveController.js"></script>
+<script src="node_modules/three/examples/js/vr/WebVR.js"></script>
 {{#js}}
 require(['jquery', 'mod_quizgame/quizgame'], function ($, quizgame) {
     $('#begin').on('click', function() {
         $('#mod_quizgame_game').css({'display': 'inline-block'});
         var sound = document.getElementById("soundoption").checked;
-        var vr = document.getElementById("vroption").checked;
+        var vr = document.getElementById("vroption").value;
         quizgame.startGame(sound, vr);
     });
 });
