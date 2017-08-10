@@ -55,7 +55,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
                 $qjson[] = ["question" => get_string("match", "quiz"), "stems" => $subquestions, "type" => $question->qtype];
             }
         }
-        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson));
+        $this->page->requires->js_call_amd('mod_quizgame/QuizgameFactory', 'setQuestions', array($qjson));
 
         $display = '';
         $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">'.
