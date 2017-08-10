@@ -28,23 +28,60 @@
 define(['jquery', 'mod_quizgame/Quizgame'], function($, Quizgame) {
     QuizgameCardboard = function(q) {
         Quizgame.call(this, q);
+        this.eyeview = {width: Math.max(screen.width, screen.height)/2, height: Math.min(screen.width, screen.height)};
     };
     QuizgameCardboard.prototype = Object.create(Quizgame.prototype);
     QuizgameCardboard.prototype.constructor = QuizgameCardboard;
     QuizgameCardboard.prototype.render = function () {
-        effect.render(scene, camera); // Use a simple split screen for Google Cardboard.
+        this.effect.render(this.scene, this.camera); // Use a simple split screen for Google Cardboard.
     }
     QuizgameCardboard.prototype.createHUD = function () {
-        hudCanvas = document.createElement('canvas');
-        hudCanvas.width = eyeview.width;
-        hudCanvas.height = eyeview.height;
-        hudTexture = new THREE.Texture(hudCanvas);
-        updateHUD();
-        var material = new THREE.MeshBasicMaterial( {map: hudTexture } );
+        this.hudCanvas = document.createElement('canvas');
+        this.hudCanvas.width = this.eyeview.width;
+        this.hudCanvas.height = this.eyeview.height;
+        this.hudTexture = new THREE.Texture(this.hudCanvas);
+        this.updateHUD();
+        var material = new THREE.MeshBasicMaterial( {map: this.hudTexture } );
         material.transparent = true;
-        planeGeometry = new THREE.PlaneGeometry( 1, 1 );
-        hudPlane = new THREE.Mesh( planeGeometry, material );
-        camera.add(hudPlane);
-        hudPlane.translateZ(-0.5);
+        this.hudCanvas = document.createElement('canvas');
+        this.hudCanvas.width = this.eyeview.width;
+        this.hudCanvas.height = this.eyeview.height;
+        this.hudTexture = new THREE.Texture(this.hudCanvas);
+        this.updateHUD();
+        var material = new THREE.MeshBasicMaterial( {map: this.hudTexture } );
+        material.transparent = true;
+        var planeGeometry = new THREE.PlaneGeometry( 1, 1 );
+        this.hudPlane = new THREE.Mesh( planeGeometry, material );
+        this.camera.add(this.hudPlane);
+        this.hudPlane.translateZ(-0.5);
+    }
+
+    QuizgameCardboard.prototype.updateHUD = function() {
+        this.eyeview.width = window.innerWidth/2;
+        this.eyeview.height = window.innerHeight;
+        var fontsize = Math.round(this.eyeview.height/25);
+        this.hudCanvas.width = this.eyeview.width;
+        this.hudCanvas.height = this.eyeview.height;
+        this.hudBitmap = this.hudCanvas.getContext('2d');
+        this.hudBitmap.clearRect(0, 0, this.eyeview.width, this.eyeview.height);
+        this.hudBitmap.font = fontsize+"px Arial";
+        this.hudBitmap.textAlign = 'center';
+        this.hudBitmap.fillStyle = "#f98012";
+        var qnum = Math.min(this.level, this.questions.length-1);
+        this.wrapText(this.hudBitmap, this.questions[qnum].question, this.eyeview.width / 2, this.eyeview.height*0.25, this.eyeview.width*0.66, fontsize);
+        this.hudBitmap.font = fontsize+"px Arial";
+        this.hudBitmap.textAlign = 'center';
+        this.hudBitmap.fillStyle = "#f98012";
+        this.hudBitmap.fillText('Score: ' + Math.round(this.score) + ' Level: ' + (this.level+1), this.eyeview.width / 2, this.eyeview.height*0.75);
+        this.hudBitmap.beginPath();
+        if (this.aimed) {
+            this.hudBitmap.lineWidth = this.eyeview.height/100;
+        } else {
+            this.hudBitmap.lineWidth = this.eyeview.height/300;
+        }
+        this.hudBitmap.strokeStyle="#f98012";
+        this.hudBitmap.arc(this.eyeview.width/2,this.eyeview.height/2,this.eyeview.height/20,0,2*Math.PI);
+        this.hudBitmap.stroke();
+        this.hudTexture.needsUpdate = true;
     }
 });

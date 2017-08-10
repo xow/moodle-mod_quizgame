@@ -345,7 +345,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
         startingObj.position.set(starting.position.x, starting.position.y-0.2, starting.position.z);
         startingObj.rotation.copy(starting.rotation);
         startingObj.translateX(this.laserSide*0.2);
-        this.objects.push(new Laser(laser, starting));
+        this.objects.push(new Laser(laser, startingObj));
         this.laserCharge = this.laserWaitTime;
         this.laserSide = -this.laserSide;
     }
