@@ -128,6 +128,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
 
             controller1.add( object.clone() );
             controller2.add( object.clone() );
+            controller2.add( hudPlane );
 
         } );
 
@@ -136,19 +137,23 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
 
         controller1 = new THREE.ViveController(0);
         controller1.standingMatrix = renderer.vr.getStandingMatrix();
-		  controller1.addEventListener( 'triggerdown', handleViveTrigger );
+		  controller1.addEventListener( 'triggerdown', handleViveTrigger1 );
         scene.add( controller1 );
 
         controller2 = new THREE.ViveController(1);
         controller2.standingMatrix = renderer.vr.getStandingMatrix();
-		  controller2.addEventListener( 'triggerdown', handleViveTrigger );
+		  controller2.addEventListener( 'triggerdown', handleViveTrigger2 );
         scene.add( controller2 );
 
 		  var geometry = new THREE.Geometry();
 		  geometry.vertices.push( new THREE.Vector3( 0, 0, 0 ) );
 		  geometry.vertices.push( new THREE.Vector3( 0, 0, - 1 ) );
 
-		  var line = new THREE.Line( geometry );
+          var material = new THREE.LineBasicMaterial({
+        	color: 0xf98012
+        });
+
+		  var line = new THREE.Line( geometry, material );
 		  line.name = 'line';
 		  line.scale.z = 20;
 
@@ -242,6 +247,14 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
     }
 
     function updateHUD() {
+        if (vrMode == VR_VIVE) {
+            updateHUDVive();
+        } else {
+            updateHUDBase();
+        }
+    }
+
+    function updateHUDVive() {
         eyeview.width = window.innerWidth;
         eyeview.height = window.innerHeight;
         fontsize = Math.round(eyeview.height/25);
@@ -269,6 +282,36 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
         hudBitmap.stroke();
         hudTexture.needsUpdate = true;
     }
+
+    function updateHUDBase() {
+        eyeview.width = window.innerWidth;
+        eyeview.height = window.innerHeight;
+        fontsize = Math.round(eyeview.height/25);
+        hudCanvas.width = eyeview.width;
+        hudCanvas.height = eyeview.height;
+        hudBitmap = hudCanvas.getContext('2d');
+        hudBitmap.clearRect(0, 0, eyeview.width, eyeview.height);
+        hudBitmap.font = fontsize+"px Arial";
+        hudBitmap.textAlign = 'center';
+        hudBitmap.fillStyle = "#f98012";
+        var qnum = Math.min(level, questions.length-1);
+        wrapText(hudBitmap, questions[qnum].question, eyeview.width / 2, eyeview.height*0.25, eyeview.width*0.66, fontsize);
+        hudBitmap.font = fontsize+"px Arial";
+        hudBitmap.textAlign = 'center';
+        hudBitmap.fillStyle = "#f98012";
+        hudBitmap.fillText('Score: ' + Math.round(score) + ' Level: ' + (level+1), eyeview.width / 2, eyeview.height*0.75);
+        hudBitmap.beginPath();
+        if (aimed) {
+            hudBitmap.lineWidth=eyeview.height/100;
+        } else {
+            hudBitmap.lineWidth=eyeview.height/300;
+        }
+        hudBitmap.strokeStyle="#f98012";
+        hudBitmap.arc(eyeview.width/2,eyeview.height/2,eyeview.height/20,0,2*Math.PI);
+        hudBitmap.stroke();
+        hudTexture.needsUpdate = true;
+    }
+
     function wrapText(context, text, x, y, maxWidth, lineHeight) {
         var words = text.split(' ');
         var line = '';
@@ -359,7 +402,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
                 break;
 
         }
-        //renderer.render(sceneHUD, cameraHUD);
+        renderer.render(sceneHUD, cameraHUD);
     }
 
     function animate(t) {
@@ -390,10 +433,18 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
         }
     }
 
-    function handleViveTrigger() {
+    function handleViveTrigger1() {
+        shootLaser(controller1, false);
+    }
+
+    function handleViveTrigger2() {
+        shootLaser(controller2, false);
+    }
+
+    function shootLaser(starting, alternate) {
         var laser = new THREE.Mesh(laserGeo, laserMaterialFriendly);
         scene.add(laser);
-        objects.push(new Laser(laser));
+        objects.push(new Laser(laser, starting, alternate));
         laserCharge = laserWaitTime;
         laserSide = -laserSide;
         playSound("laser");
@@ -425,12 +476,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
                 updateHUD();
             }
             if (laserCharge >= laserWaitTime+laserFullCharge && aimed) {
-                var laser = new THREE.Mesh(laserGeo, laserMaterialFriendly);
-                scene.add(laser);
-                objects.push(new Laser(laser));
-                laserCharge = laserWaitTime;
-                laserSide = -laserSide;
-                playSound("laser");
+                shootLaser(camera, true);
             } else {
                 laserCharge+=dt;
             }
@@ -539,12 +585,14 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
     /**
      * Laser constructor
      */
-    function Laser(object3d) {
+    function Laser(object3d, starting, alternate) {
         GameObject.call(this, object3d);
         this.velocity = new THREE.Vector3(0, 0, -60);
-        this.object3d.position.set(camera.position.x, camera.position.y-0.2, camera.position.z);
-        this.object3d.rotation.copy(camera.rotation);
-        this.object3d.translateX(laserSide*0.2);
+        this.object3d.position.set(starting.position.x, starting.position.y-0.2, starting.position.z);
+        this.object3d.rotation.copy(starting.rotation);
+        if (alternate) {
+            this.object3d.translateX(laserSide*0.2);
+        }
         this.life = 3;
         this.friendly = true;
     }
