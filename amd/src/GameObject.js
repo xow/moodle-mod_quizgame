@@ -19,35 +19,41 @@
  *
  * This is also responsible for opening the pop-up window, if the quiz requires to be in one.
  *
- * @module    mod_quizgame/QuizgameFactory
+ * @module    mod_quizgame/GameObject
  * @class     quizgame
  * @package   mod_quizgame
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'mod_quizgame/Quizgame', 'mod_quizgame/QuizgameVive', 'mod_quizgame/QuizgameCardboard'], function($, Quizgame) {
-
-    var questions = [];
-
-    return {
-        setQuestions: function(q) {
-            questions = q;
-        },
-        create: function (vr) {
-            switch (vr) {
-                case 'WEBGL':
-                    return new Quizgame(questions)
-                    break;
-                case 'CARDBOARD':
-                    return new QuizgameCardboard(questions)
-                    break;
-                case 'VIVE':
-                    return new QuizgameVive(questions)
-                    break;
-                default:
-                    return new Quizgame(questions)
-                    break;
-            }
-        }
+define([], function() {
+    /**
+     * GameObject constructor
+     */
+    function GameObject(object3d) {
+        this.object3d = object3d;
+        this.velocity = new THREE.Vector3(0, 0, 0);
+        this.rotationspeed = new THREE.Vector3(0, 0, 0);
+        this.alive = true;
     }
+    GameObject.prototype.update = function(dt) {
+        this.object3d.translateX(this.velocity.x*dt);
+        this.object3d.translateY(this.velocity.y*dt);
+        this.object3d.translateZ(this.velocity.z*dt);
+        this.object3d.rotateX(this.rotationspeed.x*dt);
+        this.object3d.rotateY(this.rotationspeed.y*dt);
+        this.object3d.rotateZ(this.rotationspeed.z*dt);
+    }
+    GameObject.prototype.remove = function(dt, game) {
+        game.scene.remove(this.object3d);
+        var i = game.objects.indexOf(this);
+        game.objects.splice(i, 1);
+    }
+    GameObject.prototype.die = function(dt, game) {
+        this.remove(dt, game);
+    }
+    GameObject.prototype.gotShot = function(shot) {
+        // By default nothing happens.
+    }
+
+    return GameObject;
 });

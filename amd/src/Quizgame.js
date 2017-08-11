@@ -25,7 +25,7 @@
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls) {
+define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'mod_quizgame/Enemy', 'mod_quizgame/Laser'], function($, QuizgameControls, GameObject, Enemy, Laser) {
 
     "use strict";
 
@@ -87,7 +87,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera(90, 1, 0.001, this.horizon);
-        this.camera.position.set(0, 10, 0);
+        this.camera.position.set(0, 1, 0);
         this.scene.add(this.camera);
 
         this.controls = new QuizgameControls(this.camera);
@@ -152,6 +152,12 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
           color: 0xFF0000
       });
 
+      modelLoader.load('models/base.dae', function (result) {
+          // Create lots of enemies
+          this.scene.add(result.scene.clone());
+          promise.resolve();
+      }.bind(this));
+
       /*var sphereGeo = new THREE.SphereGeometry(8, 25, 25);
       var material = new THREE.MeshBasicMaterial({
           color: 0x00FF00
@@ -184,7 +190,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
 
       this.createHUD();
       return promise;
-    }
+    };
 
     Quizgame.prototype.createHUD = function() {
         this.hudCanvas = document.createElement('canvas');
@@ -196,12 +202,11 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
         material.transparent = true;
         var planeGeometry = new THREE.PlaneGeometry( this.eyeview.width, this.eyeview.height );
         this.hudPlane = new THREE.Mesh( planeGeometry, material );
-        new THREE.VRControls(this.cameraHUD);
         this.cameraHUD = new THREE.OrthographicCamera(-this.eyeview.width/2, this.eyeview.width/2, this.eyeview.height/2, -this.eyeview.height/2, 0, 200 );
         this.sceneHUD = new THREE.Scene();
         this.sceneHUD.add(this.hudPlane);
         this.hudPlane.translateZ(-100);
-    }
+    };
 
     Quizgame.prototype.updateHUD = function() {
         this.eyeview.width = window.innerWidth;
@@ -338,14 +343,10 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
         }
     }
 
-    Quizgame.prototype.shootLaser = function(starting) {
+    Quizgame.prototype.shootLaser = function(position, rotation) {
         var laser = new THREE.Mesh(this.laserGeo, this.laserMaterialFriendly);
         this.scene.add(laser);
-        var startingObj = new THREE.Object3D()
-        startingObj.position.set(starting.position.x, starting.position.y-0.2, starting.position.z);
-        startingObj.rotation.copy(starting.rotation);
-        startingObj.translateX(this.laserSide*0.2);
-        this.objects.push(new Laser(laser, startingObj));
+        this.objects.push(new Laser(laser, position, rotation));
         this.laserCharge = this.laserWaitTime;
         this.laserSide = -this.laserSide;
     }
@@ -373,7 +374,11 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
             this.updateHUD();
         }
         if (this.laserCharge >= this.laserWaitTime+this.laserFullCharge && this.aimed) {
-            this.shootLaser(this.camera);
+            var startingObj = new THREE.Object3D()
+            startingObj.position.set(this.camera.position.x, this.camera.position.y-0.2, this.camera.position.z);
+            startingObj.rotation.copy(this.camera.rotation);
+            startingObj.translateX(this.laserSide*0.2);
+            this.shootLaser(startingObj.position, startingObj.rotation);
         } else {
             this.laserCharge+=dt;
         }
@@ -385,139 +390,6 @@ define(['jquery', 'mod_quizgame/QuizgameControls'], function($, QuizgameControls
             soundElement.currentTime = 0;
             soundElement.play();
         }
-    }
-
-    /**
-     * GameObject constructor
-     */
-    function GameObject(object3d) {
-        this.object3d = object3d;
-        this.velocity = new THREE.Vector3(0, 0, 0);
-        this.alive = true;
-    }
-    GameObject.prototype.update = function(dt) {
-        this.object3d.translateX(this.velocity.x*dt);
-        this.object3d.translateY(this.velocity.y*dt);
-        this.object3d.translateZ(this.velocity.z*dt);
-    }
-    GameObject.prototype.remove = function(dt, game) {
-        game.scene.remove(this.object3d);
-        var i = game.objects.indexOf(this);
-        game.objects.splice(i, 1);
-    }
-    GameObject.prototype.die = function(dt, game) {
-        this.remove(dt, game);
-    }
-    GameObject.prototype.gotShot = function(shot) {
-        // By default nothing happens.
-    }
-
-    /**
-     * Laser constructor
-     */
-    function Enemy(object3d, answer, fraction) {
-        GameObject.call(this, object3d);
-        object3d.position.y = Math.random()*15;
-        object3d.position.x = 40+Math.random()*20;
-        object3d.position.z = (Math.random()*50)-25;
-        this.object3d = object3d;
-        this.velocity = new THREE.Vector3(-(Math.random()*1)-1, 0, 0);
-        this.answer = answer;
-        this.fraction = fraction;
-        var width = 1024;
-        var height = 128;
-        this.canvas = document.createElement('canvas');
-        this.canvas.width = width;
-        this.canvas.height = height;
-        var context = this.canvas.getContext('2d');
-        context.font = "80px Arial";
-        context.textAlign = 'center';
-        context.fillStyle = "#FFFFFF";
-        context.fillText(this.answer, width / 2, 80);
-        var hudTexture = new THREE.Texture(this.canvas);
-        hudTexture.needsUpdate = true;
-        var material = new THREE.MeshBasicMaterial( {map: hudTexture } );
-        material.transparent = true;
-        var planeGeometry = new THREE.PlaneGeometry( 1024, 128 );
-        this.questionPlane = new THREE.Mesh( planeGeometry, material );
-        this.object3d.add(this.questionPlane);
-        this.questionPlane.translateY(50);
-        this.questionPlane.rotateY(-90*degrees);
-        this.object3d.userData.enemyObj = this;
-    }
-    Enemy.prototype = Object.create(GameObject.prototype);
-    Enemy.prototype.update = function(dt) {
-        GameObject.prototype.update.call(this, dt);
-        if (this.object3d.position.x < 0) {
-            this.object3d.position.x = 60;
-        }
-    }
-    Enemy.prototype.die = function(dt, game) {
-        //var i = currentTeam.indexOf(this);
-        //currentTeam.splice(i, 1);
-        this.alive = false;
-        game.enemies.remove(this.object3d, game);
-        GameObject.prototype.die.call(this, dt, game);
-        game.score += this.fraction * 1000;
-        if (this.fraction > 0) {
-            game.currentPointsLeft -= this.fraction;
-        }
-        if (this.fraction >= 1 || (this.fraction > 0 && game.currentPointsLeft <= 0)) {
-            game.nextLevel();
-        }
-        game.playSound("explosion");
-    }
-    Enemy.prototype.gotShot = function(shot, dt, game) {
-        if (this.fraction > 0) {
-            shot.die(dt, game);
-            this.die(dt, game);
-        } else {
-            game.score += (this.fraction - 0.5) * 1;
-            game.updateHUD();
-            shot.deflect(game);
-        }
-    }
-
-    /**
-     * Laser constructor
-     */
-    function Laser(object3d, starting) {
-        GameObject.call(this, object3d);
-        this.velocity = new THREE.Vector3(0, 0, -60);
-        this.object3d.position.set(starting.position.x, starting.position.y, starting.position.z);
-        this.object3d.rotation.copy(starting.rotation);
-        this.life = 3;
-        this.friendly = true;
-    }
-    Laser.prototype = Object.create(GameObject.prototype);
-    Laser.prototype.update = function(dt, game) {
-        GameObject.prototype.update.call(this, dt, game);
-        this.life -= dt;
-        if (this.life < 0) {
-            this.die(dt, game);
-        }
-        var direction = new THREE.Vector3( 0, 0, 1 );
-        direction.applyQuaternion( this.object3d.quaternion );
-        game.raycaster.set( this.object3d.position, direction );
-
-        // calculate objects intersecting the picking ray
-        if (this.friendly) {
-            var intersects = game.raycaster.intersectObjects( game.enemies.children,true );
-            for ( var i = 0; i < intersects.length; i++ ) {
-                var shipModel = intersects[i].object.parent.parent;
-                if (shipModel.userData.enemyObj) {
-                    shipModel.userData.enemyObj.gotShot(this, dt, game);
-                }
-                break;
-
-            }
-        }
-    }
-    Laser.prototype.deflect = function(game) {
-        this.object3d.rotateY(180*degrees);
-        this.friendly = !this.friendly;
-        this.object3d.material = game.laserMaterialUnfriendly;
-        game.playSound("deflect");
     }
 
     return Quizgame;

@@ -26,10 +26,14 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery', 'mod_quizgame/Quizgame'], function($, Quizgame) {
+
+    var degrees = Math.PI / 180;
+
     QuizgameVive = function(q) {
         Quizgame.call(this, q);
         this.controller1;
         this.controller2;
+        this.eyeview = {width: 1024, height: 256};
     };
     QuizgameVive.prototype = Object.create(Quizgame.prototype);
     QuizgameVive.prototype.constructor = QuizgameVive;
@@ -60,7 +64,6 @@ define(['jquery', 'mod_quizgame/Quizgame'], function($, Quizgame) {
 		  line.scale.z = 20;
 
         this.controller1 = new THREE.ViveController(0);
-        console.log(this.controller1);
         this.controller1.standingMatrix = this.renderer.vr.getStandingMatrix();
 		this.controller1.addEventListener( 'triggerdown', this.handleViveTrigger1.bind(this) );
 		this.controller1.add( line.clone() );
@@ -99,11 +102,57 @@ define(['jquery', 'mod_quizgame/Quizgame'], function($, Quizgame) {
 			} );
     }
 
+    QuizgameVive.prototype.createHUD = function() {
+        this.hudCanvas = document.createElement('canvas');
+        this.hudCanvas.width = this.eyeview.width;
+        this.hudCanvas.height = this.eyeview.height;
+        this.hudTexture = new THREE.Texture(this.hudCanvas);
+        this.updateHUD();
+        var material = new THREE.MeshBasicMaterial( {map: this.hudTexture } );
+        material.transparent = true;
+        var planeGeometry = new THREE.PlaneGeometry( this.eyeview.width/2000, this.eyeview.height/2000 );
+        this.hudPlane = new THREE.Mesh( planeGeometry, material );
+        this.hudPlane.translateZ(-0);
+        this.hudPlane.translateY(0.1);
+        this.hudPlane.rotateX(-45*degrees);
+    }
+
+    QuizgameVive.prototype.updateHUD = function() {
+        var fontsize = Math.round(50);
+        this.eyeview = {width: 1024, height: 256};
+        this.hudCanvas.width = this.eyeview.width;
+        this.hudCanvas.height = this.eyeview.height;
+        this.hudBitmap = this.hudCanvas.getContext('2d');
+        this.hudBitmap.clearRect(0, 0, this.eyeview.width, this.eyeview.height);
+        this.hudBitmap.font = fontsize+"px Arial";
+        this.hudBitmap.textAlign = 'center';
+        this.hudBitmap.fillStyle = "#f98012";
+        var qnum = Math.min(this.level, this.questions.length-1);
+        this.wrapText(this.hudBitmap, this.questions[qnum].question, this.eyeview.width / 2, this.eyeview.height*0.25, this.eyeview.width*0.66, fontsize);
+        this.hudBitmap.font = fontsize+"px Arial";
+        this.hudBitmap.textAlign = 'center';
+        this.hudBitmap.fillStyle = "#f98012";
+        this.hudBitmap.fillText('Score: ' + Math.round(this.score) + ' Level: ' + (this.level+1), this.eyeview.width / 2, this.eyeview.height*0.75);
+        this.hudTexture.needsUpdate = true;
+    }
+
     QuizgameVive.prototype.handleViveTrigger1 = function() {
-        this.shootLaser(this.controller1, false);
+        this.handleViveTrigger(this.controller1);
     }
 
     QuizgameVive.prototype.handleViveTrigger2 = function() {
-        this.shootLaser(this.controller2, false);
+        this.handleViveTrigger(this.controller2);
+    }
+
+    QuizgameVive.prototype.handleViveTrigger = function(controller) {
+        var position = new THREE.Vector3();
+        var quaternion = new THREE.Quaternion();
+        var scale = new THREE.Vector3();
+
+        controller.matrixWorld.decompose( position, quaternion, scale );
+
+        var rotation = new THREE.Euler().setFromQuaternion(quaternion, new THREE.Object3D().eulerOrder);
+
+        this.shootLaser(position, rotation);
     }
 });
