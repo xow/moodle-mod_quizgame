@@ -25,7 +25,7 @@
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'mod_quizgame/Enemy', 'mod_quizgame/Laser'], function($, QuizgameControls, GameObject, Enemy, Laser) {
+define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'mod_quizgame/Enemy', 'mod_quizgame/MatchEnemy', 'mod_quizgame/Laser'], function($, QuizgameControls, GameObject, Enemy, MatchEnemy, Laser) {
 
     "use strict";
 
@@ -51,6 +51,8 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
         this.laserMaterialFriendly
         this.laserMaterialUnfriendly;
         this.enemyModel;
+        this.enemyChoiceModel;
+        this.enemyStemModel;
         this.raycaster;
         this.eyeview = {width: screen.width, height: screen.height};
         this.hudCanvas;
@@ -131,6 +133,8 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
 
     Quizgame.prototype.loadModels = function() {
       var promise = $.Deferred();
+      var promises = [];
+      var loadPromise;
       var textureLoader = new THREE.TextureLoader();
       var modelLoader = new THREE.ColladaLoader();
       modelLoader.options.convertUpAxis = true;
@@ -138,11 +142,38 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
 
       this.enemies = new THREE.Object3D();
       this.scene.add(this.enemies);
+
+      var scope = this;
+
+      loadPromise = $.Deferred();
+      //promises.push(loadPromise);
       modelLoader.load('models/enemy.dae', function (result) {
-          // Create lots of enemies
-          this.enemyModel = result.scene.clone();
-          promise.resolve();
+          scope.enemyModel = result.scene.clone();
+          loadPromise.resolve();
       }.bind(this));
+
+      loadPromise = $.Deferred();
+      //promises.push(loadPromise);
+      modelLoader.load('models/enemyChoice.dae', function (result) {
+          scope.enemyChoiceModel = result.scene.clone();
+          loadPromise.resolve();
+      }.bind(this));
+
+      loadPromise = $.Deferred();
+      //promises.push(loadPromise);
+      modelLoader.load('models/enemyStem.dae', function (result) {
+          scope.enemyStemModel = result.scene.clone();
+          loadPromise.resolve();
+      });
+
+      loadPromise = $.Deferred();
+      //promises.push(loadPromise);
+      modelLoader.load('models/base.dae', function (result) {
+          // Create lots of enemies
+          scope.scene.add(result.scene.clone());
+          loadPromise.resolve();
+      });
+
       this.laserGeo = new THREE.CylinderGeometry(0, 0.04, 2, 4);
       this.laserGeo.rotateX(90*degrees);
       this.laserMaterialFriendly = new THREE.MeshBasicMaterial({
@@ -151,12 +182,6 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
       this.laserMaterialUnfriendly = new THREE.MeshBasicMaterial({
           color: 0xFF0000
       });
-
-      modelLoader.load('models/base.dae', function (result) {
-          // Create lots of enemies
-          this.scene.add(result.scene.clone());
-          promise.resolve();
-      }.bind(this));
 
       /*var sphereGeo = new THREE.SphereGeometry(8, 25, 25);
       var material = new THREE.MeshBasicMaterial({
@@ -189,6 +214,9 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
       this.scene.add(sky);
 
       this.createHUD();
+
+      $.when.apply($, promises).then(promise.resolve);
+
       return promise;
     };
 
@@ -277,6 +305,24 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
                 if (answer.fraction > 0) {
                     this.currentPointsLeft += answer.fraction;
                 }
+            }
+        } else if (this.questions[this.level].type == 'match') {
+            var i = 0;
+            var stems = this.questions[this.level].stems;
+            var fraction = 1 / stems.length;
+            for (var i  = 0; i < stems.length; i++) {
+                var stem = stems[i];
+                this.currentPointsLeft += 1;
+                var questionModel = this.enemyStemModel.clone();
+                var answerModel = this.enemyChoiceModel.clone();
+                var question = new MatchEnemy(questionModel, stem.question, fraction, -i);
+                var answer = new MatchEnemy(answerModel, stem.answer, fraction, i);
+                this.enemies.add(questionModel);
+                this.enemies.add(answerModel);
+                this.objects.push(question);
+                this.objects.push(answer);
+                this.currentTeam.push(question);
+                this.currentTeam.push(answer);
             }
         }
         this.updateHUD();

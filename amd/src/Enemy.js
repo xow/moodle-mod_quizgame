@@ -44,7 +44,6 @@ define(['mod_quizgame/GameObject'], function(GameObject) {
         setInterval(this.rethink.bind(this), (1+Math.random())*1000);
         this.addText();
         this.object3d.userData.enemyObj = this;
-            console.log('finished constructor');
     }
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function(dt) {
