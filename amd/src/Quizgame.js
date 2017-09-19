@@ -109,7 +109,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
 
             document.body.addEventListener('click', this.fullscreen, false);
             window.removeEventListener('deviceorientation', setOrientationControls, true);
-        };
+        }.bind(this);
 
 
       var light = new THREE.HemisphereLight(0xFFFFFF, 0x000000, 1);
@@ -121,7 +121,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
           this.loadLevel();
       }.bind(this));
 
-      window.addEventListener('deviceorientation', setOrientationControls.bind(this), true);
+      window.addEventListener('deviceorientation', setOrientationControls, true);
 
       window.addEventListener('resize', this.resize.bind(this), false);
     }

@@ -68,11 +68,11 @@ define(['jquery', 'mod_quizgame/Quizgame'], function($, Quizgame) {
         this.hudBitmap.textAlign = 'center';
         this.hudBitmap.fillStyle = "#f98012";
         var qnum = Math.min(this.level, this.questions.length-1);
-        this.wrapText(this.hudBitmap, this.questions[qnum].question, this.eyeview.width / 2, this.eyeview.height*0.25, this.eyeview.width*0.66, fontsize);
+        this.wrapText(this.hudBitmap, this.questions[qnum].question, this.eyeview.width / 2, this.eyeview.height*0.3, this.eyeview.width*0.66, fontsize);
         this.hudBitmap.font = fontsize+"px Arial";
         this.hudBitmap.textAlign = 'center';
         this.hudBitmap.fillStyle = "#f98012";
-        this.hudBitmap.fillText('Score: ' + Math.round(this.score) + ' Level: ' + (this.level+1), this.eyeview.width / 2, this.eyeview.height*0.75);
+        this.hudBitmap.fillText('Score: ' + Math.round(this.score) + ' Level: ' + (this.level+1), this.eyeview.width / 2, this.eyeview.height*0.7);
         this.hudBitmap.beginPath();
         if (this.aimed) {
             this.hudBitmap.lineWidth = this.eyeview.height/100;
