@@ -107,7 +107,7 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
 
             this.updateHUD();
 
-            document.body.addEventListener('click', fullscreen, false);
+            document.body.addEventListener('click', this.fullscreen, false);
             window.removeEventListener('deviceorientation', setOrientationControls, true);
         };
 
