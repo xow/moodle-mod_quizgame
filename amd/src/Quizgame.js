@@ -134,7 +134,6 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
     Quizgame.prototype.loadModels = function() {
       var promise = $.Deferred();
       var promises = [];
-      var loadPromise;
       var textureLoader = new THREE.TextureLoader();
       var modelLoader = new THREE.ColladaLoader();
       modelLoader.options.convertUpAxis = true;
@@ -143,36 +142,30 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
       this.enemies = new THREE.Object3D();
       this.scene.add(this.enemies);
 
-      var scope = this;
-
-      loadPromise = $.Deferred();
-      //promises.push(loadPromise);
+      var loadPromise1 = $.Deferred();
       modelLoader.load('models/enemy.dae', function (result) {
-          scope.enemyModel = result.scene.clone();
-          loadPromise.resolve();
+          this.enemyModel = result.scene.clone();
+          loadPromise1.resolve();
       }.bind(this));
 
-      loadPromise = $.Deferred();
-      //promises.push(loadPromise);
+      var loadPromise2 = $.Deferred();
       modelLoader.load('models/enemyChoice.dae', function (result) {
-          scope.enemyChoiceModel = result.scene.clone();
-          loadPromise.resolve();
+          this.enemyChoiceModel = result.scene.clone();
+          loadPromise2.resolve();
       }.bind(this));
 
-      loadPromise = $.Deferred();
-      //promises.push(loadPromise);
+      var loadPromise3 = $.Deferred();
       modelLoader.load('models/enemyStem.dae', function (result) {
-          scope.enemyStemModel = result.scene.clone();
-          loadPromise.resolve();
-      });
+          this.enemyStemModel = result.scene.clone();
+          loadPromise3.resolve();
+      }.bind(this));
 
-      loadPromise = $.Deferred();
-      //promises.push(loadPromise);
+      var loadPromise4 = $.Deferred();
       modelLoader.load('models/base.dae', function (result) {
           // Create lots of enemies
-          scope.scene.add(result.scene.clone());
-          loadPromise.resolve();
-      });
+          this.scene.add(result.scene.clone());
+          loadPromise4.resolve();
+      }.bind(this));
 
       this.laserGeo = new THREE.CylinderGeometry(0, 0.04, 2, 4);
       this.laserGeo.rotateX(90*degrees);
@@ -215,7 +208,12 @@ define(['jquery', 'mod_quizgame/QuizgameControls', 'mod_quizgame/GameObject', 'm
 
       this.createHUD();
 
-      $.when.apply($, promises).then(promise.resolve);
+      // TODO undo this grossness.
+      $.when(loadPromise1, loadPromise2, loadPromise3, loadPromise4).done(
+          function(result1, result2, result3, result4) {
+              promise.resolve();
+          }
+      );
 
       return promise;
     };
