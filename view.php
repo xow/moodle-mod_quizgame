@@ -47,6 +47,17 @@ if ($id) {
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
+// Trigger module viewed event.
+$event = \mod_quizgame\event\course_module_viewed::create(array(
+    'objectid' => $quizgame->id,
+    'context' => $context,
+));
+
+$event->add_record_snapshot('course', $course);
+$event->add_record_snapshot('course_modules', $cm);
+$event->add_record_snapshot('quizgame', $quizgame);
+$event->trigger();
+
 // Print the page header.
 
 $PAGE->set_url('/mod/quizgame/view.php', array('id' => $cm->id));
