@@ -49,8 +49,6 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
         $oldid = $data->id;
         $data->course = $this->get_courseid();
 
-        $data->userid = $this->get_mappingid('user', $data->userid);
-
         // Map the category in the QB.
         $data->questioncategory = $this->get_mappingid('question_category', $data->questioncategory);
         // Insert the quizgame record.
