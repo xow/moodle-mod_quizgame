@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 class mod_quizgame_renderer extends plugin_renderer_base {
     /**
      * Initialises the game and returns its HTML code
@@ -22,7 +24,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
      * @param context $context The context
      * @return string The HTML code of the game
      */
-    function render_game($quizgame, $context) {
+    public function render_game($quizgame, $context) {
         global $DB, $OUTPUT;
 
         $categoryid = explode(',', $quizgame->questioncategory)[0];
