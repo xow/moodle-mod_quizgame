@@ -87,7 +87,6 @@ function xmldb_quizgame_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017011100, 'quizgame');
     }
 
-
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }
