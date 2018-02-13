@@ -50,7 +50,20 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
         $data->course = $this->get_courseid();
 
         // Map the category in the QB.
-        $data->questioncategory = $this->get_mappingid('question_category', $data->questioncategory);
+        // Data is stored either as id / context or just id.
+        $category = explode(",", $data->questioncategory);
+        if (count($category) > 1) {
+            // Question category here was stored as id,context.
+            // Get the new mapping to the category.
+            $newcat = $this->get_mappingid('question_category', $category[0]);
+            // Now get the context for this category.
+            $newcontext = $DB->get_field('question_categories', 'contextid', array('id' => $newcat));
+            // Assemble the field data.
+            $data->questioncategory = implode(',', array($newcat, $newcontext)); 
+        } else {
+            // The qustion category was just stored as an ID, so find the new mapping.
+            $data->questioncategory = $this->get_mappingid('question_category', $category);
+        }
         // Insert the quizgame record.
         $newitemid = $DB->insert_record('quizgame', $data);
         // Immediately after inserting "activity" record, call this.
