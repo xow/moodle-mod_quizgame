@@ -47,6 +47,7 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
 
         $data = (object)$data;
         $oldid = $data->id;
+        $oldcourse = $data->course;
         $data->course = $this->get_courseid();
 
         // Map the category in the QB.
@@ -59,7 +60,22 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
             // Now get the context for this category.
             $newcontext = $DB->get_field('question_categories', 'contextid', array('id' => $newcat));
             // Assemble the field data.
-            $data->questioncategory = implode(',', array($newcat, $newcontext)); 
+            if (!empty($newcat)) {
+                $data->questioncategory = implode(',', array($newcat, $newcontext)); 
+            } else {
+                if (!$this->task->is_samesite() || $data->course != $oldcourse) {                
+                // We cannot map to the question category.
+                // They were not included in the backup since they were at a higher context.
+                // This can happen when we are backing up the activity alone and trying to restore it elsewhere.
+                $this->log('question category ' . $category[0] . ' was associated with the quizgame ' .
+                    $data->id . ' but cannot actually be used as it is not available in this backup. ' .
+                    'The category needs to be re-selected.', backup::LOG_INFO);
+
+                // Remove the old data.
+                $data->questioncategory = "";
+                }
+            }
+
         } else {
             // The qustion category was just stored as an ID, so find the new mapping.
             $data->questioncategory = $this->get_mappingid('question_category', $category);
