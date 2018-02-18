@@ -28,6 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/questionlib.php');
+require_once($CFG->dirroot.'/lib/completionlib.php');
 
 /**
  * Function to prepare strings to be printed out as JSON.
@@ -53,6 +54,7 @@ function quizgame_add_highscore($quizgame, $score) {
     global $USER, $DB;
 
     $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, 0, false, MUST_EXIST);
+    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $context = context_module::instance($cm->id);
 
     // Write the high score to the DB.
@@ -73,6 +75,12 @@ function quizgame_add_highscore($quizgame, $score) {
     $event->add_record_snapshot('quizgame', $quizgame);
     $event->add_record_snapshot('quizgame_scores', $record);
     $event->trigger();
+
+    // Update completion state.
+    $completion = new completion_info($course);
+    if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC && $quizgame->completionscore) {
+        $completion->update_state($cm, COMPLETION_COMPLETE, $record->userid);
+    }
 
     return $record->id;
 }

@@ -39,6 +39,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 function quizgame_supports($feature) {
     switch($feature) {
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
         case FEATURE_MOD_INTRO:
             return true;
         case FEATURE_SHOW_DESCRIPTION:
@@ -181,6 +185,46 @@ function quizgame_user_complete($course, $user, $mod, $quizgame) {
         print_string("notyetplayed", "quizgame");
     }
 
+}
+
+/**
+ * Obtains the automatic completion state for this quizgame based on any conditions
+ * in quizgame settings.
+ *
+ * @global object $DB
+ * @param object $course Course
+ * @param object $cm Course-module
+ * @param int $userid User ID
+ * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
+ * @return bool True if completed, false if not. (If no conditions, then return
+ *   value depends on comparison type)
+ */
+function quizgame_get_completion_state($course, $cm, $userid, $type) {
+    global $DB;
+
+    // Get quizgame details.
+    if (!($quizgame = $DB->get_record('quizgame', array('id' => $cm->instance)))) {
+        throw new Exception("Can't find quizgame {$cm->instance}");
+    }
+
+    // Default return value.
+    $result = $type;
+    if ($quizgame->completionscore) {
+        $where = ' quizgameid = :quizgameid AND userid = :userid AND score >= :score';
+        $params = array(
+            'quizgameid' => $quizgame->id,
+            'userid' => $userid,
+            'score' => $quizgame->completionscore,
+        );
+        $value = $DB->count_records_select('quizgame_scores', $where, $params) > 0;
+        if ($type == COMPLETION_AND) {
+            $result = $result && $value;
+        } else {
+            $result = $result || $value;
+        }
+    }
+
+    return $result;
 }
 
 /**

@@ -58,6 +58,10 @@ $event->add_record_snapshot('course_modules', $cm);
 $event->add_record_snapshot('quizgame', $quizgame);
 $event->trigger();
 
+// Mark as viewed.
+$completion = new completion_info($course);
+$completion->set_module_viewed($cm);
+
 // Print the page header.
 
 $PAGE->set_url('/mod/quizgame/view.php', array('id' => $cm->id));

@@ -77,4 +77,70 @@ class mod_quizgame_mod_form extends moodleform_mod {
         // Add standard buttons, common to all modules.
         $this->add_action_buttons();
     }
+
+    /**
+     * Define custom completion rules
+     * @return array
+     */
+    function add_completion_rules() {
+        $mform =& $this->_form;
+        $group = array();
+        $group[] =& $mform->createElement('checkbox', 'completionscoreenabled', '',
+                get_string('completionscore', 'quizgame'));
+        $group[] =& $mform->createElement('text', 'completionscore', '', array('size' => 3));
+        $mform->setType('completionscore', PARAM_INT);
+        $mform->addGroup($group, 'completionscoregroup',
+                get_string('completionscoregroup', 'quizgame'), array(' '), false);
+        $mform->disabledIf('completionscore', 'completionscoreenabled', 'notchecked');
+        $mform->addHelpButton('completionscoregroup', 'completionscoregroup', 'quizgame');
+        return array('completionscoregroup');
+    }
+
+    /**
+     * Determines if custom criteria is active.
+     * @param array $data
+     * @return bool
+     */
+    function completion_rule_enabled($data) {
+        return (!empty($data['completionscoreenabled']) && $data['completionscore'] != 0);
+    }
+
+    /**
+     * Loads custom completion data.
+     * @return boolean
+     */
+    public function get_data() {
+        $data = parent::get_data();
+        if (!$data) {
+            return false;
+        }
+        if (!empty($data->completionunlocked)) {
+            // Turn off completion settings if the checkboxes aren't ticked.
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completionscoreenabled) || !$autocompletion) {
+                $data->completionscore = 0;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Used to pre-populate mform.
+     * @param array $defaultvalues
+     */
+    public function data_preprocessing(&$defaultvalues) {
+        parent::data_preprocessing($defaultvalues);
+
+        // Set up the completion checkboxes which aren't part of standard data.
+        // We also make the default value (if you turn on the checkbox) for those
+        // numbers to be 1, this will not apply unless checkbox is ticked.
+        if (!empty($defaultvalues['completionscore'])) {
+            $defaultvalues['completionscoreenabled'] = 1;
+        } else {
+            $defaultvalues['completionscoreenabled'] = 0;
+        }
+        if (empty($defaultvalues['completionscore'])) {
+            $defaultvalues['completionscore'] = 10000;
+        }
+    }
 }
