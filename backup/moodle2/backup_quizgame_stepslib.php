@@ -65,7 +65,6 @@ class backup_quizgame_activity_structure_step extends backup_activity_structure_
         // Define id annotations.
         $score->annotate_ids('user', 'userid');
 
-
         // Define file annotations.
         $quizgame->annotate_files('mod_quizgame', 'intro', null); // This file area hasn't itemid.
 

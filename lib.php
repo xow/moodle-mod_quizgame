@@ -141,7 +141,8 @@ function quizgame_user_outline($course, $user, $mod, $quizgame) {
         $result = new stdClass();
 
         if ($game > 0) {
-            $games = $DB->get_records('quizgame_scores', array('quizgameid' => $quizgame->id, 'userid' => $user->id), 'timecreated DESC', '*', 0, 1);
+            $games = $DB->get_records('quizgame_scores',
+                    array('quizgameid' => $quizgame->id, 'userid' => $user->id), 'timecreated DESC', '*', 0, 1);
             foreach ($games as $last) {
                 $data = new stdClass();
                 $data->score = $last->score;
@@ -173,7 +174,9 @@ function quizgame_user_outline($course, $user, $mod, $quizgame) {
 function quizgame_user_complete($course, $user, $mod, $quizgame) {
     global $DB;
 
-    if ($games = $DB->get_records('quizgame_scores', array('quizgameid' => $quizgame->id, 'userid' => $user->id), 'timecreated ASC')) {
+    if ($games = $DB->get_records('quizgame_scores',
+            array('quizgameid' => $quizgame->id, 'userid' => $user->id),
+            'timecreated ASC')) {
         $attempt = 1;
         foreach ($games as $game) {
 
@@ -331,7 +334,6 @@ function quizgame_scale_used($quizgameid, $scaleid) {
  * @return boolean true if the scale is used by any quizgame instance
  */
 function quizgame_scale_used_anywhere($scaleid) {
-    global $DB;
 
     return false;
 }
@@ -368,7 +370,7 @@ function quizgame_grade_item_update(stdClass $quizgame, $grades=null) {
  * @return void
  */
 function quizgame_update_grades(stdClass $quizgame, $userid = 0) {
-    global $CFG, $DB;
+    global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
     $grades = array(); // Populate array of grade objects indexed by userid.
@@ -429,7 +431,6 @@ function quizgame_get_file_info($browser, $areas, $course, $cm, $context, $filea
  * @param array $options additional options affecting the file serving
  */
 function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
-    global $DB, $CFG;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
         send_file_not_found();
