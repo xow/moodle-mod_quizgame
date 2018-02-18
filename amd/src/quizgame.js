@@ -25,8 +25,9 @@
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, notification, ajax) {
     var questions;
+    var quizgame;
     var stage;
     var score = 0;
     var particles = [];
@@ -171,6 +172,11 @@ define(['jquery'], function($) {
     }
 
     function endGame() {
+        ajax.call([{
+            methodname: 'mod_quizgame_update_score',
+            args: {quizgameid: quizgame, score: score},
+            fail: notification.exception
+        }]);
         menuEvents();
     }
 
@@ -858,8 +864,9 @@ define(['jquery'], function($) {
         return array;
     }
 
-    function doInitialize(q) {
+    function doInitialize(q, qid) {
         questions = q;
+        quizgame = qid;
         if (document.addEventListener) {
             document.addEventListener('fullscreenchange', fschange, false);
             document.addEventListener('MSFullscreenChange', fschange, false);

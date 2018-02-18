@@ -111,9 +111,8 @@ function quizgame_delete_instance($id) {
         return false;
     }
 
-    // TODO: Delete highscores.
-
     $DB->delete_records('quizgame', array('id' => $quizgame->id));
+    $DB->delete_records('quizgame_scores', array('quizgameid' => $quizgame->id));
 
     return true;
 }
@@ -133,10 +132,28 @@ function quizgame_delete_instance($id) {
  */
 function quizgame_user_outline($course, $user, $mod, $quizgame) {
 
-    $return = new stdClass();
-    $return->time = 0;
-    $return->info = '';
-    return $return;
+    global $DB;
+    if ($game = $DB->count_records('quizgame_scores', array('quizgameid' => $quizgame->id, 'userid' => $user->id))) {
+        $result = new stdClass();
+
+        if ($game > 0) {
+            $games = $DB->get_records('quizgame_scores', array('quizgameid' => $quizgame->id, 'userid' => $user->id), 'timecreated DESC', '*', 0, 1);
+            foreach ($games as $last) {
+                $data = new stdClass();
+                $data->score = $last->score;
+                $data->times = $game;
+                $result->info = get_string("playedxtimeswithhighscore", "quizgame", $data);
+                $result->time = $last->timecreated;
+            }
+        } else {
+            $result->info = get_string("notyetplayed", "quizgame");
+
+        }
+
+        return $result;
+    }
+    return null;
+
 }
 
 /**
@@ -147,9 +164,23 @@ function quizgame_user_outline($course, $user, $mod, $quizgame) {
  * @param stdClass $user the record of the user we are generating report for
  * @param cm_info $mod course module info
  * @param stdClass $quizgame the module instance record
- * @return void, is supposed to echp directly
+ * @return void, is supposed to echo directly
  */
 function quizgame_user_complete($course, $user, $mod, $quizgame) {
+    global $DB;
+
+    if ($games = $DB->get_records('quizgame_scores', array('quizgameid' => $quizgame->id, 'userid' => $user->id), 'timecreated ASC')) {
+        $attempt = 1;
+        foreach ($games as $game) {
+
+            echo get_string('attempt', 'quizgame', $attempt++) . ': ';
+            echo get_string('achievedhighscoreof', 'quizgame', $game->score);
+            echo ' - '.userdate($game->timecreated).'<br />';
+        }
+    } else {
+        print_string("notyetplayed", "quizgame");
+    }
+
 }
 
 /**
@@ -391,4 +422,71 @@ function quizgame_extend_navigation(navigation_node $navref, stdclass $course, s
  * @param navigation_node $quizgamenode {@link navigation_node}
  */
 function quizgame_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $quizgamenode=null) {
+}
+
+/**
+ * Implementation of the function for printing the form elements that control
+ * whether the course reset functionality affects the quizgame.
+ * @param stdClass $mform form passed by reference
+ */
+function quizgame_reset_course_form_definition(&$mform) {
+
+    $mform->addElement('header', 'quizgameheader', get_string('modulenameplural', 'quizgame'));
+    $mform->addElement('advcheckbox', 'reset_quizgame_scores', get_string('removescores', 'quizgame'));
+
+}
+
+/**
+ * Course reset form defaults.
+ * @return array
+ */
+function quizgame_reset_course_form_defaults($course) {
+    return array('reset_quizgame_scores' => 1);
+
+}
+
+/**
+ * Actual implementation of the rest coures functionality, delete all the
+ * quizgame responses for course $data->courseid.
+ *
+ * @global stdClass
+ * @param $data the data submitted from the reset course.
+ * @return array status array
+ */
+function quizgame_reset_userdata($data) {
+    global $DB;
+        $componentstr = get_string('modulenameplural', 'quizgame');
+
+    if (!empty($data->reset_quizgame_scores)) {
+        $scoresql = "SELECT qg.id
+                     FROM {quizgame} qg
+                     WHERE qg.course=?";
+
+        $DB->delete_records_select('quizgame_scores', "quizgameid IN ($scoresql)", array($data->courseid));
+        $status[] = array('component' => $componentstr, 'item' => get_string('removescores', 'quizgame'), 'error' => false);
+    }
+
+    return $status;
+}
+
+/**
+ * Removes all grades from gradebook
+ *
+ * @global stdClass
+ * @param int $courseid
+ * @param string optional type
+ */
+// TODO: LOOK AT AFTER GRADES ARE IMPLEMENTED!
+function quizgame_reset_gradebook($courseid, $type='') {
+    global $DB;
+
+    $sql = "SELECT g.*, cm.idnumber as cmidnumber, g.course as courseid
+              FROM {quizgame} g, {course_modules} cm, {modules} m
+             WHERE m.name='quizgame' AND m.id=cm.module AND cm.instance=g.id AND g.course=?";
+
+    if ($quizgames = $DB->get_records_sql($sql, array($courseid))) {
+        foreach ($quizgames as $quizgame) {
+            quizgame_grade_item_update($quizgame, 'reset');
+        }
+    }
 }
