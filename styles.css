@@ -1,10 +1,8 @@
-.path-mod-quizgame div.fontloader
-{
-    visibility:hidden;
+.path-mod-quizgame div.fontloader {
+    visibility: hidden;
     font-family: 'Audiowide', Sans;
 }
-.path-mod-quizgame #mod_quizgame_game
-{
+.path-mod-quizgame #mod_quizgame_game {
     background-color: #000;
     width: 100%;
     height: 100%;
