@@ -82,7 +82,7 @@ class mod_quizgame_mod_form extends moodleform_mod {
      * Define custom completion rules
      * @return array
      */
-    function add_completion_rules() {
+    public function add_completion_rules() {
         $mform =& $this->_form;
         $group = array();
         $group[] =& $mform->createElement('checkbox', 'completionscoreenabled', '',
@@ -101,7 +101,7 @@ class mod_quizgame_mod_form extends moodleform_mod {
      * @param array $data
      * @return bool
      */
-    function completion_rule_enabled($data) {
+    public function completion_rule_enabled($data) {
         return (!empty($data['completionscoreenabled']) && $data['completionscore'] != 0);
     }
 
