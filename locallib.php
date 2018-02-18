@@ -84,3 +84,30 @@ function quizgame_add_highscore($quizgame, $score) {
 
     return $record->id;
 }
+
+/**
+ * Function to record the player starting the quizgame.
+ * @global type $USER
+ * @global type $DB
+ * @param type $quizgame
+ * @param type $score
+ * @return type
+ */
+function quizgame_log_game_start($quizgame) {
+    global $DB;
+
+    $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, 0, false, MUST_EXIST);
+    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+    $context = context_module::instance($cm->id);
+
+    // Trigger the game score added event.
+    $event = \mod_quizgame\event\game_started::create(array(
+        'objectid' => $quizgame->id,
+        'context' => $context,
+    ));
+
+    $event->add_record_snapshot('quizgame', $quizgame);
+    $event->trigger();
+
+    return true;
+}
