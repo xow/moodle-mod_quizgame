@@ -35,5 +35,13 @@ $functions = array(
         'type'          => 'write',
         'ajax'          => true,
         'capabilities'  => 'mod/quizgame:view',
+    ),
+        'mod_quizgame_start_game' => array(
+        'classname'     => 'mod_quizgame_external',
+        'methodname'    => 'start_game',
+        'description'   => 'Log the player starting the game',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'mod/quizgame:view',
     )
 );

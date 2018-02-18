@@ -202,6 +202,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         touchDown = false;
         mouseDown = false;
 
+        // Queue & trigger the game_started event.
+        ajax.call([{
+            methodname: 'mod_quizgame_start_game',
+            args: {quizgameid: quizgame},
+            fail: notification.exception
+        }]);
+
         player = new Player("pix/ship.png", 0, 0);
         player.x = displayRect.width / 2;
         player.y = displayRect.height / 2;

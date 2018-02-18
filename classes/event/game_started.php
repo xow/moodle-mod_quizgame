@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_quizgame instance list viewed event.
+ * The mod_quizgame game_started event.
  *
  * @package    mod_quizgame
  * @copyright  2018 Stephen Bourget
@@ -26,7 +26,7 @@ namespace mod_quizgame\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_quizgame instance list viewed event class.
+ * The mod_quizgame game_started event class.
  *
  * @package    mod_quizgame
  * @copyright  2018 Stephen Bourget

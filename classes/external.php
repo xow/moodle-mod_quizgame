@@ -96,4 +96,57 @@ class mod_quizgame_external extends external_api {
         return new external_value(PARAM_INT, 'id of score entry');
     }
 
+
+
+    /**
+     * Returns description of method parameters
+     * @return external_function_parameters
+     */
+    public static function start_game_parameters() {
+        // Update_score_parameters() always return an external_function_parameters().
+        // The external_function_parameters constructor expects an array of external_description.
+        return new external_function_parameters(
+            // An external_description can be: external_value, external_single_structure or external_multiple structure.
+            array('quizgameid' => new external_value(PARAM_INT, 'quizgame instance ID'))
+        );
+    }
+
+    /**
+     * The function itself
+     * @return string welcome message
+     */
+    public static function start_game($quizgameid) {
+
+        global $DB;
+        $warnings = array();
+        $params = self::validate_parameters(self::start_game_parameters(),
+                                            array('quizgameid' => $quizgameid)
+                                            );
+        if (!$quizgame = $DB->get_record("quizgame", array("id" => $params['quizgameid']))) {
+            throw new moodle_exception("invalidcoursemodule", "error");
+        }
+
+        $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, 0, false, MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+
+        // Validate the context and check capabilities.
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+
+        require_capability('mod/quizgame:view', $context);
+
+        // Record the high score.
+        $result = quizgame_log_game_start($quizgame);
+
+        return $result;
+    }
+
+    /**
+     * Returns description of method result value
+     * @return external_description
+     */
+    public static function start_game_returns() {
+        return new external_value(PARAM_BOOL, 'Result of logging game start');
+    }
+
 }
