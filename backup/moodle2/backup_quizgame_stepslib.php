@@ -36,12 +36,12 @@ class backup_quizgame_activity_structure_step extends backup_activity_structure_
         // Define each element separated.
         $quizgame = new backup_nested_element('quizgame', array('id'), array(
             'course', 'name', 'intro', 'introformat', 'timecreated',
-            'timemodified', 'questioncategory', 'grade'));
+            'timemodified', 'questioncategory', 'grade', 'completionscore'));
 
         $scores = new backup_nested_element('scores');
 
         $score = new backup_nested_element('score', array('id'), array(
-            'quizgameid', 'userid', 'score'));
+            'quizgameid', 'userid', 'score', 'timecreated'));
         // Build the tree.
 
         $quizgame->add_child($scores);
