@@ -87,6 +87,21 @@ function xmldb_quizgame_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017011100, 'quizgame');
     }
 
+    if ($oldversion < 2018021300) {
+
+        // Define field timecreated to be added to quizgame_scores.
+        $table = new xmldb_table('quizgame_scores');
+        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'score');
+
+        // Conditionally launch add field timecreated.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Quizgame savepoint reached.
+        upgrade_mod_savepoint(true, 2018021300, 'quizgame');
+    }
+
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }

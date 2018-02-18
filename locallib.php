@@ -41,3 +41,38 @@ function quizgame_cleanup($string) {
     $string = preg_replace('/[\n\r]/', ' ', $string);
     return $string;
 }
+/**
+ * Function to add the students score to the DB.
+ * @global type $USER
+ * @global type $DB
+ * @param type $quizgame
+ * @param type $score
+ * @return type
+ */
+function quizgame_add_highscore($quizgame, $score) {
+    global $USER, $DB;
+
+    $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, 0, false, MUST_EXIST);
+    $context = context_module::instance($cm->id);
+
+    // Write the high score to the DB.
+    $record = new stdClass();
+    $record->quizgameid = $quizgame->id;
+    $record->userid = $USER->id;
+    $record->score = $score;
+    $record->timecreated = time();
+    $record->id = $DB->insert_record('quizgame_scores', $record);
+
+    // Trigger the game score added event.
+    $event = \mod_quizgame\event\game_score_added::create(array(
+        'objectid' => $record->id,
+        'context' => $context,
+        'other' => array('score' => $score)
+    ));
+
+    $event->add_record_snapshot('quizgame', $quizgame);
+    $event->add_record_snapshot('quizgame_scores', $record);
+    $event->trigger();
+
+    return $record->id;
+}

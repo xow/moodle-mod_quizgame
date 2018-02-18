@@ -14,24 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * Defines the version of quizgame
- *
- * This code fragment is called by moodle_needs_upgrading() and
- * /admin/index.php
+ * Quizgame external functions and service definitions.
  *
  * @package    mod_quizgame
- * @copyright  2014 John Okely <john@moodle.com>
+ * @category   external
+ * @copyright  2018 Stephen Bourget
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.5
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2018021300;     // If version == 0 then module will not be installed.
+$functions = array(
 
-$plugin->requires  = 2014051200.00;  // Requires this Moodle version (2.7)
-$plugin->cron      = 0;              // Period for cron to check this module (secs).
-$plugin->component = 'mod_quizgame'; // To check on upgrade, that module sits in correct place.
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = 'v3.3-r1';
+    'mod_quizgame_update_score' => array(
+        'classname'     => 'mod_quizgame_external',
+        'methodname'    => 'update_score',
+        'description'   => 'Record the score and write to the database.',
+        'type'          => 'write',
+        'ajax'          => true,
+        'capabilities'  => 'mod/quizgame:view',
+    )
+);

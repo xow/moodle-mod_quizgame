@@ -25,7 +25,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
      * @return string The HTML code of the game
      */
     public function render_game($quizgame, $context) {
-        global $DB, $OUTPUT;
+        global $DB;
 
         $categoryid = explode(',', $quizgame->questioncategory)[0];
         $questionids = array_keys($DB->get_records('question', array('category' => intval($categoryid)), '', 'id'));
@@ -60,7 +60,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
             }
         }
 
-        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson));
+        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson, $quizgame->id));
 
         $display = '<canvas id="mod_quizgame_game"></canvas>';
         $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">'.

@@ -28,8 +28,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['achievedhighscoreof'] = 'Acheived a high score of {$a}';
+$string['attempt'] = 'Attempt #{$a}';
 $string['endofgame'] = 'Your score was: {$a}. Press space or click to restart.';
 $string['emptyquiz'] = 'There are no multiple choice questions in the selected category.';
+$string['eventgamestarted'] = 'Quizventure game started';
+$string['eventgamescoreadded'] = 'Quizventure score recorded';
 $string['fullscreen'] = 'Fullscreen';
 $string['modulename_help'] = 'Students procastinating too much? Are they playing games instead of studying? Well now you can motivate them by allowing them to do both at once!
 
@@ -38,6 +42,9 @@ Quizventure is an activity module that loads quiz questions from the course it\'
 **Note**: Quizventure is designed to promote learning rather than for assessment. Students will have infinite attempts with instant feedback. For this reason, only add questions you want students to learn the answer to, rather than questions you want to assess if they have learned';
 $string['modulenameplural'] = 'Quizventure games';
 $string['modulename'] = 'Quizventure';
+$string['notyetplayed'] = 'Note yet played';
+$string['achievedhighscoreof'] = 'Acheived a high score of {$a}';
+$string['playedxtimeswithhighscore'] = 'Played {$a->times} times. The last game ended with a high score of {$a->score}';
 $string['pluginadministration'] = 'Quizventure administration';
 $string['pluginname'] = 'Quizventure';
 $string['questioncategory'] = 'Question category';
@@ -52,6 +59,7 @@ $string['quizgamename'] = 'Quizventure name';
 $string['quizgame'] = 'Quizventure';
 $string['quizgame:addinstance'] = 'Add a Quizventure instance';
 $string['quizgame:view'] = 'View Quizventure';
+$string['removescores'] = 'Remove all user scores';
 $string['score'] = 'Score: {$a->score} Lives: {$a->lives}';
 $string['spacetostart'] = 'Press space or click to start';
 $string['sound'] = 'Sound';
