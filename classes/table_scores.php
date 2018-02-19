@@ -1,12 +1,39 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Test table class to be put in test_table.php of root of Moodle installation.
- *  for defining some custom column names and proccessing
- * Username and Password fields using custom and other column methods.
+ * table_sql class for viewing and exporting player scores.
+ *
+ * @package    mod_quizgame
+ * @copyright  2018 Stephen Bourget
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 require_once($CFG->libdir . '/tablelib.php');
 
+/**
+ * table_sql class for viewing and exporting player scores.
+ *
+ * @package    mod_quizgame
+ * @copyright  2018 Stephen Bourget
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class table_scores extends table_sql {
 
     /** @var array list of user fullnames shown in report */
@@ -17,14 +44,14 @@ class table_scores extends table_sql {
      * @param int $uniqueid all tables have to have a unique id, this is used
      *      as a key when storing table properties like sort order in the session.
      */
-    function __construct($uniqueid) {
+    public function __construct($uniqueid) {
         parent::__construct($uniqueid);
         // Define the list of columns to show.
         $columns = array('userid', 'score', 'timecreated');
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array(get_string('user'), get_string('scoreheader','mod_quizgame'), get_string('date'));
+        $headers = array(get_string('user'), get_string('scoreheader', 'mod_quizgame'), get_string('date'));
         $this->define_headers($headers);
     }
 

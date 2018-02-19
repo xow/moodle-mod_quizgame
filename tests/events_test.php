@@ -39,7 +39,7 @@ require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
 class mod_quizgame_event_testcase extends advanced_testcase {
 
     /**
-     * Test setup. 
+     * Test setup.
      * @global stdclass $DB
      */
     public function setUp() {
@@ -47,7 +47,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
     }
 
     /**
-     * Test the course_module_viewed event. 
+     * Test the course_module_viewed event.
      * @global stdclass $DB
      */
     public function test_course_module_viewed() {
@@ -90,7 +90,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
     }
 
     /**
-     * Test the course_module_instance_list_viewed event. 
+     * Test the course_module_instance_list_viewed event.
      * @global stdclass $DB
      */
     public function test_course_module_instance_list_viewed() {
@@ -120,7 +120,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
     }
 
     /**
-     * Test the score_added event. 
+     * Test the score_added event.
      * @global stdclass $DB
      */
     public function test_score_added() {
@@ -129,11 +129,11 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
         $context = context_module::instance($quizgame->cmid);
-        $score = mt_rand (0,50000);
+        $score = mt_rand (0, 50000);
 
         $sink = $this->redirectEvents();
         $result = quizgame_add_highscore($quizgame, $score);
-        
+
         $events = $sink->get_events();
         $this->assertCount(1, $events);
         $event = reset($events);
@@ -146,7 +146,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
     }
 
     /**
-     * Test the game_started event. 
+     * Test the game_started event.
      * @global stdclass $DB
      */
     public function test_game_started() {
@@ -158,7 +158,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
         $sink = $this->redirectEvents();
         $result = quizgame_log_game_start($quizgame);
-        
+
         $events = $sink->get_events();
         $this->assertCount(1, $events);
         $event = reset($events);
@@ -170,7 +170,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
     }
 
     /**
-     * Test the game_scores_viewed event. 
+     * Test the game_scores_viewed event.
      * @global stdclass $DB
      */
     public function test_game_scores_viewed() {

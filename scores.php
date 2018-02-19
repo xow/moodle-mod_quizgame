@@ -26,7 +26,7 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot . '/mod/quizgame/classes/table_scores.php');
 
-$id = optional_param('id', 0, PARAM_INT); // Either quizgame instance
+$id = optional_param('id', 0, PARAM_INT); // The Quizgame instance.
 $download = optional_param('download', '', PARAM_ALPHA);
 
 if ($id) {
@@ -55,13 +55,12 @@ $event->trigger();
 $PAGE->set_url('/mod/quizgame/scores.php', array('id' => $quizgame->id));
 $PAGE->set_context($context);
 
-// Generate the table
-// The flexitable that will root listings
+// Generate the table.
 $table = new table_scores('quizgame-scores');
 $table->is_downloading($download, 'scores', 'scores');
 if (!$table->is_downloading()) {
-    // Only print headers if not asked to download data
-    // Print the page header
+    // Only print headers if not asked to download data.
+    // Print the page header.
     $PAGE->set_title(format_string($quizgame->name));
     $PAGE->set_heading(format_string($course->fullname));
     $url = new moodle_url('/mod/quizgame/scores.php', array('id' => $quizgame->id));
@@ -77,7 +76,7 @@ $table->set_sql('*', "{quizgame_scores}", $sqlconditions, $sqlparams);
 
 $table->define_baseurl($PAGE->url);
 $columns = array('userid', 'score', 'timecreated');
-$headers = array(get_string('user'), get_string('scoreheader','mod_quizgame'), get_string('date'));
+$headers = array(get_string('user'), get_string('scoreheader', 'mod_quizgame'), get_string('date'));
 $table->define_columns($columns);
 $table->define_headers($headers);
 $table->sortable(true, 'timecreated', SORT_DESC);

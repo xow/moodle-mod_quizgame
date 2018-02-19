@@ -86,10 +86,10 @@ class mod_quizgame_renderer extends plugin_renderer_base {
     }
 
     public function render_score_link($quizgame) {
-        
+
         $url = new moodle_url('/mod/quizgame/scores.php', array('id' => $quizgame->id));
-        $scorestring = get_string('scoreslink','quizgame');
-        $scorestringhelp = get_string('scoreslinkhelp','quizgame');
+        $scorestring = get_string('scoreslink', 'quizgame');
+        $scorestringhelp = get_string('scoreslinkhelp', 'quizgame');
         $display = html_writer::start_tag('div', array('class' => 'quizgame-scores'));
         $display .= html_writer::tag('a', $scorestring, array('title' => $scorestringhelp, 'href' => $url));
         $display .= html_writer::end_tag('div');
