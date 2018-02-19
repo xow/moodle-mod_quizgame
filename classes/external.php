@@ -135,7 +135,7 @@ class mod_quizgame_external extends external_api {
 
         require_capability('mod/quizgame:view', $context);
 
-        // Record the high score.
+        // Record the game as started.
         $result = quizgame_log_game_start($quizgame);
 
         return $result;
