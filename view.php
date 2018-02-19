@@ -85,5 +85,10 @@ echo "<link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesh
 echo $renderer->render_game($quizgame, $context);
 echo "<div class=fontloader>Loading game</div>";
 
+// Display link to view student scores.
+if (has_capability('mod/quizgame:viewallscores', $context)) {
+    echo $renderer->render_score_link($quizgame);
+}
+
 // Finish the page.
 echo $OUTPUT->footer();
