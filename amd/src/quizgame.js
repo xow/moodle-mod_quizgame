@@ -174,7 +174,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     function endGame() {
         ajax.call([{
             methodname: 'mod_quizgame_update_score',
-            args: {quizgameid: quizgame, score: score},
+            args: {quizgameid: quizgame, score: Math.trunc(score)},
             fail: notification.exception
         }]);
         menuEvents();
