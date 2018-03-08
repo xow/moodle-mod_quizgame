@@ -70,7 +70,7 @@ class restore_quizgame_activity_task extends restore_activity_task {
         return $rules;
 
     }
- 
+
     /**
      * Define the restore log rules that will be applied
      * by the {@link restore_logs_processor} when restoring

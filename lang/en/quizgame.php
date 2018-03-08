@@ -28,8 +28,20 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['achievedhighscoreof'] = 'Acheived a high score of {$a}';
+$string['attempt'] = 'Attempt #{$a}';
+$string['completionscore'] = 'Student must achieve a minimum score of:';
+$string['completionscoregroup'] = 'Require score';
+$string['completionscoregroup_help'] = 'If enabled, you can require a minimum score is met before the activity is marked as complete.
+
+Each question is worth 1000 points when answered correctly on the first try, so you may want to set the default to:
+
+(Number of questions x 1000)';
 $string['endofgame'] = 'Your score was: {$a}. Press space or click to restart.';
 $string['emptyquiz'] = 'There are no multiple choice questions in the selected category.';
+$string['eventgamestarted'] = 'Quizventure game started';
+$string['eventgamescoreadded'] = 'Quizventure score recorded';
+$string['eventgamescoresviewed'] = 'Quizventure scores viewed';
 $string['fullscreen'] = 'Fullscreen';
 $string['modulename_help'] = 'Students procastinating too much? Are they playing games instead of studying? Well now you can motivate them by allowing them to do both at once!
 
@@ -38,8 +50,12 @@ Quizventure is an activity module that loads quiz questions from the course it\'
 **Note**: Quizventure is designed to promote learning rather than for assessment. Students will have infinite attempts with instant feedback. For this reason, only add questions you want students to learn the answer to, rather than questions you want to assess if they have learned';
 $string['modulenameplural'] = 'Quizventure games';
 $string['modulename'] = 'Quizventure';
+$string['notyetplayed'] = 'Not yet played';
+$string['achievedhighscoreof'] = 'Acheived a high score of {$a}';
+$string['playedxtimeswithhighscore'] = 'Played {$a->times} times. The last game ended with a high score of {$a->score}';
 $string['pluginadministration'] = 'Quizventure administration';
 $string['pluginname'] = 'Quizventure';
+$string['playerscores'] = 'Player scores';
 $string['questioncategory'] = 'Question category';
 $string['questioncategory_help'] = 'Select the category from the question bank to use in the game.
 
@@ -52,6 +68,11 @@ $string['quizgamename'] = 'Quizventure name';
 $string['quizgame'] = 'Quizventure';
 $string['quizgame:addinstance'] = 'Add a Quizventure instance';
 $string['quizgame:view'] = 'View Quizventure';
+$string['quizgame:viewallscores'] = 'View player scores';
+$string['removescores'] = 'Remove all user scores';
 $string['score'] = 'Score: {$a->score} Lives: {$a->lives}';
+$string['scoreheader'] = 'Score';
+$string['scoreslink'] = 'View all attempts';
+$string['scoreslinkhelp'] = 'View all player attempts and scores';
 $string['spacetostart'] = 'Press space or click to start';
 $string['sound'] = 'Sound';
