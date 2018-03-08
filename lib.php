@@ -501,7 +501,8 @@ function quizgame_reset_course_form_defaults($course) {
 function quizgame_reset_userdata($data) {
     global $DB;
         $componentstr = get_string('modulenameplural', 'quizgame');
-
+        $status = array();
+        
     if (!empty($data->reset_quizgame_scores)) {
         $scoresql = "SELECT qg.id
                      FROM {quizgame} qg
