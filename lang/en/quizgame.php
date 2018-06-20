@@ -30,6 +30,13 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['achievedhighscoreof'] = 'Acheived a high score of {$a}';
 $string['attempt'] = 'Attempt #{$a}';
+$string['completionscore'] = 'Student must achieve a minimum score of:';
+$string['completionscoregroup'] = 'Require score';
+$string['completionscoregroup_help'] = 'If enabled, you can require a minimum score is met before the activity is marked as complete.
+
+Each question is worth 1000 points when answered correctly on the first try, so you may want to set the default to:
+
+(Number of questions x 1000)';
 $string['endofgame'] = 'Your score was: {$a}. Press space or click to restart.';
 $string['emptyquiz'] = 'There are no multiple choice questions in the selected category.';
 $string['eventgamestarted'] = 'Quizventure game started';
