@@ -56,6 +56,11 @@ $string['playedxtimeswithhighscore'] = 'Played {$a->times} times. The last game 
 $string['pluginadministration'] = 'Quizventure administration';
 $string['pluginname'] = 'Quizventure';
 $string['playerscores'] = 'Player scores';
+$string['privacy:metadata:quizgame_scores'] = 'Information about the user\'s chosen answer(s) for a given choice activity';
+$string['privacy:metadata:quizgame_scores:quizgameid'] = 'The ID of the quizgame activity the user is providing answer for';
+$string['privacy:metadata:quizgame_scores:score'] = 'The score of the user during that playthrough.';
+$string['privacy:metadata:quizgame_scores:timecreated'] = 'The timestamp indicating when the quizgame was played by the user';
+$string['privacy:metadata:quizgame_scores:userid'] = 'The ID of the user playing this quizgame activity';
 $string['questioncategory'] = 'Question category';
 $string['questioncategory_help'] = 'Select the category from the question bank to use in the game.
 
