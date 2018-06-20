@@ -38,11 +38,18 @@ require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
  */
 class mod_quizgame_event_testcase extends advanced_testcase {
 
+    /**
+     * Test setup.
+     * @global stdclass $DB
+     */
     public function setUp() {
         $this->resetAfterTest();
     }
 
-
+    /**
+     * Test the course_module_viewed event.
+     * @global stdclass $DB
+     */
     public function test_course_module_viewed() {
         global $DB;
         // There is no proper API to call to trigger this event, so what we are
@@ -82,6 +89,10 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $this->assertEventContextNotUsed($event);
     }
 
+    /**
+     * Test the course_module_instance_list_viewed event.
+     * @global stdclass $DB
+     */
     public function test_course_module_instance_list_viewed() {
         // There is no proper API to call to trigger this event, so what we are
         // doing here is simply making sure that the events returns the right information.
@@ -108,17 +119,21 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $this->assertEventContextNotUsed($event);
     }
 
+    /**
+     * Test the score_added event.
+     * @global stdclass $DB
+     */
     public function test_score_added() {
 
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
         $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
         $context = context_module::instance($quizgame->cmid);
-        $score = mt_rand (0,50000);
+        $score = mt_rand (0, 50000);
 
         $sink = $this->redirectEvents();
         $result = quizgame_add_highscore($quizgame, $score);
-        
+
         $events = $sink->get_events();
         $this->assertCount(1, $events);
         $event = reset($events);
@@ -130,6 +145,10 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $this->assertEquals($score, $event->other['score']);
     }
 
+    /**
+     * Test the game_started event.
+     * @global stdclass $DB
+     */
     public function test_game_started() {
 
         $this->setAdminUser();
@@ -139,7 +158,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
         $sink = $this->redirectEvents();
         $result = quizgame_log_game_start($quizgame);
-        
+
         $events = $sink->get_events();
         $this->assertCount(1, $events);
         $event = reset($events);
@@ -150,4 +169,36 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $this->assertEquals($quizgame->cmid, $event->contextinstanceid);
     }
 
+    /**
+     * Test the game_scores_viewed event.
+     * @global stdclass $DB
+     */
+    public function test_game_scores_viewed() {
+        // There is no proper API to call to trigger this event, so what we are
+        // doing here is simply making sure that the events returns the right information.
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
+        $context = context_module::instance($quizgame->cmid);
+
+        $quizgamegenerator = $this->getDataGenerator()->get_plugin_generator('mod_quizgame');
+        $scores = $quizgamegenerator->create_content($quizgame);
+
+        $event = \mod_quizgame\event\game_scores_viewed::create(array(
+            'objectid' => $quizgame->id,
+            'context' => $context
+        ));
+
+        $sink = $this->redirectEvents();
+        $event->trigger();
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = reset($events);
+
+        // Checking that the event contains the expected values.
+        $this->assertInstanceOf('\mod_quizgame\event\game_scores_viewed', $event);
+        $this->assertEquals(CONTEXT_MODULE, $event->contextlevel);
+        $this->assertEquals($quizgame->cmid, $event->contextinstanceid);
+    }
 }

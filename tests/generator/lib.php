@@ -54,7 +54,7 @@ class mod_quizgame_generator extends testing_module_generator {
             'quizgameid' => $quizgame->id,
             'timecreated' => $now,
             'userid' => $USER->id,
-            'score' => mt_rand (0,50000),
+            'score' => mt_rand (0, 50000),
         );
 
         $id = $DB->insert_record('quizgame_scores', $record);

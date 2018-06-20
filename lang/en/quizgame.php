@@ -41,6 +41,7 @@ $string['endofgame'] = 'Your score was: {$a}. Press space or click to restart.';
 $string['emptyquiz'] = 'There are no multiple choice questions in the selected category.';
 $string['eventgamestarted'] = 'Quizventure game started';
 $string['eventgamescoreadded'] = 'Quizventure score recorded';
+$string['eventgamescoresviewed'] = 'Quizventure scores viewed';
 $string['fullscreen'] = 'Fullscreen';
 $string['modulename_help'] = 'Students procastinating too much? Are they playing games instead of studying? Well now you can motivate them by allowing them to do both at once!
 
@@ -54,6 +55,7 @@ $string['achievedhighscoreof'] = 'Acheived a high score of {$a}';
 $string['playedxtimeswithhighscore'] = 'Played {$a->times} times. The last game ended with a high score of {$a->score}';
 $string['pluginadministration'] = 'Quizventure administration';
 $string['pluginname'] = 'Quizventure';
+$string['playerscores'] = 'Player scores';
 $string['questioncategory'] = 'Question category';
 $string['questioncategory_help'] = 'Select the category from the question bank to use in the game.
 
@@ -66,7 +68,11 @@ $string['quizgamename'] = 'Quizventure name';
 $string['quizgame'] = 'Quizventure';
 $string['quizgame:addinstance'] = 'Add a Quizventure instance';
 $string['quizgame:view'] = 'View Quizventure';
+$string['quizgame:viewallscores'] = 'View player scores';
 $string['removescores'] = 'Remove all user scores';
 $string['score'] = 'Score: {$a->score} Lives: {$a->lives}';
+$string['scoreheader'] = 'Score';
+$string['scoreslink'] = 'View all attempts';
+$string['scoreslinkhelp'] = 'View all player attempts and scores';
 $string['spacetostart'] = 'Press space or click to start';
 $string['sound'] = 'Sound';
