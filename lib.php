@@ -39,6 +39,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 function quizgame_supports($feature) {
     switch($feature) {
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
         case FEATURE_MOD_INTRO:
             return true;
         case FEATURE_SHOW_DESCRIPTION:
@@ -111,9 +115,8 @@ function quizgame_delete_instance($id) {
         return false;
     }
 
-    // TODO: Delete highscores.
-
     $DB->delete_records('quizgame', array('id' => $quizgame->id));
+    $DB->delete_records('quizgame_scores', array('quizgameid' => $quizgame->id));
 
     return true;
 }
@@ -133,10 +136,29 @@ function quizgame_delete_instance($id) {
  */
 function quizgame_user_outline($course, $user, $mod, $quizgame) {
 
-    $return = new stdClass();
-    $return->time = 0;
-    $return->info = '';
-    return $return;
+    global $DB;
+    if ($game = $DB->count_records('quizgame_scores', array('quizgameid' => $quizgame->id, 'userid' => $user->id))) {
+        $result = new stdClass();
+
+        if ($game > 0) {
+            $games = $DB->get_records('quizgame_scores',
+                    array('quizgameid' => $quizgame->id, 'userid' => $user->id), 'timecreated DESC', '*', 0, 1);
+            foreach ($games as $last) {
+                $data = new stdClass();
+                $data->score = $last->score;
+                $data->times = $game;
+                $result->info = get_string("playedxtimeswithhighscore", "quizgame", $data);
+                $result->time = $last->timecreated;
+            }
+        } else {
+            $result->info = get_string("notyetplayed", "quizgame");
+
+        }
+
+        return $result;
+    }
+    return null;
+
 }
 
 /**
@@ -147,9 +169,65 @@ function quizgame_user_outline($course, $user, $mod, $quizgame) {
  * @param stdClass $user the record of the user we are generating report for
  * @param cm_info $mod course module info
  * @param stdClass $quizgame the module instance record
- * @return void, is supposed to echp directly
+ * @return void, is supposed to echo directly
  */
 function quizgame_user_complete($course, $user, $mod, $quizgame) {
+    global $DB;
+
+    if ($games = $DB->get_records('quizgame_scores',
+            array('quizgameid' => $quizgame->id, 'userid' => $user->id),
+            'timecreated ASC')) {
+        $attempt = 1;
+        foreach ($games as $game) {
+
+            echo get_string('attempt', 'quizgame', $attempt++) . ': ';
+            echo get_string('achievedhighscoreof', 'quizgame', $game->score);
+            echo ' - '.userdate($game->timecreated).'<br />';
+        }
+    } else {
+        print_string("notyetplayed", "quizgame");
+    }
+
+}
+
+/**
+ * Obtains the automatic completion state for this quizgame based on any conditions
+ * in quizgame settings.
+ *
+ * @global object $DB
+ * @param object $course Course
+ * @param object $cm Course-module
+ * @param int $userid User ID
+ * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
+ * @return bool True if completed, false if not. (If no conditions, then return
+ *   value depends on comparison type)
+ */
+function quizgame_get_completion_state($course, $cm, $userid, $type) {
+    global $DB;
+
+    // Get quizgame details.
+    if (!($quizgame = $DB->get_record('quizgame', array('id' => $cm->instance)))) {
+        throw new Exception("Can't find quizgame {$cm->instance}");
+    }
+
+    // Default return value.
+    $result = $type;
+    if ($quizgame->completionscore) {
+        $where = ' quizgameid = :quizgameid AND userid = :userid AND score >= :score';
+        $params = array(
+            'quizgameid' => $quizgame->id,
+            'userid' => $userid,
+            'score' => $quizgame->completionscore,
+        );
+        $value = $DB->count_records_select('quizgame_scores', $where, $params) > 0;
+        if ($type == COMPLETION_AND) {
+            $result = $result && $value;
+        } else {
+            $result = $result || $value;
+        }
+    }
+
+    return $result;
 }
 
 /**
@@ -256,7 +334,6 @@ function quizgame_scale_used($quizgameid, $scaleid) {
  * @return boolean true if the scale is used by any quizgame instance
  */
 function quizgame_scale_used_anywhere($scaleid) {
-    global $DB;
 
     return false;
 }
@@ -293,7 +370,7 @@ function quizgame_grade_item_update(stdClass $quizgame, $grades=null) {
  * @return void
  */
 function quizgame_update_grades(stdClass $quizgame, $userid = 0) {
-    global $CFG, $DB;
+    global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
     $grades = array(); // Populate array of grade objects indexed by userid.
@@ -354,7 +431,6 @@ function quizgame_get_file_info($browser, $areas, $course, $cm, $context, $filea
  * @param array $options additional options affecting the file serving
  */
 function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
-    global $DB, $CFG;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
         send_file_not_found();
@@ -391,4 +467,72 @@ function quizgame_extend_navigation(navigation_node $navref, stdclass $course, s
  * @param navigation_node $quizgamenode {@link navigation_node}
  */
 function quizgame_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $quizgamenode=null) {
+}
+
+/**
+ * Implementation of the function for printing the form elements that control
+ * whether the course reset functionality affects the quizgame.
+ * @param stdClass $mform form passed by reference
+ */
+function quizgame_reset_course_form_definition(&$mform) {
+
+    $mform->addElement('header', 'quizgameheader', get_string('modulenameplural', 'quizgame'));
+    $mform->addElement('advcheckbox', 'reset_quizgame_scores', get_string('removescores', 'quizgame'));
+
+}
+
+/**
+ * Course reset form defaults.
+ * @return array
+ */
+function quizgame_reset_course_form_defaults($course) {
+    return array('reset_quizgame_scores' => 1);
+
+}
+
+/**
+ * Actual implementation of the rest coures functionality, delete all the
+ * quizgame responses for course $data->courseid.
+ *
+ * @global stdClass
+ * @param $data the data submitted from the reset course.
+ * @return array status array
+ */
+function quizgame_reset_userdata($data) {
+    global $DB;
+        $componentstr = get_string('modulenameplural', 'quizgame');
+        $status = array();
+
+    if (!empty($data->reset_quizgame_scores)) {
+        $scoresql = "SELECT qg.id
+                     FROM {quizgame} qg
+                     WHERE qg.course=?";
+
+        $DB->delete_records_select('quizgame_scores', "quizgameid IN ($scoresql)", array($data->courseid));
+        $status[] = array('component' => $componentstr, 'item' => get_string('removescores', 'quizgame'), 'error' => false);
+    }
+
+    return $status;
+}
+
+/**
+ * Removes all grades from gradebook
+ *
+ * @global stdClass
+ * @param int $courseid
+ * @param string optional type
+ */
+// TODO: LOOK AT AFTER GRADES ARE IMPLEMENTED!
+function quizgame_reset_gradebook($courseid, $type='') {
+    global $DB;
+
+    $sql = "SELECT g.*, cm.idnumber as cmidnumber, g.course as courseid
+              FROM {quizgame} g, {course_modules} cm, {modules} m
+             WHERE m.name='quizgame' AND m.id=cm.module AND cm.instance=g.id AND g.course=?";
+
+    if ($quizgames = $DB->get_records_sql($sql, array($courseid))) {
+        foreach ($quizgames as $quizgame) {
+            quizgame_grade_item_update($quizgame, 'reset');
+        }
+    }
 }

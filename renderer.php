@@ -25,7 +25,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
      * @return string The HTML code of the game
      */
     public function render_game($quizgame, $context) {
-        global $DB, $OUTPUT;
+        global $DB;
 
         $categoryid = explode(',', $quizgame->questioncategory)[0];
         $questionids = array_keys($DB->get_records('question', array('category' => intval($categoryid)), '', 'id'));
@@ -60,7 +60,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
             }
         }
 
-        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson));
+        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson, $quizgame->id));
 
         $display = '<canvas id="mod_quizgame_game"></canvas>';
         $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">'.
@@ -76,7 +76,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
                     '<source src="sound/EnemyLaser.wav" type="audio/wav" />'.
                     '</audio>';
 
-        $display .= '<input id="mod_quizgame_fullscreen_button" type="button" value="' .
+        $display .= '<input id="mod_quizgame_fullscreen_button" class= "btn btn-secondary" type="button" value="' .
                     get_string('fullscreen', 'mod_quizgame') . '">';
         $display .= html_writer::checkbox('sound', '', false,
                                           get_string('sound', 'mod_quizgame'),
@@ -85,4 +85,14 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         return $display;
     }
 
+    public function render_score_link($quizgame) {
+
+        $url = new moodle_url('/mod/quizgame/scores.php', array('id' => $quizgame->id));
+        $scorestring = get_string('scoreslink', 'quizgame');
+        $scorestringhelp = get_string('scoreslinkhelp', 'quizgame');
+        $display = html_writer::start_tag('div', array('class' => 'quizgame-scores'));
+        $display .= html_writer::tag('a', $scorestring, array('title' => $scorestringhelp, 'href' => $url));
+        $display .= html_writer::end_tag('div');
+        return $display;
+    }
 }

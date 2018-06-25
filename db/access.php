@@ -70,5 +70,15 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+
+    'mod/quizgame:viewallscores' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+                'editingteacher' => CAP_ALLOW,
+                'teacher' => CAP_ALLOW,
+                'manager' => CAP_ALLOW
+        ),
+    ),
 );
 

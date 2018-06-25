@@ -58,6 +58,10 @@ $event->add_record_snapshot('course_modules', $cm);
 $event->add_record_snapshot('quizgame', $quizgame);
 $event->trigger();
 
+// Mark as viewed.
+$completion = new completion_info($course);
+$completion->set_module_viewed($cm);
+
 // Print the page header.
 
 $PAGE->set_url('/mod/quizgame/view.php', array('id' => $cm->id));
@@ -80,6 +84,11 @@ echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
 echo "<link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>";
 echo $renderer->render_game($quizgame, $context);
 echo "<div class=fontloader>Loading game</div>";
+
+// Display link to view student scores.
+if (has_capability('mod/quizgame:viewallscores', $context)) {
+    echo $renderer->render_score_link($quizgame);
+}
 
 // Finish the page.
 echo $OUTPUT->footer();
