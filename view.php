@@ -78,7 +78,8 @@ if ($quizgame->intro) {
     echo $OUTPUT->box(format_module_intro('quizgame', $quizgame, $cm->id), 'generalbox mod_introbox', 'quizgameintro');
 }
 
-echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
+// Output header and directions.
+echo $OUTPUT->heading_with_help(get_string('modulename', 'mod_quizgame'), 'howtoplay', 'mod_quizgame');
 
 // Game here.
 echo "<link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>";
