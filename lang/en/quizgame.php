@@ -43,7 +43,7 @@ $string['eventgamestarted'] = 'Quizventure game started';
 $string['eventgamescoreadded'] = 'Quizventure score recorded';
 $string['eventgamescoresviewed'] = 'Quizventure scores viewed';
 $string['fullscreen'] = 'Fullscreen';
-$string['howtoplay'] ='How to Play';
+$string['howtoplay'] = 'How to Play';
 $string['howtoplay_help'] = 'You can move the ship by using the arrow keys, or by dragging it with the mouse.
 
 Press the spacebar or click the mouse button to shoot.
