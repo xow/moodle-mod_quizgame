@@ -43,6 +43,12 @@ $string['eventgamestarted'] = 'Quizventure game started';
 $string['eventgamescoreadded'] = 'Quizventure score recorded';
 $string['eventgamescoresviewed'] = 'Quizventure scores viewed';
 $string['fullscreen'] = 'Fullscreen';
+$string['howtoplay'] ='How to Play';
+$string['howtoplay_help'] = 'You can move the ship by using the arrow keys, or by dragging it with the mouse.
+
+Press the spacebar or click the mouse button to shoot.
+
+Clear as many questions as possible by shooting the correct answer.  Good Luck!';
 $string['modulename_help'] = 'Students procastinating too much? Are they playing games instead of studying? Well now you can motivate them by allowing them to do both at once!
 
 Quizventure is an activity module that loads quiz questions from the course it\'s added to. The possible answers come down as space ships and you have to shoot the correct one.
