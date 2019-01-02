@@ -132,6 +132,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         clearEvents();
         document.onkeydown = menukeydown;
         document.onmouseup = menumousedown;
+        document.ontouchend = menutouchend;
     }
 
     function showMenu() {
@@ -779,6 +780,12 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    function menutouchend(e) {
+        if (e.target === stage) {
+            loadGame();
+        }
+    }
+
     function keydown(e) {
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
@@ -839,6 +846,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                 touchDown = true;
                 touchmove(e);
             }
+
+            e.preventDefault();
         }
     }
 
@@ -848,11 +857,26 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
         player.direction.x = 0;
         player.direction.y = 0;
+
+        if (e.target === stage) {
+            e.preventDefault();
+        }
     }
 
+
     function touchmove(e) {
-        player.mouse.x = e.touches[0].clientX;
-        player.mouse.y = e.touches[0].clientY - player.image.height;
+        var rect = e.target.getBoundingClientRect();
+        // Required for getting the stage's relative touch position, due to a previous significant offset
+        var x = e.touches[0].pageX - rect.left;
+        var y = e.touches[0].clientY - rect.top;
+
+        window.stage = stage;
+        player.mouse.x = x;
+        player.mouse.y = y;
+
+        if (e.target === stage) {
+            e.preventDefault();
+        }
     }
 
     function shuffle(array) {
