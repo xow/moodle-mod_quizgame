@@ -60,8 +60,14 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     var currentPointsLeft = 0;
     var context;
     var inFullscreen = 0;
+
     $('#mod_quizgame_fullscreen_button').on('click', function () {
-        fullscreen();
+        if (inFullscreen === 1) {
+            inFullscreen--;
+            smallscreen();
+        } else {
+            fullscreen();
+        }
     });
 
     function playSound(soundName) {
@@ -81,19 +87,21 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         displayRect.height = stage.clientHeight;
         stage.style.width = displayRect.width;
         stage.style.height = displayRect.height;
+
+        stage.classList.remove("floating-game-canvas");
+        $("#button_container").removeClass("floating-button-container fixed-bottom");
+
         sizeScreen(stage);
     }
 
     function fschange() {
-        inFullscreen--;
-        if (inFullscreen < 1) {
+        if (--inFullscreen < 1) {
             smallscreen();
         }
     }
 
     function fullscreen() {
-        displayRect.width = window.screen.width || stage.clientWidth;
-        displayRect.height = window.screen.height || stage.clientHeight;
+        var landscape = window.matchMedia("(orientation: landscape)").matches;
 
         if (stage.requestFullscreen) {
               stage.requestFullscreen();
@@ -104,9 +112,39 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         } else if (stage.webkitRequestFullscreen) {
               stage.webkitRequestFullscreen();
         }
-        inFullscreen = 2;
-        stage.style.width = screen.width + "px";
-        stage.style.height = "100%";
+
+        inFullscreen = 1;
+        var buttonContainer = $("#button_container");
+
+        var width = window.innerWidth;
+
+        // window.innerHeight returns an offset value on iOS devices in safari only
+        // while in portrait mode for some reason
+        var height = $(window).height();
+
+        // Switch width and height
+        if (landscape && width < height) {
+            height = [width, width = height][0];
+        }
+
+        // Gets the actual button container height, then adds 16px; 8px on the
+        // top and 8px on the bottom for the page margin
+        height -= buttonContainer.height() + 16;
+
+        displayRect.width = width;
+        displayRect.height = height;
+
+        stage.style.width = width + "px";
+        stage.style.height = height + "px";
+
+        // Makes the canvas float
+        stage.classList.add("floating-game-canvas");
+
+        // This makes the button container float below the game canvas
+        buttonContainer.addClass("floating-button-container fixed-bottom");
+
+        $("#mod_quizgame_fullscreen_button").blur(); // The button pressed was still focused, so a blur is necessary
+
         sizeScreen(stage);
     }
 
@@ -115,6 +153,12 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         stage.width = displayRect.width;
         stage.height = displayRect.height;
         context.imageSmoothingEnabled = false;
+    }
+
+    function orientationChange() {
+        if (inFullscreen === 1) {
+            fullscreen();
+        }
     }
 
     function clearEvents() {
@@ -126,6 +170,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         document.ontouchstart = null;
         document.ontouchend = null;
         document.ontouchmove = null;
+        document.onresize = null;
     }
 
     function menuEvents() {
@@ -133,6 +178,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         document.onkeydown = menukeydown;
         document.onmouseup = menumousedown;
         document.ontouchend = menutouchend;
+        document.onresize = orientationChange;
     }
 
     function showMenu() {
