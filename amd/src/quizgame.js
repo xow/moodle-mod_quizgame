@@ -118,8 +118,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
 
         var width = window.innerWidth;
 
-        // window.innerHeight returns an offset value on iOS devices in safari only
-        // while in portrait mode for some reason
+        // The window.innerHeight returns an offset value on iOS devices in safari only
+        // while in portrait mode for some reason.
         var height = $(window).height();
 
         // Switch width and height
@@ -128,7 +128,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
 
         // Gets the actual button container height, then adds 16px; 8px on the
-        // top and 8px on the bottom for the page margin
+        // top and 8px on the bottom for the page margin.
         height -= buttonContainer.height() + 16;
 
         displayRect.width = width;
@@ -137,13 +137,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         stage.style.width = width + "px";
         stage.style.height = height + "px";
 
-        // Makes the canvas float
+        // Makes the canvas float.
         stage.classList.add("floating-game-canvas");
 
-        // This makes the button container float below the game canvas
+        // This makes the button container float below the game canvas.
         buttonContainer.addClass("floating-button-container fixed-bottom");
 
-        $("#mod_quizgame_fullscreen_button").blur(); // The button pressed was still focused, so a blur is necessary
+        $("#mod_quizgame_fullscreen_button").blur(); // The button pressed was still focused, so a blur is necessary.
 
         sizeScreen(stage);
     }
@@ -345,7 +345,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                                                }),
                                                5, displayRect.height - 20);
             context.textAlign = 'center';
-            context.fillText(question, displayRect.width / 2, 20);
+
+            wrapText(context, question, false, 20, displayRect.width * 0.9, displayRect.width / 2, 20);
         } else {
             context.fillStyle = '#FFFFFF';
             context.font = "18px Audiowide";
@@ -583,7 +584,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         context.fillStyle = '#FFFFFF';
         context.font = "15px Audiowide";
         context.textAlign = 'center';
-        context.fillText(this.text, this.x + this.image.width / 2, this.y - 5);
+
+        wrapText(context, this.text, true, 17, displayRect.width * 0.2, this.x + this.image.width / 2, this.y - 5);
     };
     Enemy.prototype.die = function() {
         GameObject.prototype.die.call(this);
@@ -805,6 +807,50 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         for (var i = 0; i < num; i++) {
             particles.push(new Particle(x, y, {x: (Math.random() - 0.5) * 16, y: ((Math.random() - 0.5) * 16) + 3}, colour));
         }
+    }
+
+    function wrapText(context, input, wrapUpwards, textHeight, maxLineWidth, x, y) {
+        var drawLines = [];
+        var originalY = y;
+        var words = input.split(' ');
+        var line = '';
+
+        // Loops through the words, and preprocesses each line with the correct string value and y location.
+        words.forEach(function(word) {
+            var tempLine = line + ' ' + word;
+            var metrics = context.measureText(tempLine);
+            var testWidth = metrics.width;
+
+            // If the line with the new word is too long, then push the current line without the new word to drawLines.
+            if (testWidth > maxLineWidth) {
+                drawLines.push({
+                    text: line,
+                    y: y += textHeight
+                });
+
+                line = word;
+            } else {
+                // If it's shorted than the limit, just add the word to the line and move on.
+                line = tempLine;
+            }
+        });
+
+        // Push the last line, if it exists.
+        drawLines.push({
+            text: line,
+            y: y += textHeight
+        });
+
+        // The offset the text was created.
+        var yOffset = y - originalY;
+
+        drawLines.forEach(function(drawLine) {
+            // If it is suppose to wrap upwards (i.e. for enemy ships) it shifts all questions upwards the amount the
+            // questions go down.
+            var modifier = wrapUpwards ? -yOffset : 0;
+
+            context.fillText(drawLine.text, x, drawLine.y + modifier);
+        });
     }
 
     // Input.
