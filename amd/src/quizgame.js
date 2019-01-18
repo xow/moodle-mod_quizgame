@@ -58,6 +58,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     var currentTeam = [];
     var lastShot = 0;
     var currentPointsLeft = 0;
+    var enemyShipCount = 0; // A tracker for how many enemy ships are on the screen. This is more reliable than
+    // currentPointsLeft because incorrect ships will have no fraction to subtract from, allowing for an early game end
+    // if all remaining correct ships leave, and the incorrect ships remain present.
     var context;
     var inFullscreen = false;
 
@@ -300,6 +303,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         currentTeam = [];
         lastShot = 0;
         currentPointsLeft = 0;
+        enemyShipCount = 0;
 
         if (questions[level].type == 'multichoice') {
             questions[level].answers.forEach(function(answer) {
@@ -308,14 +312,14 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                 if (answer.fraction < 1) {
                     currentTeam.push(enemy);
                     if (answer.fraction > 0) {
-                        currentPointsLeft += answer.fraction;
+                        currentPointsLeft += parseFloat(answer.fraction);
                     }
                 }
                 gameObjects.push(enemy);
             });
         } else if (questions[level].type == 'match') {
             var i = 0;
-            var fraction = 1 / questions[level].stems.length;
+            var fraction = 1 / (questions[level].stems.length * 2);
             currentPointsLeft += 1;
             questions[level].stems.forEach(function(stem) {
                 i++;
@@ -536,6 +540,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.shotFrequency = 80;
         this.shotClock = (1 + Math.random()) * this.shotFrequency;
         this.level = level;
+
+        enemyShipCount++;
     }
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function (bounds) {
@@ -581,7 +587,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                 currentPointsLeft -= this.fraction;
                 score -= 1000 * this.fraction;
             }
-            if (currentPointsLeft <= 0 && this.level == level && player.alive) {
+            if (--enemyShipCount === 0 && (currentPointsLeft < this.fraction || currentPointsLeft <= 0)
+                && this.level == level && player.alive) {
                 nextLevel();
             }
         }
@@ -596,10 +603,19 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         wrapText(context, this.text, true, 17, displayRect.width * 0.2, this.x + this.image.width / 2, this.y - 5);
     };
     Enemy.prototype.die = function() {
+        this.die(true);
+    };
+    Enemy.prototype.die = function(increaseScore) {
         GameObject.prototype.die.call(this);
         spray(this.x + this.image.width, this.y + this.image.height, 50 + (this.fraction * 150), "#FF0000");
-        score += this.fraction * 1000;
+        // Multiply score *2 if it's a MatchEnemy due to the fraction being half of the required score
+        // score += this.fraction * 1000 * (this instanceof MatchEnemy ? 2 : 1);
+        if (increaseScore) {
+            score += this.fraction * 1000;
+        }
+
         playSound("explosion");
+        enemyShipCount--;
     };
     Enemy.prototype.gotShot = function(shot) {
         // Default behaviour, to be overridden.
@@ -649,7 +665,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     }
     MatchEnemy.prototype = Object.create(Enemy.prototype);
     MatchEnemy.prototype.die = function() {
-        Enemy.prototype.die.call(this);
+        currentPointsLeft -= this.fraction;
+        Enemy.prototype.die.call(this, false);
     };
     MatchEnemy.prototype.gotShot = function(shot) {
         if (shot.alive && this.alive) {
@@ -665,6 +682,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                         alives++;
                     }
                 });
+
+                // Increasing the score here instead of in #die(), due to rounding issues being a few numbers off.
+                score += this.fraction * 1000 * 2;
+
                 if (alives <= 0) {
                     nextLevel();
                 }
