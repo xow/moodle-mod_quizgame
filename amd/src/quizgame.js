@@ -59,11 +59,11 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     var lastShot = 0;
     var currentPointsLeft = 0;
     var context;
-    var inFullscreen = 0;
+    var inFullscreen = false;
 
     $('#mod_quizgame_fullscreen_button').on('click', function () {
-        if (inFullscreen === 1) {
-            inFullscreen--;
+        if (inFullscreen) {
+            inFullscreen = false;
             smallscreen();
         } else {
             fullscreen();
@@ -79,23 +79,24 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     }
 
     function smallscreen() {
+        inFullscreen = false;
         stage.removeAttribute("width");
         stage.removeAttribute("height");
         stage.removeAttribute("style");
+
+        stage.classList.remove("floating-game-canvas");
+        $("#button_container").removeClass("floating-button-container fixed-bottom");
 
         displayRect.width = stage.clientWidth;
         displayRect.height = stage.clientHeight;
         stage.style.width = displayRect.width;
         stage.style.height = displayRect.height;
 
-        stage.classList.remove("floating-game-canvas");
-        $("#button_container").removeClass("floating-button-container fixed-bottom");
-
         sizeScreen(stage);
     }
 
     function fschange() {
-        if (--inFullscreen < 1) {
+        if (inFullscreen) {
             smallscreen();
         }
     }
@@ -109,11 +110,11 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
               stage.msRequestFullscreen();
         } else if (stage.mozRequestFullScreen) {
               stage.mozRequestFullScreen();
-        } else if (stage.webkitRequestFullscreen) {
-              stage.webkitRequestFullscreen();
         }
+        // The stage.webkitRequestFullscreen() method was removed, due to very easily exiting of full screen in iOS,
+        // along with browser messages asking if you are typing in fullscreen.
 
-        inFullscreen = 1;
+        inFullscreen = true;
         var buttonContainer = $("#button_container");
 
         var width = window.innerWidth;
@@ -156,8 +157,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     }
 
     function orientationChange() {
-        if (inFullscreen === 1) {
+        if (inFullscreen) {
             fullscreen();
+        } else {
+            smallscreen();
         }
     }
 
@@ -170,7 +173,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         document.ontouchstart = null;
         document.ontouchend = null;
         document.ontouchmove = null;
-        document.onresize = null;
+        window.onresize = null;
     }
 
     function menuEvents() {
@@ -178,7 +181,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         document.onkeydown = menukeydown;
         document.onmouseup = menumousedown;
         document.ontouchend = menutouchend;
-        document.onresize = orientationChange;
+        window.onresize = orientationChange;
     }
 
     function showMenu() {
@@ -278,6 +281,11 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         document.ontouchstart = touchstart;
         document.ontouchend = touchend;
         document.ontouchmove = touchmove;
+        window.onresize = orientationChange;
+
+        document.addEventListener("gesturestart", cancelled, false);
+        document.addEventListener("gesturechange", cancelled, false);
+        document.addEventListener("gestureend", cancelled, false);
     }
 
     function nextLevel() {
@@ -928,6 +936,12 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     function mousemove(e) {
         player.mouse.x = e.offsetX;
         player.mouse.y = e.offsetY;
+    }
+
+    function cancelled(event) {
+        if (event.target === stage) {
+            event.preventDefault();
+        }
     }
 
     function touchstart(e) {
