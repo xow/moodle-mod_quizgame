@@ -301,7 +301,15 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         lastShot = 0;
         currentPointsLeft = 0;
 
-        if (questions[level].type == 'multichoice') {
+        if (questions[level].type == 'truefalse') {
+            questions[level].answers.forEach(function(answer) {
+                var enemy = new TFEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2,
+                                           answer.text, answer.fraction);
+                currentTeam.push(enemy);
+                gameObjects.push(enemy);
+            });
+            currentPointsLeft = 0; // This is unused by TrueFalse questions.
+        } else if (questions[level].type == 'multichoice') {
             questions[level].answers.forEach(function(answer) {
                 var enemy = new MultiEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2,
                                            answer.text, answer.fraction);
@@ -607,6 +615,40 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.die();
     };
 
+    function killAllAlive() {
+        currentTeam.forEach(function (enemy) {
+            if (enemy.alive) {
+                enemy.die();
+            }
+        });
+        currentTeam = [];
+    }
+
+    function TFEnemy(x, y, text, fraction) {
+        Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
+    }
+    TFEnemy.prototype = Object.create(Enemy.prototype);
+    TFEnemy.prototype.die = function() {
+        // TrueFalse questions are very simple, if either of the ships die, Enemy.prototype.die will handle
+        // the score adding of 1000 or 0, and then this will kill the other remaining ship.
+        Enemy.prototype.die.call(this);
+        killAllAlive();
+        // Only goes to the next level if the result is "true", as no matter what enemy dies first, the opposite will
+        // die immediately after.
+        if (this.fraction > 0) {
+            nextLevel();
+        }
+    };
+    TFEnemy.prototype.gotShot = function(shot) {
+        if (this.fraction > 0) {
+            shot.die();
+            this.die();
+        } else {
+            score += (this.fraction - 0.5) * 600;
+            shot.deflect();
+        }
+    };
+
     function MultiEnemy(x, y, text, fraction) {
         Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
     }
@@ -617,12 +659,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             currentPointsLeft -= this.fraction;
         }
         if (this.fraction >= 1 || (this.fraction > 0 && currentPointsLeft <= 0)) {
-            currentTeam.forEach(function (enemy) {
-                if (enemy.alive) {
-                    enemy.die();
-                }
-            });
-            currentTeam = [];
+            killAllAlive();
             nextLevel();
         }
     };
