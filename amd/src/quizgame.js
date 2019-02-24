@@ -59,9 +59,15 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     var lastShot = 0;
     var currentPointsLeft = 0;
     var context;
-    var inFullscreen = 0;
+    var inFullscreen = false;
+
     $('#mod_quizgame_fullscreen_button').on('click', function () {
-        fullscreen();
+        if (inFullscreen) {
+            inFullscreen = false;
+            smallscreen();
+        } else {
+            fullscreen();
+        }
     });
 
     function playSound(soundName) {
@@ -73,27 +79,30 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     }
 
     function smallscreen() {
+        inFullscreen = false;
         stage.removeAttribute("width");
         stage.removeAttribute("height");
         stage.removeAttribute("style");
+
+        stage.classList.remove("floating-game-canvas");
+        $("#button_container").removeClass("floating-button-container fixed-bottom");
 
         displayRect.width = stage.clientWidth;
         displayRect.height = stage.clientHeight;
         stage.style.width = displayRect.width;
         stage.style.height = displayRect.height;
+
         sizeScreen(stage);
     }
 
     function fschange() {
-        inFullscreen--;
-        if (inFullscreen < 1) {
+        if (inFullscreen) {
             smallscreen();
         }
     }
 
     function fullscreen() {
-        displayRect.width = window.screen.width || stage.clientWidth;
-        displayRect.height = window.screen.height || stage.clientHeight;
+        var landscape = window.matchMedia("(orientation: landscape)").matches;
 
         if (stage.requestFullscreen) {
               stage.requestFullscreen();
@@ -101,12 +110,42 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
               stage.msRequestFullscreen();
         } else if (stage.mozRequestFullScreen) {
               stage.mozRequestFullScreen();
-        } else if (stage.webkitRequestFullscreen) {
-              stage.webkitRequestFullscreen();
         }
-        inFullscreen = 2;
-        stage.style.width = screen.width + "px";
-        stage.style.height = "100%";
+        // The stage.webkitRequestFullscreen() method was removed, due to very easily exiting of full screen in iOS,
+        // along with browser messages asking if you are typing in fullscreen.
+
+        inFullscreen = true;
+        var buttonContainer = $("#button_container");
+
+        var width = window.innerWidth;
+
+        // The window.innerHeight returns an offset value on iOS devices in safari only
+        // while in portrait mode for some reason.
+        var height = $(window).height();
+
+        // Switch width and height
+        if (landscape && width < height) {
+            height = [width, width = height][0];
+        }
+
+        // Gets the actual button container height, then adds 16px; 8px on the
+        // top and 8px on the bottom for the page margin.
+        height -= buttonContainer.height() + 16;
+
+        displayRect.width = width;
+        displayRect.height = height;
+
+        stage.style.width = width + "px";
+        stage.style.height = height + "px";
+
+        // Makes the canvas float.
+        stage.classList.add("floating-game-canvas");
+
+        // This makes the button container float below the game canvas.
+        buttonContainer.addClass("floating-button-container fixed-bottom");
+
+        $("#mod_quizgame_fullscreen_button").blur(); // The button pressed was still focused, so a blur is necessary.
+
         sizeScreen(stage);
     }
 
@@ -115,6 +154,14 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         stage.width = displayRect.width;
         stage.height = displayRect.height;
         context.imageSmoothingEnabled = false;
+    }
+
+    function orientationChange() {
+        if (inFullscreen) {
+            fullscreen();
+        } else {
+            smallscreen();
+        }
     }
 
     function clearEvents() {
@@ -126,12 +173,15 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         document.ontouchstart = null;
         document.ontouchend = null;
         document.ontouchmove = null;
+        window.onresize = null;
     }
 
     function menuEvents() {
         clearEvents();
         document.onkeydown = menukeydown;
         document.onmouseup = menumousedown;
+        document.ontouchend = menutouchend;
+        window.onresize = orientationChange;
     }
 
     function showMenu() {
@@ -231,6 +281,11 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         document.ontouchstart = touchstart;
         document.ontouchend = touchend;
         document.ontouchmove = touchmove;
+        window.onresize = orientationChange;
+
+        document.addEventListener("gesturestart", cancelled, false);
+        document.addEventListener("gesturechange", cancelled, false);
+        document.addEventListener("gestureend", cancelled, false);
     }
 
     function nextLevel() {
@@ -298,7 +353,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                                                }),
                                                5, displayRect.height - 20);
             context.textAlign = 'center';
-            context.fillText(question, displayRect.width / 2, 20);
+
+            wrapText(context, question, false, 20, displayRect.width * 0.9, displayRect.width / 2, 20);
         } else {
             context.fillStyle = '#FFFFFF';
             context.font = "18px Audiowide";
@@ -536,7 +592,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         context.fillStyle = '#FFFFFF';
         context.font = "15px Audiowide";
         context.textAlign = 'center';
-        context.fillText(this.text, this.x + this.image.width / 2, this.y - 5);
+
+        wrapText(context, this.text, true, 17, displayRect.width * 0.2, this.x + this.image.width / 2, this.y - 5);
     };
     Enemy.prototype.die = function() {
         GameObject.prototype.die.call(this);
@@ -760,6 +817,50 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    function wrapText(context, input, wrapUpwards, textHeight, maxLineWidth, x, y) {
+        var drawLines = [];
+        var originalY = y;
+        var words = input.split(' ');
+        var line = '';
+
+        // Loops through the words, and preprocesses each line with the correct string value and y location.
+        words.forEach(function(word) {
+            var tempLine = line + ' ' + word;
+            var metrics = context.measureText(tempLine);
+            var testWidth = metrics.width;
+
+            // If the line with the new word is too long, then push the current line without the new word to drawLines.
+            if (testWidth > maxLineWidth) {
+                drawLines.push({
+                    text: line,
+                    y: y += textHeight
+                });
+
+                line = word;
+            } else {
+                // If it's shorted than the limit, just add the word to the line and move on.
+                line = tempLine;
+            }
+        });
+
+        // Push the last line, if it exists.
+        drawLines.push({
+            text: line,
+            y: y += textHeight
+        });
+
+        // The offset the text was created.
+        var yOffset = y - originalY;
+
+        drawLines.forEach(function(drawLine) {
+            // If it is suppose to wrap upwards (i.e. for enemy ships) it shifts all questions upwards the amount the
+            // questions go down.
+            var modifier = wrapUpwards ? -yOffset : 0;
+
+            context.fillText(drawLine.text, x, drawLine.y + modifier);
+        });
+    }
+
     // Input.
 
     var canShoot = true;
@@ -774,6 +875,12 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     }
 
     function menumousedown(e) {
+        if (e.target === stage) {
+            loadGame();
+        }
+    }
+
+    function menutouchend(e) {
         if (e.target === stage) {
             loadGame();
         }
@@ -831,6 +938,12 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         player.mouse.y = e.offsetY;
     }
 
+    function cancelled(event) {
+        if (event.target === stage) {
+            event.preventDefault();
+        }
+    }
+
     function touchstart(e) {
         if (e.target === stage ) {
             if (player.alive && e.touches.length > 1) {
@@ -839,6 +952,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                 touchDown = true;
                 touchmove(e);
             }
+
+            e.preventDefault();
         }
     }
 
@@ -848,11 +963,26 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
         player.direction.x = 0;
         player.direction.y = 0;
+
+        if (e.target === stage) {
+            e.preventDefault();
+        }
     }
 
+
     function touchmove(e) {
-        player.mouse.x = e.touches[0].clientX;
-        player.mouse.y = e.touches[0].clientY - player.image.height;
+        var rect = e.target.getBoundingClientRect();
+        // Required for getting the stage's relative touch position, due to a previous significant offset
+        var x = e.touches[0].pageX - rect.left;
+        var y = e.touches[0].clientY - rect.top;
+
+        window.stage = stage;
+        player.mouse.x = x;
+        player.mouse.y = y;
+
+        if (e.target === stage) {
+            e.preventDefault();
+        }
     }
 
     function shuffle(array) {

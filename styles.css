@@ -10,3 +10,19 @@
 .quizgame-scores {
     text-align: center;
 }
+.floating-button-container {
+    background: #FFF;
+    border: 0.5rem solid #FFF;
+}
+.floating-game-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999999;
+}
+[role="main"] {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
