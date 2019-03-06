@@ -1016,6 +1016,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         interval = setInterval(function() {
             showMenu();
         }, 500);
+        document.querySelector("[role=\"main\"]").classList.add("quizgame-main");
     }
 
     return {
