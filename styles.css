@@ -20,7 +20,7 @@
     left: 0;
     z-index: 999999;
 }
-.quizgame-main {
+#page-mod-quizgame-view div[role="main"] {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
