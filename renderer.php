@@ -40,7 +40,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
 
         $qjson = [];
         foreach ($questions as $question) {
-            if ($question->qtype == "multichoice") {
+            if ($question->qtype == "multichoice" || $question->qtype == "truefalse") {
                 $questiontext = quizgame_cleanup($question->questiontext);
                 $answers = [];
                 foreach ($question->options->answers as $answer) {
