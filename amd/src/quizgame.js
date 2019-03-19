@@ -316,7 +316,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         } else if (questions[level].type == 'multichoice') {
             questions[level].answers.forEach(function(answer) {
                 var enemy = new MultiEnemy(Math.random() * bounds.width, -Math.random() * bounds.height / 2,
-                                           answer.text, answer.fraction);
+                                           answer.text, answer.fraction, questions[level].single);
                 if (answer.fraction < 1) {
                     currentTeam.push(enemy);
                     if (answer.fraction > 0) {
@@ -634,6 +634,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     function killAllAlive() {
         currentTeam.forEach(function (enemy) {
             if (enemy.alive) {
+                // Make the fraction 0 so it won't count as anything and make a new level.
+                enemy.fraction = 0;
                 enemy.die();
             }
         });
@@ -665,8 +667,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     };
 
-    function MultiEnemy(x, y, text, fraction) {
+    function MultiEnemy(x, y, text, fraction, single) {
         Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
+        this.single = single;
     }
     MultiEnemy.prototype = Object.create(Enemy.prototype);
     MultiEnemy.prototype.die = function() {
@@ -674,13 +677,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         if (this.fraction > 0) {
             currentPointsLeft -= this.fraction;
         }
-        if (this.fraction >= 1 || (this.fraction > 0 && currentPointsLeft <= 0)) {
+        if ((this.single && this.fraction === 1) && this.fraction >= 1 || (this.fraction > 0 && currentPointsLeft <= 0)) {
             killAllAlive();
             nextLevel();
         }
     };
     MultiEnemy.prototype.gotShot = function(shot) {
-        if (this.fraction > 0) {
+        if (this.fraction >= 1 || (this.fraction > 0 && !this.single)) {
             shot.die();
             this.die();
         } else {

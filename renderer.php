@@ -47,7 +47,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
                     $answertext = quizgame_cleanup($answer->answer);
                     $answers[] = ["text" => $answertext, "fraction" => $answer->fraction];
                 }
-                $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype];
+                $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype, "single" => $question->qtype == "multichoice" && $question->options->single == 1];
             }
             if ($question->qtype == "match") {
                 $subquestions = [];

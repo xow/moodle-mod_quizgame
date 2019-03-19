@@ -40,6 +40,7 @@ function quizgame_cleanup($string) {
     $string = strip_tags($string);
     $string = preg_replace('/"/', '\"', $string);
     $string = preg_replace('/[\n\r]/', ' ', $string);
+    $string = stripslashes($string);
     return $string;
 }
 /**

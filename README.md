@@ -16,7 +16,7 @@ Alternatively, to install from [github](https://github.com/xow/moodle-mod_quizga
 Details and Setup
 =================
 
-It only supports multiple choice questions for now (other questions types will be ignored).
+It only supports multiple choice, matching, and true/false questions for now (other questions types will be ignored).
 
 Just copy the questions into the courses default category, and add the game to your course.
 
