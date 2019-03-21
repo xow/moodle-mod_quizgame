@@ -613,15 +613,14 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     Enemy.prototype.die = function() {
         this.die(true);
     };
-    Enemy.prototype.die = function(increaseScore) {
+    Enemy.prototype.die = function() {
         GameObject.prototype.die.call(this);
         spray(this.x + this.image.width, this.y + this.image.height, 50 + (this.fraction * 150), "#FF0000");
-        // Multiply score *2 if it's a MatchEnemy due to the fraction being half of the required score
-        // score += this.fraction * 1000 * (this instanceof MatchEnemy ? 2 : 1);
-        if (increaseScore) {
-            score += this.fraction * 1000;
-        }
 
+        // Adjust Score.
+        score += this.fraction * 1000;
+
+        // Kill off the ship.
         playSound("explosion");
         enemyShipCount--;
     };
