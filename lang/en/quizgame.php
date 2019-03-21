@@ -28,7 +28,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['achievedhighscoreof'] = 'Acheived a high score of {$a}';
+$string['achievedhighscoreof'] = 'Achieved a high score of {$a}';
 $string['attempt'] = 'Attempt #{$a}';
 $string['completionscore'] = 'Student must achieve a minimum score of:';
 $string['completionscoregroup'] = 'Require score';
@@ -57,7 +57,7 @@ Quizventure is an activity module that loads quiz questions from the course it\'
 $string['modulenameplural'] = 'Quizventure games';
 $string['modulename'] = 'Quizventure';
 $string['notyetplayed'] = 'Not yet played';
-$string['achievedhighscoreof'] = 'Acheived a high score of {$a}';
+$string['achievedhighscoreof'] = 'Achieved a high score of {$a}';
 $string['playedxtimeswithhighscore'] = 'Played {$a->times} times. The last game ended with a high score of {$a->score}';
 $string['pluginadministration'] = 'Quizventure administration';
 $string['pluginname'] = 'Quizventure';
