@@ -58,9 +58,6 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     var currentTeam = [];
     var lastShot = 0;
     var currentPointsLeft = 0;
-    var enemyShipCount = 0; // A tracker for how many enemy ships are on the screen. This is more reliable than
-    // currentPointsLeft because incorrect ships will have no fraction to subtract from, allowing for an early game end
-    // if all remaining correct ships leave, and the incorrect ships remain present.
     var context;
     var inFullscreen = false;
 
@@ -303,7 +300,6 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         currentTeam = [];
         lastShot = 0;
         currentPointsLeft = 0;
-        enemyShipCount = 0;
 
         if (questions[level].type == 'truefalse') {
             questions[level].answers.forEach(function(answer) {
@@ -548,8 +544,6 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.shotFrequency = 80;
         this.shotClock = (1 + Math.random()) * this.shotFrequency;
         this.level = level;
-
-        enemyShipCount++;
     }
     Enemy.prototype = Object.create(GameObject.prototype);
     Enemy.prototype.update = function (bounds) {
@@ -595,10 +589,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                 currentPointsLeft -= this.fraction;
                 score -= 1000 * this.fraction;
             }
-            if (--enemyShipCount === 0 && (currentPointsLeft < this.fraction || currentPointsLeft <= 0)
-                && this.level == level && player.alive) {
-                nextLevel();
-            }
+
+            shipReachedEnd.call(this);
         }
     };
     Enemy.prototype.draw = function (context) {
@@ -619,7 +611,6 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
 
         // Kill off the ship.
         playSound("explosion");
-        enemyShipCount--;
     };
     Enemy.prototype.gotShot = function(shot) {
         // Default behaviour, to be overridden.
@@ -920,6 +911,15 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
 
             context.fillText(drawLine.text, x, drawLine.y + modifier);
         });
+    }
+
+    function shipReachedEnd() {
+        var amountLeft = currentTeam.filter(function (enemy) { return enemy.alive; }).length;
+
+        if (amountLeft === 0 && (currentPointsLeft < this.fraction || currentPointsLeft <= 0)
+            && this.level === level && player.alive) {
+            nextLevel();
+        }
     }
 
     // Input.
