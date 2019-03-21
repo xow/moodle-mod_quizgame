@@ -47,7 +47,14 @@ class mod_quizgame_renderer extends plugin_renderer_base {
                     $answertext = quizgame_cleanup($answer->answer);
                     $answers[] = ["text" => $answertext, "fraction" => $answer->fraction];
                 }
-                $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype];
+
+                // The "single" entry is used by multichoice to determine single or multi answer.
+                if ($question->qtype == "truefalse") {
+                    $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype];
+                } else {
+                    $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype,
+                        "single" => $question->qtype == "multichoice" && $question->options->single == 1];
+                }
             }
             if ($question->qtype == "match") {
                 $subquestions = [];
