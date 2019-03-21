@@ -1,4 +1,3 @@
-    
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
@@ -41,15 +40,13 @@ class behat_mod_quizgame extends behat_base {
      * Play a quizgame.
      *
      * @param string $username the username of the user that will attempt.
-     * @param string $quizname the name of the quiz the user will attempt.
-     * @param TableNode $attemptinfo information about the questions to add, as above.
+     * @param string $quizname the name of the quizgame the user will attempt.
+     * @param string $score the score of the attempt.
      * @Given /^user "([^"]*)" has played "([^"]*)" with a score of "([^"]*)"$/
      */
     public function user_has_played_with_a_score_of($username, $quizgamename, $score = null) {
-
         global $DB;
-        /** @var mod_quizgame_generator $quizgamegenerator */
-        
+
         $quizgamegenerator = behat_util::get_data_generator()->get_plugin_generator('mod_quizgame');
         $quizgame = $DB->get_record('quizgame', ['name' => $quizgamename], '*', MUST_EXIST);
         $user = $DB->get_record('user', ['username' => $username], '*', MUST_EXIST);
@@ -64,7 +61,6 @@ class behat_mod_quizgame extends behat_base {
         }
 
         $attempt = $quizgamegenerator->create_content($quizgame, $attemptdata);
-
         $this->set_user();
     }
 }
