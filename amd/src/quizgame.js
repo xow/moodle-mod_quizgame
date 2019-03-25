@@ -611,17 +611,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         wrapText(context, this.text, true, 17, displayRect.width * 0.2, this.x + this.image.width / 2, this.y - 5);
     };
     Enemy.prototype.die = function() {
-        this.die(true);
-    };
-    Enemy.prototype.die = function(increaseScore) {
         GameObject.prototype.die.call(this);
         spray(this.x + this.image.width, this.y + this.image.height, 50 + (this.fraction * 150), "#FF0000");
-        // Multiply score *2 if it's a MatchEnemy due to the fraction being half of the required score
-        // score += this.fraction * 1000 * (this instanceof MatchEnemy ? 2 : 1);
-        if (increaseScore) {
-            score += this.fraction * 1000;
-        }
 
+        // Adjust Score.
+        score += this.fraction * 1000;
+
+        // Kill off the ship.
         playSound("explosion");
         enemyShipCount--;
     };
@@ -706,11 +702,18 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     MatchEnemy.prototype = Object.create(Enemy.prototype);
     MatchEnemy.prototype.die = function() {
         currentPointsLeft -= this.fraction;
-        Enemy.prototype.die.call(this, false);
+        // Sets the fraction as 0 to stop it adding to the score in #die()
+        this.fraction = 0;
+        Enemy.prototype.die.call(this);
     };
     MatchEnemy.prototype.gotShot = function(shot) {
         if (shot.alive && this.alive) {
             if (lastShot == -this.pairid) {
+
+                // Increasing the score here instead of in #die(), due to rounding issues being a few numbers off.
+                // This must be done before because when #die is invoked, as it sets the fraction as 0.
+                score += this.fraction * 1000 * 2;
+
                 shot.die();
                 this.die();
                 var alives = 0;
@@ -722,9 +725,6 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                         alives++;
                     }
                 });
-
-                // Increasing the score here instead of in #die(), due to rounding issues being a few numbers off.
-                score += this.fraction * 1000 * 2;
 
                 if (alives <= 0) {
                     nextLevel();
