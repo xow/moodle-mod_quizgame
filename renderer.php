@@ -16,6 +16,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * The main renderer for mod_quizgame
+ *
+ * @package    mod_quizgame
+ * @copyright  2016 John Okely <john@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class mod_quizgame_renderer extends plugin_renderer_base {
     /**
      * Initialises the game and returns its HTML code

@@ -40,7 +40,6 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
     /**
      * Test setup.
-     * @global stdclass $DB
      */
     public function setUp() {
         $this->resetAfterTest();
@@ -48,7 +47,6 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
     /**
      * Test the course_module_viewed event.
-     * @global stdclass $DB
      */
     public function test_course_module_viewed() {
         global $DB;
@@ -91,7 +89,6 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
     /**
      * Test the course_module_instance_list_viewed event.
-     * @global stdclass $DB
      */
     public function test_course_module_instance_list_viewed() {
         // There is no proper API to call to trigger this event, so what we are
@@ -121,7 +118,6 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
     /**
      * Test the score_added event.
-     * @global stdclass $DB
      */
     public function test_score_added() {
 
@@ -147,7 +143,6 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
     /**
      * Test the game_started event.
-     * @global stdclass $DB
      */
     public function test_game_started() {
 
@@ -171,7 +166,6 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
     /**
      * Test the game_scores_viewed event.
-     * @global stdclass $DB
      */
     public function test_game_scores_viewed() {
         // There is no proper API to call to trigger this event, so what we are

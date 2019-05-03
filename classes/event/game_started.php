@@ -70,7 +70,10 @@ class game_started extends \core\event\base {
         return "The user with id '$this->userid' started the quizventure with course module id '$this->contextinstanceid'.";
     }
 
-
+    /**
+     * Used for mapping log data upon restore.
+     * @return array
+     */
     public static function get_objectid_mapping() {
         return array('db' => 'quizgame', 'restore' => 'quizgame');
     }

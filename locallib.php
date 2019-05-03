@@ -45,11 +45,9 @@ function quizgame_cleanup($string) {
 }
 /**
  * Function to add the students score to the DB.
- * @global type $USER
- * @global type $DB
- * @param type $quizgame
- * @param type $score
- * @return type
+ * @param stdClass $quizgame
+ * @param float $score
+ * @return int
  */
 function quizgame_add_highscore($quizgame, $score) {
     global $USER, $DB;
@@ -88,11 +86,8 @@ function quizgame_add_highscore($quizgame, $score) {
 
 /**
  * Function to record the player starting the quizgame.
- * @global type $USER
- * @global type $DB
- * @param type $quizgame
- * @param type $score
- * @return type
+ * @param stdClass $quizgame
+ * @return boolean
  */
 function quizgame_log_game_start($quizgame) {
     global $DB;

@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Structure step to restore one quizgame activity.
+ * 
  * @package mod_quizgame
  * @subpackage backup-moodle2
  * @copyright 2018 Stephen Bourget
@@ -25,9 +27,17 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Structure step to restore one quizgame activity.
+ *
+ * @package mod_quizgame
+ * @subpackage backup-moodle2
+ * @copyright 2018 Stephen Bourget
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_quizgame_activity_structure_step extends restore_activity_structure_step {
 
+    /**
+     * DB structure for a quizgame.
+     */
     protected function define_structure() {
 
         $paths = array();
@@ -42,6 +52,10 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Function to restore the quizgame activity
+     * @param StdClass $data
+     */
     protected function process_quizgame($data) {
         global $DB;
 
@@ -87,6 +101,10 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
         $this->set_mapping('quizgame', $oldid, $newitemid);
     }
 
+    /**
+     * Function to restore a single play through
+     * @param StdClass $data
+     */
     protected function process_quizgame_score($data) {
         global $DB;
 
@@ -100,7 +118,9 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
         $this->set_mapping('quizgame_scores', $oldid, $newitemid, true); // Files by this itemname.
     }
 
-
+    /**
+     * After restore hook, process file attachments.
+     */
     protected function after_execute() {
         // Add quizgame related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_quizgame', 'intro', null);

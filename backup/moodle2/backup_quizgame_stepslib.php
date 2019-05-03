@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Define the complete quizgame structure for backup, with file and id annotations
+ * 
  * @package mod_quizgame
  * @subpackage backup-moodle2
  * @copyright 2018 Stephen Bourget
@@ -25,9 +27,19 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Define the complete quizgame structure for backup, with file and id annotations
+ * 
+ * @package mod_quizgame
+ * @subpackage backup-moodle2
+ * @copyright 2018 Stephen Bourget
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 class backup_quizgame_activity_structure_step extends backup_activity_structure_step {
 
+    /**
+     * Defines structure for data backup.
+     * @return object
+     */
     protected function define_structure() {
 
         // To know if we are including userinfo.
