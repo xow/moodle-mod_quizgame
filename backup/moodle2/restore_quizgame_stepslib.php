@@ -16,7 +16,7 @@
 
 /**
  * Structure step to restore one quizgame activity.
- * 
+ *
  * @package mod_quizgame
  * @subpackage backup-moodle2
  * @copyright 2018 Stephen Bourget

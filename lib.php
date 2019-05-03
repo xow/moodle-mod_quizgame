@@ -494,7 +494,7 @@ function quizgame_reset_course_form_defaults($course) {
  * Actual implementation of the rest coures functionality, delete all the
  * quizgame responses for course $data->courseid.
  *
- * @param $data the data submitted from the reset course.
+ * @param stdClass $data the data submitted from the reset course.
  * @return array status array
  */
 function quizgame_reset_userdata($data) {
@@ -517,9 +517,8 @@ function quizgame_reset_userdata($data) {
 /**
  * Removes all grades from gradebook
  *
- * @global stdClass
  * @param int $courseid
- * @param string optional type
+ * @param string $type (Optional)
  */
 function quizgame_reset_gradebook($courseid, $type='') {
     // TODO: LOOK AT AFTER GRADES ARE IMPLEMENTED!
