@@ -35,6 +35,11 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_quizgame_generator extends testing_module_generator {
 
+    /**
+     * Create an instance of mod_quizgame with some default settings
+     * @param object $record
+     * @param array $options
+     */
     public function create_instance($record = null, array $options = null) {
 
         // Add default values for quizgame.
@@ -47,6 +52,12 @@ class mod_quizgame_generator extends testing_module_generator {
         return parent::create_instance($record, (array)$options);
     }
 
+    /**
+     * Create a quizgame playthrough
+     * @param object $quizgame quizgame object
+     * @param array $record quizgame settings
+     * @return object
+     */
     public function create_content($quizgame, $record = array()) {
         global $DB, $USER;
         $now = time();

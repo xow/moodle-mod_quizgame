@@ -14,8 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * The main renderer for mod_quizgame
+ *
+ * @package    mod_quizgame
+ * @copyright  2016 John Okely <john@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * The main renderer for mod_quizgame
+ *
+ * @package    mod_quizgame
+ * @copyright  2016 John Okely <john@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_quizgame_renderer extends plugin_renderer_base {
     /**
      * Initialises the game and returns its HTML code
@@ -94,6 +109,11 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         return $display;
     }
 
+    /**
+     * Render the link to access the high scores.
+     * @param stdClass $quizgame
+     * @return string
+     */
     public function render_score_link($quizgame) {
 
         $url = new moodle_url('/mod/quizgame/scores.php', array('id' => $quizgame->id));

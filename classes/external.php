@@ -58,6 +58,8 @@ class mod_quizgame_external extends external_api {
 
     /**
      * The function itself
+     * @param int $quizgameid quizgame id.
+     * @param float $score player's score.
      * @return string welcome message
      */
     public static function update_score($quizgameid, $score) {
@@ -113,6 +115,7 @@ class mod_quizgame_external extends external_api {
 
     /**
      * The function itself
+     * @param int $quizgameid quizgame id.
      * @return string welcome message
      */
     public static function start_game($quizgameid) {

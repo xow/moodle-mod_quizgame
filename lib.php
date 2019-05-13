@@ -194,7 +194,6 @@ function quizgame_user_complete($course, $user, $mod, $quizgame) {
  * Obtains the automatic completion state for this quizgame based on any conditions
  * in quizgame settings.
  *
- * @global object $DB
  * @param object $course Course
  * @param object $cm Course-module
  * @param int $userid User ID
@@ -483,6 +482,7 @@ function quizgame_reset_course_form_definition(&$mform) {
 
 /**
  * Course reset form defaults.
+ * @param stdClass $course
  * @return array
  */
 function quizgame_reset_course_form_defaults($course) {
@@ -494,8 +494,7 @@ function quizgame_reset_course_form_defaults($course) {
  * Actual implementation of the rest coures functionality, delete all the
  * quizgame responses for course $data->courseid.
  *
- * @global stdClass
- * @param $data the data submitted from the reset course.
+ * @param stdClass $data the data submitted from the reset course.
  * @return array status array
  */
 function quizgame_reset_userdata($data) {
@@ -518,12 +517,11 @@ function quizgame_reset_userdata($data) {
 /**
  * Removes all grades from gradebook
  *
- * @global stdClass
  * @param int $courseid
- * @param string optional type
+ * @param string $type (Optional)
  */
-// TODO: LOOK AT AFTER GRADES ARE IMPLEMENTED!
 function quizgame_reset_gradebook($courseid, $type='') {
+    // TODO: LOOK AT AFTER GRADES ARE IMPLEMENTED!
     global $DB;
 
     $sql = "SELECT g.*, cm.idnumber as cmidnumber, g.course as courseid

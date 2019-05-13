@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Restore task for quizgame module.
+ *
  * @package mod_quizgame
  * @subpackage backup-moodle2
  * @copyright 2018 Stephen Bourget
@@ -25,8 +27,12 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/quizgame/backup/moodle2/restore_quizgame_stepslib.php'); // Because it exists (must).
 
 /**
- * quizgame restore task that provides all the settings and steps to perform one
- * complete restore of the activity
+ * Quizgame restore task that provides all the settings and steps to perform one complete restore of the activity
+ *
+ * @package mod_quizgame
+ * @subpackage backup-moodle2
+ * @copyright 2018 Stephen Bourget
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_quizgame_activity_task extends restore_activity_task {
 

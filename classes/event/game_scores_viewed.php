@@ -71,7 +71,10 @@ class game_scores_viewed extends \core\event\base {
                 . " course module id '$this->contextinstanceid'.";
     }
 
-
+    /**
+     * Used for mapping log data upon restore.
+     * @return array
+     */
     public static function get_objectid_mapping() {
         return array('db' => 'quizgame', 'restore' => 'quizgame');
     }

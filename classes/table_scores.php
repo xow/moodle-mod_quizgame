@@ -71,6 +71,12 @@ class table_scores extends table_sql {
         return userdate($record->timecreated, $dateformat);
     }
 
+    /**
+     * Generate the user name column.
+     *
+     * @param stdClass $record data.
+     * @return string HTML for the time column
+     */
     public function col_userid($record) {
         global $DB;
 

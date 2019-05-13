@@ -71,7 +71,10 @@ class game_score_added extends \core\event\base {
                 " in the quizventure with course module id '$this->contextinstanceid'.";
     }
 
-
+    /**
+     * Used for mapping log data upon restore.
+     * @return array
+     */
     public static function get_objectid_mapping() {
         return array('db' => 'quizgame_scores', 'restore' => 'quizgame_scores');
     }
