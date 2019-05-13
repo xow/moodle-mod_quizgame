@@ -11,8 +11,8 @@
     text-align: center;
 }
 .floating-button-container {
-    background: #FFF;
-    border: 0.5rem solid #FFF;
+    background: #fff;
+    border: 0.5rem solid #fff;
 }
 .floating-game-canvas {
     position: fixed;
