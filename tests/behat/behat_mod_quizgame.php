@@ -40,7 +40,7 @@ class behat_mod_quizgame extends behat_base {
      * Play a quizgame.
      *
      * @param string $username the username of the user that will attempt.
-     * @param string $quizname the name of the quizgame the user will attempt.
+     * @param string $quizgamename the name of the quizgame the user will attempt.
      * @param string $score the score of the attempt.
      * @Given /^user "([^"]*)" has played "([^"]*)" with a score of "([^"]*)"$/
      */
