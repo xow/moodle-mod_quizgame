@@ -162,7 +162,7 @@ class provider implements
         $deletewhere = "quizgameid = :instanceid AND userid {$userinsql}";
         $DB->delete_records_select('quizgame_scores', $deletewhere, $userinstanceparams);
     }
-    
+
     /**
      * Export personal data for the given approved_contextlist. User and context information is contained within the contextlist.
      *
