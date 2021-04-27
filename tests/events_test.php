@@ -41,7 +41,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
     /**
      * Test setup.
      */
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest();
     }
 

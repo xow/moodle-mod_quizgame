@@ -248,7 +248,7 @@ function quizgame_print_recent_activity($course, $viewfullnames, $timestart) {
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
- * {@link quizgame_print_recent_mod_activity()}.
+ * {quizgame_print_recent_mod_activity()}.
  *
  * @param array $activities sequentially indexed array of objects with the 'cmid' property
  * @param int $index the index in the $activities to use for the next record
@@ -383,7 +383,7 @@ function quizgame_update_grades(stdClass $quizgame, $userid = 0) {
  * Returns the lists of all browsable file areas within the given module context
  *
  * The file area 'intro' for the activity introduction field is added automatically
- * by {@link file_browser::get_file_info_context_module()}
+ * by {file_browser::get_file_info_context_module()}
  *
  * @param stdClass $course
  * @param stdClass $cm
@@ -462,8 +462,8 @@ function quizgame_extend_navigation(navigation_node $navref, stdclass $course, s
  * This function is called when the context for the page is a quizgame module. This is not called by AJAX
  * so it is safe to rely on the $PAGE.
  *
- * @param settings_navigation $settingsnav {@link settings_navigation}
- * @param navigation_node $quizgamenode {@link navigation_node}
+ * @param settings_navigation $settingsnav {settings_navigation}
+ * @param navigation_node $quizgamenode {navigation_node}
  */
 function quizgame_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $quizgamenode=null) {
 }
