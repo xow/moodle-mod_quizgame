@@ -437,11 +437,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * generate Game Object
+     * Generate Game Object.
      * @param {text} src
      * @param {int} x
      * @param {int} y
-     * @returns {quizgameL#28.GameObject}
      */
     function GameObject(src, x, y) {
         if (src !== null) {
@@ -494,7 +493,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     Player.prototype = Object.create(GameObject.prototype);
-    Player.prototype.update = function (bounds) {
+    Player.prototype.update = function(bounds) {
         if (mouseDown || touchDown) {
             if (this.x < this.mouse.x - (this.image.width)) {
                 player.direction.x = 1;
@@ -1061,7 +1060,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     function touchstart(e) {
-        if (e.target === stage ) {
+        if (e.target === stage) {
             if (player.alive && e.touches.length > 1) {
                 player.Shoot();
             } else {
@@ -1102,7 +1101,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     function shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
+        var currentIndex = array.length;
+        var temporaryValue;
+        var randomIndex;
 
         while (0 !== currentIndex) {
 
