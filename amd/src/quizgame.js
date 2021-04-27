@@ -25,7 +25,7 @@
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, notification, ajax) {
+define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, notification, ajax) {
     var questions;
     var quizgame;
     var stage;
@@ -61,7 +61,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     var context;
     var inFullscreen = false;
 
-    $('#mod_quizgame_fullscreen_button').on('click', function () {
+    $('#mod_quizgame_fullscreen_button').on('click', function() {
         if (inFullscreen) {
             inFullscreen = false;
             smallscreen();
@@ -70,6 +70,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     });
 
+    /**
+     * Play sound effect
+     * @param {string} soundName
+     */
     function playSound(soundName) {
         if (document.getElementById("mod_quizgame_sound_on").checked) {
             var soundElement = document.getElementById("mod_quizgame_sound_" + soundName);
@@ -78,6 +82,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Adjust for small screens.
+     */
     function smallscreen() {
         inFullscreen = false;
         stage.removeAttribute("width");
@@ -101,6 +108,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Expand to full screen.
+     */
     function fullscreen() {
         var landscape = window.matchMedia("(orientation: landscape)").matches;
 
@@ -396,25 +406,28 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
-    function Rectangle(left, top, width, height)
-    {
+    function Rectangle(left, top, width, height) {
         this.left = left || 0;
         this.top = top || 0;
         this.width = width || 0;
         this.height = height || 0;
     }
+
     Rectangle.prototype.right = function () {
         return this.left + this.width;
     };
+
     Rectangle.prototype.bottom = function () {
         return this.top + this.height;
     };
+
     Rectangle.prototype.Contains = function (point) {
         return point.x > this.left &&
             point.x < this.right() &&
             point.y > this.top &&
             point.y < this.bottom();
     };
+
     Rectangle.prototype.Intersect = function (rectangle) {
         var retval = !(rectangle.left > this.right() ||
             rectangle.right() < this.left ||
@@ -435,6 +448,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.alive = true;
         this.decay = 0.7;
     }
+
     GameObject.prototype.loadImage = function (src) {
         if (!this.image) {
             this.image = new Image();
@@ -442,6 +456,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.image.src = src;
         return this.image;
     };
+
     GameObject.prototype.update = function () {
         this.velocity.x += this.direction.x * this.movespeed.x;
         this.velocity.y += this.direction.y * this.movespeed.y;
@@ -450,12 +465,15 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.velocity.y *= this.decay;
         this.velocity.x *= this.decay;
     };
+
     GameObject.prototype.draw = function (context) {
         context.drawImage(this.image, this.x, this.y, this.image.width, this.image.height);
     };
+
     GameObject.prototype.getRect = function () {
         return new Rectangle(this.x, this.y, this.image.width, this.image.height);
     };
+
     GameObject.prototype.die = function () {
         this.alive = false;
     };
@@ -467,6 +485,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.lives = 3;
         this.lastScore = 0;
     }
+
     Player.prototype = Object.create(GameObject.prototype);
     Player.prototype.update = function (bounds) {
         if (mouseDown || touchDown) {
@@ -497,11 +516,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             this.y = bounds.height - this.image.height;
         }
     };
+
     Player.prototype.Shoot = function () {
         playSound("laser");
         gameObjects.unshift(new Laser(player.x, player.y, true, 24));
         canShoot = false;
     };
+
     Player.prototype.die = function() {
         GameObject.prototype.die.call(this);
         playSound("explosion");
@@ -509,6 +530,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.lastScore = score;
         endGame();
     };
+
     Player.prototype.gotShot = function(shot)
     {
         if (shot.alive) {
@@ -524,6 +546,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     function Planet(src, x, y) {
         GameObject.call(this, src, x, y);
     }
+
     Planet.prototype = Object.create(GameObject.prototype);
     Planet.prototype.update = function (bounds) {
         planet.image.width = displayRect.width;
@@ -545,7 +568,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.shotClock = (1 + Math.random()) * this.shotFrequency;
         this.level = level;
     }
+
     Enemy.prototype = Object.create(GameObject.prototype);
+
     Enemy.prototype.update = function (bounds) {
 
         if (this.y < bounds.height / 10 || this.y > bounds.height * 9 / 10) {
@@ -593,6 +618,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             shipReachedEnd.call(this);
         }
     };
+
     Enemy.prototype.draw = function (context) {
         GameObject.prototype.draw.call(this, context);
 
@@ -602,6 +628,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
 
         wrapText(context, this.text, true, 17, displayRect.width * 0.2, this.x + this.image.width / 2, this.y - 5);
     };
+
     Enemy.prototype.die = function() {
         GameObject.prototype.die.call(this);
         spray(this.x + this.image.width, this.y + this.image.height, 50 + (this.fraction * 150), "#FF0000");
@@ -612,6 +639,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         // Kill off the ship.
         playSound("explosion");
     };
+
     Enemy.prototype.gotShot = function(shot) {
         // Default behaviour, to be overridden.
         shot.die();
@@ -632,7 +660,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     function TFEnemy(x, y, text, fraction) {
         Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
     }
+
     TFEnemy.prototype = Object.create(Enemy.prototype);
+
     TFEnemy.prototype.die = function() {
         // TrueFalse questions are very simple, if either of the ships die, Enemy.prototype.die will handle
         // the score adding of 1000 or 0, and then this will kill the other remaining ship.
@@ -644,6 +674,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             nextLevel();
         }
     };
+
     TFEnemy.prototype.gotShot = function(shot) {
         if (this.fraction > 0) {
             shot.die();
@@ -658,7 +689,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
         this.single = single;
     }
+
     MultiEnemy.prototype = Object.create(Enemy.prototype);
+
     MultiEnemy.prototype.die = function() {
         Enemy.prototype.die.call(this);
         if (this.fraction > 0) {
@@ -669,6 +702,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             nextLevel();
         }
     };
+
     MultiEnemy.prototype.gotShot = function(shot) {
         if (this.fraction >= 1 || (this.fraction > 0 && !this.single)) {
             shot.die();
@@ -690,13 +724,16 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.shotFrequency = 160;
         this.hightlighted = false;
     }
+
     MatchEnemy.prototype = Object.create(Enemy.prototype);
+
     MatchEnemy.prototype.die = function() {
         currentPointsLeft -= this.fraction;
         // Sets the fraction as 0 to stop it adding to the score in #die()
         this.fraction = 0;
         Enemy.prototype.die.call(this);
     };
+
     MatchEnemy.prototype.gotShot = function(shot) {
         if (shot.alive && this.alive) {
             if (lastShot == -this.pairid) {
@@ -731,6 +768,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             }
         }
     };
+
     MatchEnemy.prototype.hightlight = function() {
         currentTeam.forEach(function(match) {
             match.unhightlight();
@@ -742,6 +780,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
         this.hightlighted = true;
     };
+
     MatchEnemy.prototype.unhightlight = function() {
         if (this.hightlighted) {
             if (this.stem) {
@@ -760,6 +799,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.laserSpeed = laserSpeed || 12;
     }
     Laser.prototype = Object.create(GameObject.prototype);
+
     Laser.prototype.update = function (bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.x < bounds.x - this.image.width ||
@@ -770,6 +810,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
         this.velocity.y = this.laserSpeed * this.direction.y;
     };
+
     Laser.prototype.deflect = function () {
         this.image = this.loadImage("pix/enemylaser.png");
         this.direction.y *= -1;
@@ -787,7 +828,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.colour = colour;
         this.decay = 1;
     }
+
     Particle.prototype = Object.create(GameObject.prototype);
+
     Particle.prototype.update = function (bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.x < bounds.x - this.width ||
@@ -801,9 +844,11 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             this.alive = false;
         }
     };
+
     Particle.prototype.getRect = function () {
         return new Rectangle(this.x, this.y, this.width, this.height);
     };
+
     Particle.prototype.draw = function (context) {
         context.fillStyle = this.colour;
         context.fillRect(this.x, this.y, this.width, this.height);
@@ -819,12 +864,14 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.aliveTime = 0;
     }
     Star.prototype = Object.create(GameObject.prototype);
+
     Star.prototype.update = function (bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.y > bounds.height) {
             this.alive = false;
         }
     };
+
     Star.prototype.draw = function (context) {
         context.fillStyle = '#9999AA';
         context.fillRect(this.x, this.y, this.width, this.height);
