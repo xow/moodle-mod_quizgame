@@ -413,22 +413,22 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         this.height = height || 0;
     }
 
-    Rectangle.prototype.right = function () {
+    Rectangle.prototype.right = function() {
         return this.left + this.width;
     };
 
-    Rectangle.prototype.bottom = function () {
+    Rectangle.prototype.bottom = function() {
         return this.top + this.height;
     };
 
-    Rectangle.prototype.Contains = function (point) {
+    Rectangle.prototype.Contains = function(point) {
         return point.x > this.left &&
             point.x < this.right() &&
             point.y > this.top &&
             point.y < this.bottom();
     };
 
-    Rectangle.prototype.Intersect = function (rectangle) {
+    Rectangle.prototype.Intersect = function(rectangle) {
         var retval = !(rectangle.left > this.right() ||
             rectangle.right() < this.left ||
             rectangle.top > this.bottom() ||
@@ -436,6 +436,13 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         return retval;
     };
 
+    /**
+     * generate Game Object
+     * @param {text} src
+     * @param {int} x
+     * @param {int} y
+     * @returns {quizgameL#28.GameObject}
+     */
     function GameObject(src, x, y) {
         if (src !== null) {
             this.image = this.loadImage(src);
@@ -449,7 +456,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         this.decay = 0.7;
     }
 
-    GameObject.prototype.loadImage = function (src) {
+    GameObject.prototype.loadImage = function(src) {
         if (!this.image) {
             this.image = new Image();
         }
@@ -457,7 +464,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         return this.image;
     };
 
-    GameObject.prototype.update = function () {
+    GameObject.prototype.update = function() {
         this.velocity.x += this.direction.x * this.movespeed.x;
         this.velocity.y += this.direction.y * this.movespeed.y;
         this.x += this.velocity.x;
@@ -466,15 +473,15 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         this.velocity.x *= this.decay;
     };
 
-    GameObject.prototype.draw = function (context) {
+    GameObject.prototype.draw = function(context) {
         context.drawImage(this.image, this.x, this.y, this.image.width, this.image.height);
     };
 
-    GameObject.prototype.getRect = function () {
+    GameObject.prototype.getRect = function() {
         return new Rectangle(this.x, this.y, this.image.width, this.image.height);
     };
 
-    GameObject.prototype.die = function () {
+    GameObject.prototype.die = function() {
         this.alive = false;
     };
 
@@ -517,7 +524,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     };
 
-    Player.prototype.Shoot = function () {
+    Player.prototype.Shoot = function() {
         playSound("laser");
         gameObjects.unshift(new Laser(player.x, player.y, true, 24));
         canShoot = false;
@@ -531,8 +538,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         endGame();
     };
 
-    Player.prototype.gotShot = function(shot)
-    {
+    Player.prototype.gotShot = function(shot) {
         if (shot.alive) {
             if (this.lives <= 1) {
                 this.die();
@@ -548,7 +554,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     Planet.prototype = Object.create(GameObject.prototype);
-    Planet.prototype.update = function (bounds) {
+    Planet.prototype.update = function(bounds) {
         planet.image.width = displayRect.width;
         planet.image.height = displayRect.height;
         GameObject.prototype.update.call(this, bounds);
@@ -571,7 +577,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
 
     Enemy.prototype = Object.create(GameObject.prototype);
 
-    Enemy.prototype.update = function (bounds) {
+    Enemy.prototype.update = function(bounds) {
 
         if (this.y < bounds.height / 10 || this.y > bounds.height * 9 / 10) {
             this.movespeed.x = this.xspeed * 1;
@@ -619,7 +625,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     };
 
-    Enemy.prototype.draw = function (context) {
+    Enemy.prototype.draw = function(context) {
         GameObject.prototype.draw.call(this, context);
 
         context.fillStyle = '#FFFFFF';
@@ -647,7 +653,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     function killAllAlive() {
-        currentTeam.forEach(function (enemy) {
+        currentTeam.forEach(function(enemy) {
             if (enemy.alive) {
                 // Make the fraction 0 so it won't count as anything and make a new level.
                 enemy.fraction = 0;
@@ -800,7 +806,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
     Laser.prototype = Object.create(GameObject.prototype);
 
-    Laser.prototype.update = function (bounds) {
+    Laser.prototype.update = function(bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.x < bounds.x - this.image.width ||
             this.x > bounds.width ||
@@ -811,7 +817,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         this.velocity.y = this.laserSpeed * this.direction.y;
     };
 
-    Laser.prototype.deflect = function () {
+    Laser.prototype.deflect = function() {
         this.image = this.loadImage("pix/enemylaser.png");
         this.direction.y *= -1;
         this.friendly = !this.friendly;
@@ -831,7 +837,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
 
     Particle.prototype = Object.create(GameObject.prototype);
 
-    Particle.prototype.update = function (bounds) {
+    Particle.prototype.update = function(bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.x < bounds.x - this.width ||
             this.x > bounds.width ||
@@ -845,11 +851,11 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     };
 
-    Particle.prototype.getRect = function () {
+    Particle.prototype.getRect = function() {
         return new Rectangle(this.x, this.y, this.width, this.height);
     };
 
-    Particle.prototype.draw = function (context) {
+    Particle.prototype.draw = function(context) {
         context.fillStyle = this.colour;
         context.fillRect(this.x, this.y, this.width, this.height);
         context.stroke();
@@ -865,14 +871,14 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
     Star.prototype = Object.create(GameObject.prototype);
 
-    Star.prototype.update = function (bounds) {
+    Star.prototype.update = function(bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.y > bounds.height) {
             this.alive = false;
         }
     };
 
-    Star.prototype.draw = function (context) {
+    Star.prototype.draw = function(context) {
         context.fillStyle = '#9999AA';
         context.fillRect(this.x, this.y, this.width, this.height);
         context.stroke();
@@ -961,7 +967,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     function shipReachedEnd() {
-        var amountLeft = currentTeam.filter(function (enemy) { return enemy.alive; }).length;
+        var amountLeft = currentTeam.filter(function(enemy) {
+            return enemy.alive;
+        }).length;
 
         if (amountLeft === 0 && (currentPointsLeft < this.fraction || currentPointsLeft <= 0)
             && this.level === level && player.alive) {
