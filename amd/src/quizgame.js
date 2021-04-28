@@ -402,7 +402,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
      */
     function draw(context, displayRect, objects, particles, question) {
         context.clearRect(0, 0, displayRect.width, displayRect.height);
-        var i =0;
+        var i = 0;
         for (i = 0; i < particles.length; i++) {
             particles[i].draw(context);
         }
@@ -1048,6 +1048,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
                 return true;
             }
         }
+        return false;
     }
 
     /**
