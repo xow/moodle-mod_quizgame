@@ -391,6 +391,14 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         return questions[level].question;
     }
 
+    /**
+     * Helper funcction to place text on screen
+     * @param {object} context
+     * @param {object} displayRect
+     * @param {objectc} objects
+     * @param {object} particles
+     * @param {string} question
+     */
     function draw(context, displayRect, objects, particles, question) {
         context.clearRect(0, 0, displayRect.width, displayRect.height);
 
@@ -424,6 +432,12 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function ?
+     * @param {object} bounds
+     * @param {object} objects
+     * @param {object} particles
+     */
     function update(bounds, objects, particles) {
         for (var i = 0; i < 3; i++) {
             particles.push(new Star(bounds));
@@ -447,6 +461,13 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper Function ??
+     * @param {int} left
+     * @param {int} top
+     * @param {int} width
+     * @param {int} height
+     */
     function Rectangle(left, top, width, height) {
         this.left = left || 0;
         this.top = top || 0;
@@ -525,6 +546,12 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         this.alive = false;
     };
 
+    /**
+     * Helper Function ??
+     * @param {string} src
+     * @param {int} x
+     * @param {int} y
+     */
     function Player(src, x, y) {
         GameObject.call(this, src, x, y);
         this.mouse = {x: 0, y: 0};
@@ -589,6 +616,12 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     };
 
+    /**
+     * Helper Function for background objects
+     * @param {string} src
+     * @param {int} x
+     * @param {int} y
+     */
     function Planet(src, x, y) {
         GameObject.call(this, src, x, y);
     }
@@ -600,6 +633,14 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         GameObject.prototype.update.call(this, bounds);
     };
 
+    /**
+     * Helper Function for enemy craft (answers)
+     * @param {string} src
+     * @param {int} x
+     * @param {int} y
+     * @param {string} text
+     * @param {float} fraction
+     */
     function Enemy(src, x, y, text, fraction) {
         GameObject.call(this, src, x, y);
         this.xspeed = enemySpeed;
@@ -692,6 +733,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         this.die();
     };
 
+    /**
+     * Helper function to remove any stray ships on level advance
+     */
     function killAllAlive() {
         currentTeam.forEach(function(enemy) {
             if (enemy.alive) {
@@ -703,6 +747,13 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         currentTeam = [];
     }
 
+    /**
+     * Helper function for T/F questions
+     * @param {int} x
+     * @param {int} y
+     * @param {string} text
+     * @param {float} fraction
+     */
     function TFEnemy(x, y, text, fraction) {
         Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
     }
@@ -731,6 +782,14 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     };
 
+    /**
+     * Helper function for MCQ questions
+     * @param {int} x
+     * @param {int} y
+     * @param {string} text
+     * @param {float} fraction
+     * @param {boolean} single
+     */
     function MultiEnemy(x, y, text, fraction, single) {
         Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
         this.single = single;
@@ -759,6 +818,15 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     };
 
+    /**
+     * Helper function for MCQ questions
+     * @param {int} x
+     * @param {int} y
+     * @param {string} text
+     * @param {float} fraction
+     * @param {int} pairid
+     * @param {boolean} stem
+     */
     function MatchEnemy(x, y, text, fraction, pairid, stem) {
         this.stem = stem ? true : false;
         if (this.stem) {
@@ -838,6 +906,13 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         this.hightlighted = false;
     };
 
+    /**
+     * Helper function for laser shots
+     * @param {int} x
+     * @param {int} y
+     * @param {bool} friendly
+     * @param {float} laserSpeed
+     */
     function Laser(x, y, friendly, laserSpeed) {
         GameObject.call(this, friendly ? "pix/laser.png" : "pix/enemylaser.png", x, y);
         this.direction.y = -1;
@@ -864,6 +939,13 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         playSound("deflect");
     };
 
+    /**
+     * Helper function for background
+     * @param {int} x
+     * @param {int} y
+     * @param {float} velocity
+     * @param {string} colour
+     */
     function Particle(x, y, velocity, colour) {
         GameObject.call(this, null, x, y);
         this.width = 2;
@@ -901,6 +983,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         context.stroke();
     };
 
+    /**
+     * Helper function for background stars
+     * @param {object} bounds
+     */
     function Star(bounds) {
         GameObject.call(this, null, Math.random() * bounds.width, 0);
         this.width = 2;
@@ -924,6 +1010,11 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         context.stroke();
     };
 
+    /**
+     * Helper funcction to handle collisions.
+     * @param {object} object1
+     * @param {object} object2
+     */
     function collide(object1, object2) {
         return object1.alive && object2.alive && (collide_ordered(object1, object2) || collide_ordered(object2, object1));
     }
@@ -956,6 +1047,11 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper funcction to handle collisions.
+     * @param {object} object1
+     * @param {object} object2
+     */
     function objectsIntersect(object1, object2) {
         var rect1 = object1.getRect();
         var rect2 = object2.getRect();
