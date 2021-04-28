@@ -102,6 +102,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         sizeScreen(stage);
     }
 
+    /**
+     * Adjust screen size (switch between modes).
+     */
     function fschange() {
         if (inFullscreen) {
             smallscreen();
@@ -159,6 +162,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         sizeScreen(stage);
     }
 
+    /**
+     * Adjust screen size based on browser window.
+     * @param object stage
+     */
     function sizeScreen(stage) {
 
         stage.width = displayRect.width;
@@ -166,6 +173,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         context.imageSmoothingEnabled = false;
     }
 
+    /**
+     * Helper function for when the screen size chages due to rotating on mobile.
+     */
     function orientationChange() {
         if (inFullscreen) {
             fullscreen();
@@ -174,6 +184,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function to clear all events.
+     */
     function clearEvents() {
         document.onkeydown = null;
         document.onkeyup = null;
@@ -186,6 +199,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         window.onresize = null;
     }
 
+    /**
+     * Helper function to handle JS Events.
+     */
     function menuEvents() {
         clearEvents();
         document.onkeydown = menukeydown;
@@ -194,6 +210,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         window.onresize = orientationChange;
     }
 
+    /**
+     * Helper function to display game start screen
+     */
     function showMenu() {
 
         context.clearRect(0, 0, displayRect.width, displayRect.height);
@@ -210,6 +229,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function to load game objects
+     */
     function loadGame() {
 
         shuffle(questions);
@@ -231,6 +253,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function process game-over.
+     */
     function endGame() {
         ajax.call([{
             methodname: 'mod_quizgame_update_score',
@@ -240,6 +265,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         menuEvents();
     }
 
+    /**
+     * Helper function process game ready.
+     */
     function gameLoaded() {
 
         clearInterval(interval);
@@ -252,6 +280,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         startGame();
     }
 
+    /**
+     * Helper function process game start.
+     */
     function startGame() {
 
         score = 0;
@@ -298,6 +329,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         document.addEventListener("gestureend", cancelled, false);
     }
 
+    /**
+     * Helper function process next level (question).
+     */
     function nextLevel() {
         level++;
         if (level >= questions.length) {
@@ -306,6 +340,13 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
         question = runLevel(questions, level, displayRect);
     }
+
+    /**
+     * Helper function process current level.
+     * @param array questions
+     * @param object level
+     * @param object bounds
+     */
     function runLevel(questions, level, bounds) {
         currentTeam = [];
         lastShot = 0;
@@ -921,6 +962,17 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function to display answers.
+     * @param object context
+     * @param string input
+     * @param bool wrapUpwards
+     * @param int textHeight
+     * @param int maxLineWidth
+     * @param int x
+     * @param int y
+     * @returns {undefined}
+     */
     function wrapText(context, input, wrapUpwards, textHeight, maxLineWidth, x, y) {
         var drawLines = [];
         var originalY = y;
@@ -965,6 +1017,9 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         });
     }
 
+    /**
+     * Helper function for end of level.
+     */
     function shipReachedEnd() {
         var amountLeft = currentTeam.filter(function(enemy) {
             return enemy.alive;
@@ -980,6 +1035,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
 
     var canShoot = true;
 
+    /**
+     * Helper function for game menu from keyboard.
+     * @param object e
+     */
     function menukeydown(e) {
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
@@ -989,18 +1048,30 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function for game menu on mobile.
+     * @param object e
+     */
     function menumousedown(e) {
         if (e.target === stage) {
             loadGame();
         }
     }
 
+    /**
+     * Helper function for game menu on mobile.
+     * @param object e
+     */
     function menutouchend(e) {
         if (e.target === stage) {
             loadGame();
         }
     }
 
+    /**
+     * Helper function for keyboard movement.
+     * @param object e
+     */
     function keydown(e) {
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
@@ -1018,6 +1089,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function for keyboard movement.
+     * @param object e
+     */
     function keyup(e) {
         if (e.keyCode === 32) {
             canShoot = true;
@@ -1028,6 +1103,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function for mouse movement.
+     * @param object e
+     */
     function mousedown(e) {
         if (e.target === stage) {
             var playerWasClicked = player.getRect().Contains({x: e.offsetX, y: e.offsetY});
@@ -1042,23 +1121,39 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function for mouse movement.
+     * @param object e
+     */
     function mouseup() {
         player.direction.x = 0;
         player.direction.y = 0;
         mouseDown = false;
     }
 
+    /**
+     * Helper function for mouse movement.
+     * @param object e
+     */
     function mousemove(e) {
         player.mouse.x = e.offsetX;
         player.mouse.y = e.offsetY;
     }
 
+    /**
+     * Helper function for mouse movement.
+     * @param object e
+     */
     function cancelled(event) {
         if (event.target === stage) {
             event.preventDefault();
         }
     }
 
+    /**
+     * Helper function for movement on mobile touch devices.
+     * @param object e
+     */
     function touchstart(e) {
         if (e.target === stage) {
             if (player.alive && e.touches.length > 1) {
@@ -1072,6 +1167,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function for movement on mobile touch devices.
+     * @param object e
+     */
     function touchend(e) {
         if (e.touches.length === 0) {
             touchDown = false;
@@ -1084,7 +1183,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
-
+    /**
+     * Helper function for movement on mobile touch devices.
+     * @param object e
+     */
     function touchmove(e) {
         var rect = e.target.getBoundingClientRect();
         // Required for getting the stage's relative touch position, due to a previous significant offset
@@ -1100,6 +1202,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         }
     }
 
+    /**
+     * Helper function to shuffle levels.
+     * @param array array
+     */
     function shuffle(array) {
         var currentIndex = array.length;
         var temporaryValue;
@@ -1118,6 +1224,11 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         return array;
     }
 
+    /**
+     * Initialization of the game.
+     * @param array q
+     * @param array qid
+     */
     function doInitialize(q, qid) {
         questions = q;
         quizgame = qid;
