@@ -47,7 +47,6 @@ class custom_completion extends activity_custom_completion {
         $userid = $this->userid;
         $completionscore = $this->cm->customdata['customcompletionrules']['completionscore'];
 
-
         $where = ' quizgameid = :quizgameid AND userid = :userid AND score >= :score';
         $params = array(
             'quizgameid' => $quizgameid,
