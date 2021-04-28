@@ -30,7 +30,9 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['achievedhighscoreof'] = 'Achieved a high score of {$a}';
 $string['attempt'] = 'Attempt #{$a}';
+$string['completiondetail:score'] = 'Get a minimum score of {$a}';
 $string['completionscore'] = 'Student must achieve a minimum score of:';
+$string['completionscoredesc'] = 'Student must achieve a minimum score of: {$a}';
 $string['completionscoregroup'] = 'Require score';
 $string['completionscoregroup_help'] = 'If enabled, you can require a minimum score is met before the activity is marked as complete.
 
