@@ -343,9 +343,10 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
 
     /**
      * Helper function process current level.
-     * @param array questions
+     * @param {array} questions
      * @param {object} level
      * @param {object} bounds
+     * @returns {string}
      */
     function runLevel(questions, level, bounds) {
         currentTeam = [];
@@ -401,8 +402,8 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
      */
     function draw(context, displayRect, objects, particles, question) {
         context.clearRect(0, 0, displayRect.width, displayRect.height);
-
-        for (var i = 0; i < particles.length; i++) {
+        var i =0;
+        for (i = 0; i < particles.length; i++) {
             particles[i].draw(context);
         }
 
@@ -439,7 +440,8 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
      * @param {object} particles
      */
     function update(bounds, objects, particles) {
-        for (var i = 0; i < 3; i++) {
+        var i = 0;
+        for (i = 0; i < 3; i++) {
             particles.push(new Star(bounds));
         }
         for (i = 0; i < particles.length; i++) {
@@ -1014,18 +1016,19 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
      * Helper funcction to handle collisions.
      * @param {object} object1
      * @param {object} object2
+     * @return {boolean}
      */
     function collide(object1, object2) {
-        return object1.alive && object2.alive && (collide_ordered(object1, object2) || collide_ordered(object2, object1));
+        return object1.alive && object2.alive && (collideOrdered(object1, object2) || collideOrdered(object2, object1));
     }
 
     /**
      * Helper funcction to handle collisions.
      * @param {object} object1
      * @param {object} object2
-     * @returns {Boolean}
+     * @returns {boolean}
      */
-    function collide_ordered(object1, object2) {
+    function collideOrdered(object1, object2) {
         if (object1 instanceof Laser && object2 instanceof Player) {
             if (!object1.friendly && objectsIntersect(object1, object2)) {
                 object2.gotShot(object1);
@@ -1051,6 +1054,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
      * Helper funcction to handle collisions.
      * @param {object} object1
      * @param {object} object2
+     * @return {boolean}
      */
     function objectsIntersect(object1, object2) {
         var rect1 = object1.getRect();
@@ -1249,8 +1253,8 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper function for mouse movement.
-     * @param {object} e
+     * Helper function for cancelled event.
+     * @param {object} event
      */
     function cancelled(event) {
         if (event.target === stage) {
@@ -1297,7 +1301,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
      */
     function touchmove(e) {
         var rect = e.target.getBoundingClientRect();
-        // Required for getting the stage's relative touch position, due to a previous significant offset
+        // Required for getting the stage's relative touch position, due to a previous significant offset.
         var x = e.touches[0].pageX - rect.left;
         var y = e.touches[0].clientY - rect.top;
 
@@ -1313,6 +1317,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     /**
      * Helper function to shuffle levels.
      * @param {array} array
+     * @return {array}
      */
     function shuffle(array) {
         var currentIndex = array.length;
