@@ -393,7 +393,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper funcction to place text on screen
+     * Helper function to place text on screen
      * @param {object} context
      * @param {object} displayRect
      * @param {objectc} objects
@@ -434,7 +434,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper function ?
+     * Helper function main game logic: process movements and behaviours of game objects
      * @param {object} bounds
      * @param {object} objects
      * @param {object} particles
@@ -464,7 +464,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper Function ??
+     * Constructor for storing information about a rectangle shape
      * @param {int} left
      * @param {int} top
      * @param {int} width
@@ -549,7 +549,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper Function ??
+     * Constructor for Player class, all the information about the player
      * @param {string} src
      * @param {int} x
      * @param {int} y
@@ -619,7 +619,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper Function for background objects
+     * Constructor for Planet (background objects) extends GameObject
      * @param {string} src
      * @param {int} x
      * @param {int} y
@@ -636,7 +636,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper Function for enemy craft (answers)
+     * Constructor for enemy craft (answers) extends GameObject
      * @param {string} src
      * @param {int} x
      * @param {int} y
@@ -750,7 +750,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper function for T/F questions
+     * Helper function for True/False questions
      * @param {int} x
      * @param {int} y
      * @param {string} text
@@ -785,7 +785,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper function for MCQ questions
+     * Helper function for multiple choice questions (MCQ)
      * @param {int} x
      * @param {int} y
      * @param {string} text
@@ -821,7 +821,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper function for MCQ questions
+     * Helper function for matching questions
      * @param {int} x
      * @param {int} y
      * @param {string} text
@@ -909,7 +909,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper function for laser shots
+     * Constructor for laser shots extends GameObject
      * @param {int} x
      * @param {int} y
      * @param {bool} friendly
@@ -942,7 +942,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper function for background
+     * Constructor for explosion particle effects extends GameObject
      * @param {int} x
      * @param {int} y
      * @param {float} velocity
@@ -986,7 +986,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper function for background stars
+     * Helper function for background stars extends GameObject
      * @param {object} bounds
      */
     function Star(bounds) {
@@ -1013,7 +1013,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     };
 
     /**
-     * Helper funcction to handle collisions.
+     * Helper function to handle collisions between gameobjects.
      * @param {object} object1
      * @param {object} object2
      * @return {boolean}
@@ -1052,7 +1052,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper funcction to handle collisions.
+     * Helper function to handle intersections between GameObjects.
      * @param {object} object1
      * @param {object} object2
      * @return {boolean}
@@ -1064,7 +1064,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper function for background spray
+     * Helper function for spraying particle (explosion) effects
      * @param {int} x
      * @param {int} y
      * @param {int} num
@@ -1217,7 +1217,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper function for mouse movement.
+     * Helper function for mouse click (starts the player shooting if you clicked on them, moving if you didn't).
      * @param {object} e
      */
     function mousedown(e) {
@@ -1235,7 +1235,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
     }
 
     /**
-     * Helper function for mouse movement.
+     * Helper function for mouse release. (stops the Player) for mouse mode
      * @param {object} e
      */
     function mouseup() {
