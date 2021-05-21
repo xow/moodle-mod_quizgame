@@ -23,10 +23,10 @@ Feature: Teachers can create a quizgame activity for students to review content
       | Test questions   | truefalse   | TF1   | First question  |
       | Test questions   | truefalse   | TF2   | Second question |
 
+  @javascript
   Scenario: Create the activity.
     Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I turn editing mode on
+    And I am on "Course 1" course homepage with editing mode on
     When I add a "Quizventure" to section "1" and I fill the form with:
       | Quizventure name  | Test quizventure name        |
       | Description       | Test quizventure description |

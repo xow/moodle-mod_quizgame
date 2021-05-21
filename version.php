@@ -28,10 +28,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2018062004;     // If version == 0 then module will not be installed.
-
-$plugin->requires  = 2014051200.00;  // Requires this Moodle version (2.7)
-$plugin->cron      = 0;              // Period for cron to check this module (secs).
+$plugin->version  = 2021042700;      // If version == 0 then module will not be installed.
+$plugin->requires = 2021042300;      // Requires Moodle version 3.11 or later.
+$plugin->cron      = 0;              // Period for cron to check this module in seconds.
 $plugin->component = 'mod_quizgame'; // To check on upgrade, that module sits in correct place.
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = 'v3.7-r1';
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = 'v3.11-r1';

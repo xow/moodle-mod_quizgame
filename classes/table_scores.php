@@ -86,7 +86,9 @@ class table_scores extends table_sql {
 
         // If we reach that point new users logs have been generated since the last users db query.
         list($usql, $uparams) = $DB->get_in_or_equal($record->userid);
-        $sql = "SELECT id," . get_all_user_name_fields(true) . " FROM {user} WHERE id " . $usql;
+        $userfieldsapi = \core_user\fields::for_name();
+        $allusernames = $userfieldsapi->get_sql('', false, '', '', false)->selects;
+        $sql = "SELECT id," . $allusernames . " FROM {user} WHERE id " . $usql;
         if (!$user = $DB->get_records_sql($sql, $uparams)) {
             // This should never happen.
             return 'UNKNOWN';

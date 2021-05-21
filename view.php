@@ -41,9 +41,10 @@ if ($id) {
     $course     = $DB->get_record('course', array('id' => $quizgame->course), '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('quizgame', $quizgame->id, $course->id, false, MUST_EXIST);
 } else {
-    error('You must specify a course_module ID or an instance ID');
+    throw new moodle_exception('invalidcmorid', 'quizgame');
 }
 
+$cm = cm_info::create($cm);
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
@@ -80,6 +81,11 @@ if ($quizgame->intro) {
 
 // Output header and directions.
 echo $OUTPUT->heading_with_help(get_string('modulename', 'mod_quizgame'), 'howtoplay', 'mod_quizgame');
+
+// Render the activity information.
+$completiondetails = \core_completion\cm_completion_details::get_instance($cm, $USER->id);
+$activitydates = \core\activity_dates::get_dates_for_module($cm, $USER->id);
+echo $OUTPUT->activity_information($cm, $completiondetails, $activitydates);
 
 // Game here.
 echo "<link href='https://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>";

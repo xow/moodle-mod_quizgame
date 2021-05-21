@@ -30,7 +30,9 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['achievedhighscoreof'] = 'Achieved a high score of {$a}';
 $string['attempt'] = 'Attempt #{$a}';
+$string['completiondetail:score'] = 'Get a minimum score of {$a}';
 $string['completionscore'] = 'Student must achieve a minimum score of:';
+$string['completionscoredesc'] = 'Student must achieve a minimum score of: {$a}';
 $string['completionscoregroup'] = 'Require score';
 $string['completionscoregroup_help'] = 'If enabled, you can require a minimum score is met before the activity is marked as complete.
 
@@ -49,6 +51,7 @@ $string['howtoplay_help'] = 'You can move the ship by using the arrow keys, or b
 Press the spacebar or click the mouse button to shoot, or tap with two fingers anywhere on the game.
 
 Clear as many questions as possible by shooting the correct answer.  Good Luck!';
+$string['invalidcmorid'] = 'Error: You must specify a course_module ID or an instance ID';
 $string['modulename_help'] = 'Students procastinating too much? Are they playing games instead of studying? Well now you can motivate them by allowing them to do both at once!
 
 Quizventure is an activity module that loads quiz questions from the course it\'s added to. The possible answers come down as space ships and you have to shoot the correct one.

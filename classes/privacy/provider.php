@@ -26,8 +26,10 @@ namespace mod_quizgame\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\deletion_criteria;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\helper;
 use core_privacy\local\request\writer;
 
@@ -42,7 +44,8 @@ defined('MOODLE_INTERNAL') || die();
 class provider implements
         // This plugin stores personal data.
         \core_privacy\local\metadata\provider,
-
+        // This plugin is capable of determining which users have data within it.
+        \core_privacy\local\request\core_userlist_provider,
         // This plugin is a core_user_data_provider.
         \core_privacy\local\request\plugin\provider {
     /**
@@ -91,6 +94,73 @@ class provider implements
         $contextlist->add_from_sql($sql, $params);
 
         return $contextlist;
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     *
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if (!is_a($context, \context_module::class)) {
+            return;
+        }
+
+        // Find users with quizgame scores.
+        $sql = "SELECT qs.userid
+                  FROM {context} c
+                  JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
+                  JOIN {modules} m ON m.id = cm.module AND m.name = :modname
+                  JOIN {quizgame} q ON q.id = cm.instance
+                  JOIN {quizgame_scores} qs ON qs.quizgameid = q.id
+                 WHERE c.id = :contextid";
+
+        $params = [
+            'contextid' => $context->id,
+            'contextlevel' => CONTEXT_MODULE,
+            'modname' => 'quizgame',
+        ];
+
+        $userlist->add_from_sql('userid', $sql, $params);
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist    $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+        $userids = $userlist->get_userids();
+        $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
+        list($userinsql, $userinparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+
+        $quizgamescoreswhere = "quizgameid = :instanceid AND userid {$userinsql}";
+        $userinstanceparams = $userinparams + ['instanceid' => $instanceid];
+
+        $scoresobject = $DB->get_recordset_select('quizgame_scores', $quizgamescoreswhere, $userinstanceparams, 'id', 'id');
+        $scores = [];
+
+        foreach ($scoresobject as $score) {
+            $scores[] = $score->id;
+        }
+
+        $scoresobject->close();
+
+        if (!$scores) {
+            return;
+        }
+
+        list($insql, $inparams) = $DB->get_in_or_equal($scores, SQL_PARAMS_NAMED);
+
+        // Now delete all user related scores.
+        $deletewhere = "quizgameid = :instanceid AND userid {$userinsql}";
+        $DB->delete_records_select('quizgame_scores', $deletewhere, $userinstanceparams);
     }
 
     /**

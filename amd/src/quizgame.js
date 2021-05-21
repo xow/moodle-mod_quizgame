@@ -25,7 +25,7 @@
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, notification, ajax) {
+define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, notification, ajax) {
     var questions;
     var quizgame;
     var stage;
@@ -61,7 +61,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
     var context;
     var inFullscreen = false;
 
-    $('#mod_quizgame_fullscreen_button').on('click', function () {
+    $('#mod_quizgame_fullscreen_button').on('click', function() {
         if (inFullscreen) {
             inFullscreen = false;
             smallscreen();
@@ -70,6 +70,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     });
 
+    /**
+     * Play sound effect
+     * @param {string} soundName
+     */
     function playSound(soundName) {
         if (document.getElementById("mod_quizgame_sound_on").checked) {
             var soundElement = document.getElementById("mod_quizgame_sound_" + soundName);
@@ -78,6 +82,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Adjust for small screens.
+     */
     function smallscreen() {
         inFullscreen = false;
         stage.removeAttribute("width");
@@ -95,12 +102,18 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         sizeScreen(stage);
     }
 
+    /**
+     * Adjust screen size (switch between modes).
+     */
     function fschange() {
         if (inFullscreen) {
             smallscreen();
         }
     }
 
+    /**
+     * Expand to full screen.
+     */
     function fullscreen() {
         var landscape = window.matchMedia("(orientation: landscape)").matches;
 
@@ -149,6 +162,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         sizeScreen(stage);
     }
 
+    /**
+     * Adjust screen size based on browser window.
+     * @param {object} stage
+     */
     function sizeScreen(stage) {
 
         stage.width = displayRect.width;
@@ -156,6 +173,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         context.imageSmoothingEnabled = false;
     }
 
+    /**
+     * Helper function for when the screen size chages due to rotating on mobile.
+     */
     function orientationChange() {
         if (inFullscreen) {
             fullscreen();
@@ -164,6 +184,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function to clear all events.
+     */
     function clearEvents() {
         document.onkeydown = null;
         document.onkeyup = null;
@@ -176,6 +199,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         window.onresize = null;
     }
 
+    /**
+     * Helper function to handle JS Events.
+     */
     function menuEvents() {
         clearEvents();
         document.onkeydown = menukeydown;
@@ -184,6 +210,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         window.onresize = orientationChange;
     }
 
+    /**
+     * Helper function to display game start screen
+     */
     function showMenu() {
 
         context.clearRect(0, 0, displayRect.width, displayRect.height);
@@ -200,6 +229,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function to load game objects
+     */
     function loadGame() {
 
         shuffle(questions);
@@ -221,6 +253,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function process game-over.
+     */
     function endGame() {
         ajax.call([{
             methodname: 'mod_quizgame_update_score',
@@ -230,6 +265,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         menuEvents();
     }
 
+    /**
+     * Helper function process game ready.
+     */
     function gameLoaded() {
 
         clearInterval(interval);
@@ -242,6 +280,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         startGame();
     }
 
+    /**
+     * Helper function process game start.
+     */
     function startGame() {
 
         score = 0;
@@ -288,6 +329,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         document.addEventListener("gestureend", cancelled, false);
     }
 
+    /**
+     * Helper function process next level (question).
+     */
     function nextLevel() {
         level++;
         if (level >= questions.length) {
@@ -296,6 +340,14 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
         question = runLevel(questions, level, displayRect);
     }
+
+    /**
+     * Helper function process current level.
+     * @param {array} questions
+     * @param {object} level
+     * @param {object} bounds
+     * @returns {string}
+     */
     function runLevel(questions, level, bounds) {
         currentTeam = [];
         lastShot = 0;
@@ -340,10 +392,18 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         return questions[level].question;
     }
 
+    /**
+     * Helper function to place text on screen
+     * @param {object} context
+     * @param {object} displayRect
+     * @param {objectc} objects
+     * @param {object} particles
+     * @param {string} question
+     */
     function draw(context, displayRect, objects, particles, question) {
         context.clearRect(0, 0, displayRect.width, displayRect.height);
-
-        for (var i = 0; i < particles.length; i++) {
+        var i = 0;
+        for (i = 0; i < particles.length; i++) {
             particles[i].draw(context);
         }
 
@@ -373,8 +433,15 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function main game logic: process movements and behaviours of game objects
+     * @param {object} bounds
+     * @param {object} objects
+     * @param {object} particles
+     */
     function update(bounds, objects, particles) {
-        for (var i = 0; i < 3; i++) {
+        var i = 0;
+        for (i = 0; i < 3; i++) {
             particles.push(new Star(bounds));
         }
         for (i = 0; i < particles.length; i++) {
@@ -396,26 +463,36 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
-    function Rectangle(left, top, width, height)
-    {
+    /**
+     * Constructor for storing information about a rectangle shape
+     * @param {int} left
+     * @param {int} top
+     * @param {int} width
+     * @param {int} height
+     */
+    function Rectangle(left, top, width, height) {
         this.left = left || 0;
         this.top = top || 0;
         this.width = width || 0;
         this.height = height || 0;
     }
-    Rectangle.prototype.right = function () {
+
+    Rectangle.prototype.right = function() {
         return this.left + this.width;
     };
-    Rectangle.prototype.bottom = function () {
+
+    Rectangle.prototype.bottom = function() {
         return this.top + this.height;
     };
-    Rectangle.prototype.Contains = function (point) {
+
+    Rectangle.prototype.Contains = function(point) {
         return point.x > this.left &&
             point.x < this.right() &&
             point.y > this.top &&
             point.y < this.bottom();
     };
-    Rectangle.prototype.Intersect = function (rectangle) {
+
+    Rectangle.prototype.Intersect = function(rectangle) {
         var retval = !(rectangle.left > this.right() ||
             rectangle.right() < this.left ||
             rectangle.top > this.bottom() ||
@@ -423,6 +500,12 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         return retval;
     };
 
+    /**
+     * Generate Game Object.
+     * @param {text} src
+     * @param {int} x
+     * @param {int} y
+     */
     function GameObject(src, x, y) {
         if (src !== null) {
             this.image = this.loadImage(src);
@@ -435,14 +518,16 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.alive = true;
         this.decay = 0.7;
     }
-    GameObject.prototype.loadImage = function (src) {
+
+    GameObject.prototype.loadImage = function(src) {
         if (!this.image) {
             this.image = new Image();
         }
         this.image.src = src;
         return this.image;
     };
-    GameObject.prototype.update = function () {
+
+    GameObject.prototype.update = function() {
         this.velocity.x += this.direction.x * this.movespeed.x;
         this.velocity.y += this.direction.y * this.movespeed.y;
         this.x += this.velocity.x;
@@ -450,16 +535,25 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.velocity.y *= this.decay;
         this.velocity.x *= this.decay;
     };
-    GameObject.prototype.draw = function (context) {
+
+    GameObject.prototype.draw = function(context) {
         context.drawImage(this.image, this.x, this.y, this.image.width, this.image.height);
     };
-    GameObject.prototype.getRect = function () {
+
+    GameObject.prototype.getRect = function() {
         return new Rectangle(this.x, this.y, this.image.width, this.image.height);
     };
-    GameObject.prototype.die = function () {
+
+    GameObject.prototype.die = function() {
         this.alive = false;
     };
 
+    /**
+     * Constructor for Player class, all the information about the player
+     * @param {string} src
+     * @param {int} x
+     * @param {int} y
+     */
     function Player(src, x, y) {
         GameObject.call(this, src, x, y);
         this.mouse = {x: 0, y: 0};
@@ -467,8 +561,9 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.lives = 3;
         this.lastScore = 0;
     }
+
     Player.prototype = Object.create(GameObject.prototype);
-    Player.prototype.update = function (bounds) {
+    Player.prototype.update = function(bounds) {
         if (mouseDown || touchDown) {
             if (this.x < this.mouse.x - (this.image.width)) {
                 player.direction.x = 1;
@@ -497,11 +592,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             this.y = bounds.height - this.image.height;
         }
     };
-    Player.prototype.Shoot = function () {
+
+    Player.prototype.Shoot = function() {
         playSound("laser");
         gameObjects.unshift(new Laser(player.x, player.y, true, 24));
         canShoot = false;
     };
+
     Player.prototype.die = function() {
         GameObject.prototype.die.call(this);
         playSound("explosion");
@@ -509,8 +606,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.lastScore = score;
         endGame();
     };
-    Player.prototype.gotShot = function(shot)
-    {
+
+    Player.prototype.gotShot = function(shot) {
         if (shot.alive) {
             if (this.lives <= 1) {
                 this.die();
@@ -521,16 +618,31 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     };
 
+    /**
+     * Constructor for Planet (background objects) extends GameObject
+     * @param {string} src
+     * @param {int} x
+     * @param {int} y
+     */
     function Planet(src, x, y) {
         GameObject.call(this, src, x, y);
     }
+
     Planet.prototype = Object.create(GameObject.prototype);
-    Planet.prototype.update = function (bounds) {
+    Planet.prototype.update = function(bounds) {
         planet.image.width = displayRect.width;
         planet.image.height = displayRect.height;
         GameObject.prototype.update.call(this, bounds);
     };
 
+    /**
+     * Constructor for enemy craft (answers) extends GameObject
+     * @param {string} src
+     * @param {int} x
+     * @param {int} y
+     * @param {string} text
+     * @param {float} fraction
+     */
     function Enemy(src, x, y, text, fraction) {
         GameObject.call(this, src, x, y);
         this.xspeed = enemySpeed;
@@ -545,8 +657,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.shotClock = (1 + Math.random()) * this.shotFrequency;
         this.level = level;
     }
+
     Enemy.prototype = Object.create(GameObject.prototype);
-    Enemy.prototype.update = function (bounds) {
+
+    Enemy.prototype.update = function(bounds) {
 
         if (this.y < bounds.height / 10 || this.y > bounds.height * 9 / 10) {
             this.movespeed.x = this.xspeed * 1;
@@ -593,7 +707,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             shipReachedEnd.call(this);
         }
     };
-    Enemy.prototype.draw = function (context) {
+
+    Enemy.prototype.draw = function(context) {
         GameObject.prototype.draw.call(this, context);
 
         context.fillStyle = '#FFFFFF';
@@ -602,6 +717,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
 
         wrapText(context, this.text, true, 17, displayRect.width * 0.2, this.x + this.image.width / 2, this.y - 5);
     };
+
     Enemy.prototype.die = function() {
         GameObject.prototype.die.call(this);
         spray(this.x + this.image.width, this.y + this.image.height, 50 + (this.fraction * 150), "#FF0000");
@@ -612,14 +728,18 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         // Kill off the ship.
         playSound("explosion");
     };
+
     Enemy.prototype.gotShot = function(shot) {
         // Default behaviour, to be overridden.
         shot.die();
         this.die();
     };
 
+    /**
+     * Helper function to remove any stray ships on level advance
+     */
     function killAllAlive() {
-        currentTeam.forEach(function (enemy) {
+        currentTeam.forEach(function(enemy) {
             if (enemy.alive) {
                 // Make the fraction 0 so it won't count as anything and make a new level.
                 enemy.fraction = 0;
@@ -629,10 +749,19 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         currentTeam = [];
     }
 
+    /**
+     * Helper function for True/False questions
+     * @param {int} x
+     * @param {int} y
+     * @param {string} text
+     * @param {float} fraction
+     */
     function TFEnemy(x, y, text, fraction) {
         Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
     }
+
     TFEnemy.prototype = Object.create(Enemy.prototype);
+
     TFEnemy.prototype.die = function() {
         // TrueFalse questions are very simple, if either of the ships die, Enemy.prototype.die will handle
         // the score adding of 1000 or 0, and then this will kill the other remaining ship.
@@ -644,6 +773,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             nextLevel();
         }
     };
+
     TFEnemy.prototype.gotShot = function(shot) {
         if (this.fraction > 0) {
             shot.die();
@@ -654,11 +784,21 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     };
 
+    /**
+     * Helper function for multiple choice questions (MCQ)
+     * @param {int} x
+     * @param {int} y
+     * @param {string} text
+     * @param {float} fraction
+     * @param {boolean} single
+     */
     function MultiEnemy(x, y, text, fraction, single) {
         Enemy.call(this, "pix/enemy.png", x, y, text, fraction);
         this.single = single;
     }
+
     MultiEnemy.prototype = Object.create(Enemy.prototype);
+
     MultiEnemy.prototype.die = function() {
         Enemy.prototype.die.call(this);
         if (this.fraction > 0) {
@@ -669,6 +809,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             nextLevel();
         }
     };
+
     MultiEnemy.prototype.gotShot = function(shot) {
         if (this.fraction >= 1 || (this.fraction > 0 && !this.single)) {
             shot.die();
@@ -679,6 +820,15 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     };
 
+    /**
+     * Helper function for matching questions
+     * @param {int} x
+     * @param {int} y
+     * @param {string} text
+     * @param {float} fraction
+     * @param {int} pairid
+     * @param {boolean} stem
+     */
     function MatchEnemy(x, y, text, fraction, pairid, stem) {
         this.stem = stem ? true : false;
         if (this.stem) {
@@ -690,13 +840,16 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.shotFrequency = 160;
         this.hightlighted = false;
     }
+
     MatchEnemy.prototype = Object.create(Enemy.prototype);
+
     MatchEnemy.prototype.die = function() {
         currentPointsLeft -= this.fraction;
         // Sets the fraction as 0 to stop it adding to the score in #die()
         this.fraction = 0;
         Enemy.prototype.die.call(this);
     };
+
     MatchEnemy.prototype.gotShot = function(shot) {
         if (shot.alive && this.alive) {
             if (lastShot == -this.pairid) {
@@ -731,6 +884,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             }
         }
     };
+
     MatchEnemy.prototype.hightlight = function() {
         currentTeam.forEach(function(match) {
             match.unhightlight();
@@ -742,6 +896,7 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
         this.hightlighted = true;
     };
+
     MatchEnemy.prototype.unhightlight = function() {
         if (this.hightlighted) {
             if (this.stem) {
@@ -753,6 +908,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.hightlighted = false;
     };
 
+    /**
+     * Constructor for laser shots extends GameObject
+     * @param {int} x
+     * @param {int} y
+     * @param {bool} friendly
+     * @param {float} laserSpeed
+     */
     function Laser(x, y, friendly, laserSpeed) {
         GameObject.call(this, friendly ? "pix/laser.png" : "pix/enemylaser.png", x, y);
         this.direction.y = -1;
@@ -760,7 +922,8 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.laserSpeed = laserSpeed || 12;
     }
     Laser.prototype = Object.create(GameObject.prototype);
-    Laser.prototype.update = function (bounds) {
+
+    Laser.prototype.update = function(bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.x < bounds.x - this.image.width ||
             this.x > bounds.width ||
@@ -770,13 +933,21 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
         this.velocity.y = this.laserSpeed * this.direction.y;
     };
-    Laser.prototype.deflect = function () {
+
+    Laser.prototype.deflect = function() {
         this.image = this.loadImage("pix/enemylaser.png");
         this.direction.y *= -1;
         this.friendly = !this.friendly;
         playSound("deflect");
     };
 
+    /**
+     * Constructor for explosion particle effects extends GameObject
+     * @param {int} x
+     * @param {int} y
+     * @param {float} velocity
+     * @param {string} colour
+     */
     function Particle(x, y, velocity, colour) {
         GameObject.call(this, null, x, y);
         this.width = 2;
@@ -787,8 +958,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.colour = colour;
         this.decay = 1;
     }
+
     Particle.prototype = Object.create(GameObject.prototype);
-    Particle.prototype.update = function (bounds) {
+
+    Particle.prototype.update = function(bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.x < bounds.x - this.width ||
             this.x > bounds.width ||
@@ -801,15 +974,21 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
             this.alive = false;
         }
     };
-    Particle.prototype.getRect = function () {
+
+    Particle.prototype.getRect = function() {
         return new Rectangle(this.x, this.y, this.width, this.height);
     };
-    Particle.prototype.draw = function (context) {
+
+    Particle.prototype.draw = function(context) {
         context.fillStyle = this.colour;
         context.fillRect(this.x, this.y, this.width, this.height);
         context.stroke();
     };
 
+    /**
+     * Helper function for background stars extends GameObject
+     * @param {object} bounds
+     */
     function Star(bounds) {
         GameObject.call(this, null, Math.random() * bounds.width, 0);
         this.width = 2;
@@ -819,23 +998,37 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         this.aliveTime = 0;
     }
     Star.prototype = Object.create(GameObject.prototype);
-    Star.prototype.update = function (bounds) {
+
+    Star.prototype.update = function(bounds) {
         GameObject.prototype.update.call(this, bounds);
         if (this.y > bounds.height) {
             this.alive = false;
         }
     };
-    Star.prototype.draw = function (context) {
+
+    Star.prototype.draw = function(context) {
         context.fillStyle = '#9999AA';
         context.fillRect(this.x, this.y, this.width, this.height);
         context.stroke();
     };
 
+    /**
+     * Helper function to handle collisions between gameobjects.
+     * @param {object} object1
+     * @param {object} object2
+     * @return {boolean}
+     */
     function collide(object1, object2) {
-        return object1.alive && object2.alive && (collide_ordered(object1, object2) || collide_ordered(object2, object1));
+        return object1.alive && object2.alive && (collideOrdered(object1, object2) || collideOrdered(object2, object1));
     }
 
-    function collide_ordered(object1, object2) {
+    /**
+     * Helper funcction to handle collisions.
+     * @param {object} object1
+     * @param {object} object2
+     * @returns {boolean}
+     */
+    function collideOrdered(object1, object2) {
         if (object1 instanceof Laser && object2 instanceof Player) {
             if (!object1.friendly && objectsIntersect(object1, object2)) {
                 object2.gotShot(object1);
@@ -855,20 +1048,44 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
                 return true;
             }
         }
+        return false;
     }
 
+    /**
+     * Helper function to handle intersections between GameObjects.
+     * @param {object} object1
+     * @param {object} object2
+     * @return {boolean}
+     */
     function objectsIntersect(object1, object2) {
         var rect1 = object1.getRect();
         var rect2 = object2.getRect();
         return rect1.Intersect(rect2);
     }
 
+    /**
+     * Helper function for spraying particle (explosion) effects
+     * @param {int} x
+     * @param {int} y
+     * @param {int} num
+     * @param {string} colour
+     */
     function spray(x, y, num, colour) {
         for (var i = 0; i < num; i++) {
             particles.push(new Particle(x, y, {x: (Math.random() - 0.5) * 16, y: ((Math.random() - 0.5) * 16) + 3}, colour));
         }
     }
 
+    /**
+     * Helper function to display answers.
+     * @param {object} context
+     * @param {string} input
+     * @param {bool} wrapUpwards
+     * @param {int} textHeight
+     * @param {int} maxLineWidth
+     * @param {int} x
+     * @param {int} y
+     */
     function wrapText(context, input, wrapUpwards, textHeight, maxLineWidth, x, y) {
         var drawLines = [];
         var originalY = y;
@@ -913,8 +1130,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         });
     }
 
+    /**
+     * Helper function for end of level.
+     */
     function shipReachedEnd() {
-        var amountLeft = currentTeam.filter(function (enemy) { return enemy.alive; }).length;
+        var amountLeft = currentTeam.filter(function(enemy) {
+            return enemy.alive;
+        }).length;
 
         if (amountLeft === 0 && (currentPointsLeft < this.fraction || currentPointsLeft <= 0)
             && this.level === level && player.alive) {
@@ -926,6 +1148,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
 
     var canShoot = true;
 
+    /**
+     * Helper function for game menu from keyboard.
+     * @param {object} e
+     */
     function menukeydown(e) {
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
@@ -935,18 +1161,30 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function for game menu on mobile.
+     * @param {object} e
+     */
     function menumousedown(e) {
         if (e.target === stage) {
             loadGame();
         }
     }
 
+    /**
+     * Helper function for game menu on mobile.
+     * @param {object} e
+     */
     function menutouchend(e) {
         if (e.target === stage) {
             loadGame();
         }
     }
 
+    /**
+     * Helper function for keyboard movement.
+     * @param {object} e
+     */
     function keydown(e) {
         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) {
             e.preventDefault();
@@ -964,6 +1202,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function for keyboard movement.
+     * @param {object} e
+     */
     function keyup(e) {
         if (e.keyCode === 32) {
             canShoot = true;
@@ -974,6 +1216,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function for mouse click (starts the player shooting if you clicked on them, moving if you didn't).
+     * @param {object} e
+     */
     function mousedown(e) {
         if (e.target === stage) {
             var playerWasClicked = player.getRect().Contains({x: e.offsetX, y: e.offsetY});
@@ -988,25 +1234,41 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function for mouse release. (stops the Player) for mouse mode
+     * @param {object} e
+     */
     function mouseup() {
         player.direction.x = 0;
         player.direction.y = 0;
         mouseDown = false;
     }
 
+    /**
+     * Helper function for mouse movement.
+     * @param {object} e
+     */
     function mousemove(e) {
         player.mouse.x = e.offsetX;
         player.mouse.y = e.offsetY;
     }
 
+    /**
+     * Helper function for cancelled event.
+     * @param {object} event
+     */
     function cancelled(event) {
         if (event.target === stage) {
             event.preventDefault();
         }
     }
 
+    /**
+     * Helper function for movement on mobile touch devices.
+     * @param {object} e
+     */
     function touchstart(e) {
-        if (e.target === stage ) {
+        if (e.target === stage) {
             if (player.alive && e.touches.length > 1) {
                 player.Shoot();
             } else {
@@ -1018,6 +1280,10 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function for movement on mobile touch devices.
+     * @param {object} e
+     */
     function touchend(e) {
         if (e.touches.length === 0) {
             touchDown = false;
@@ -1030,10 +1296,13 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
-
+    /**
+     * Helper function for movement on mobile touch devices.
+     * @param {object} e
+     */
     function touchmove(e) {
         var rect = e.target.getBoundingClientRect();
-        // Required for getting the stage's relative touch position, due to a previous significant offset
+        // Required for getting the stage's relative touch position, due to a previous significant offset.
         var x = e.touches[0].pageX - rect.left;
         var y = e.touches[0].clientY - rect.top;
 
@@ -1046,8 +1315,15 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         }
     }
 
+    /**
+     * Helper function to shuffle levels.
+     * @param {array} array
+     * @return {array}
+     */
     function shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
+        var currentIndex = array.length;
+        var temporaryValue;
+        var randomIndex;
 
         while (0 !== currentIndex) {
 
@@ -1062,6 +1338,11 @@ define(['jquery','core/yui', 'core/notification', 'core/ajax'], function($, Y, n
         return array;
     }
 
+    /**
+     * Initialization of the game.
+     * @param {array} q
+     * @param {array} qid
+     */
     function doInitialize(q, qid) {
         questions = q;
         quizgame = qid;
