@@ -21,7 +21,6 @@
  *
  * @module    mod_quizgame/quizgame
  * @class     quizgame
- * @package   mod_quizgame
  * @copyright 2016 John Okely <john@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -1236,7 +1235,6 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
 
     /**
      * Helper function for mouse release. (stops the Player) for mouse mode
-     * @param {object} e
      */
     function mouseup() {
         player.direction.x = 0;
