@@ -29,8 +29,9 @@ Feature: Teachers can create a quizgame activity for students to review content
     And I am on "Course 1" course homepage with editing mode on
     When I add a "Quizventure" to section "1" and I fill the form with:
       | Quizventure name  | Test quizventure name        |
+      | idnumber          | Test quizventure id          | 
       | Description       | Test quizventure description |
       | Question category | Test questions               |
-    And I am on the "Test quizventure name" Activity page
+    And I am on the "Test quizventure id" Activity page
     Then I should see "Test quizventure description"
     And I should see "View all attempts"
