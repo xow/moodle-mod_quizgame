@@ -38,6 +38,10 @@ require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_quizgame_lib_testcase extends \advanced_testcase {
+
+    /**
+     * Test calendar event creation.
+     */
     public function test_quizgame_core_calendar_provide_event_action() {
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -58,6 +62,10 @@ class mod_quizgame_lib_testcase extends \advanced_testcase {
         $this->assertEquals(1, $actionevent->get_item_count());
         $this->assertTrue($actionevent->is_actionable());
     }
+
+    /**
+     * Test calendar event read as a non-user.
+     */
     public function test_quizgame_core_calendar_provide_event_action_for_non_user() {
         global $CFG;
         $this->resetAfterTest();
@@ -78,6 +86,10 @@ class mod_quizgame_lib_testcase extends \advanced_testcase {
         // Confirm the event is not shown at all.
         $this->assertNull($actionevent);
     }
+
+    /**
+     * Test calendar event read as a user.
+     */
     public function test_quizgame_core_calendar_provide_event_action_for_user() {
         global $CFG;
         $this->resetAfterTest();
@@ -103,6 +115,10 @@ class mod_quizgame_lib_testcase extends \advanced_testcase {
         $this->assertEquals(1, $actionevent->get_item_count());
         $this->assertTrue($actionevent->is_actionable());
     }
+
+    /**
+     * Test calendar event read for an activity already completed.
+     */
     public function test_quizgame_core_calendar_provide_event_action_already_completed() {
         global $CFG;
         $this->resetAfterTest();
@@ -127,6 +143,10 @@ class mod_quizgame_lib_testcase extends \advanced_testcase {
         // Ensure result was null.
         $this->assertNull($actionevent);
     }
+
+    /**
+     * Test calendar event read for an activity already completed by user.
+     */
     public function test_quizgame_core_calendar_provide_event_action_already_completed_for_user() {
         global $CFG;
         $this->resetAfterTest();

@@ -27,8 +27,6 @@ use core_privacy\local\metadata\collection;
 use core_privacy\local\request\deletion_criteria;
 use mod_quizgame\privacy\provider;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Privacy provider tests class.
  *
