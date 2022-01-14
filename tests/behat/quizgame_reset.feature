@@ -46,7 +46,7 @@ Feature: Quizgame reset
     And I should see "Remove all user scores"
     Then I should see "OK"
     And I press "Continue"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test quizgame name"
     And I follow "View all attempts"
     And I should not see "10110"

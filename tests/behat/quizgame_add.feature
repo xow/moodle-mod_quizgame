@@ -31,6 +31,7 @@ Feature: Teachers can create a quizgame activity for students to review content
       | Quizventure name  | Test quizventure name        |
       | Description       | Test quizventure description |
       | Question category | Test questions               |
+    And I press "Save changes"
     And I follow "Test quizventure name"
     Then I should see "Test quizventure description"
     And I should see "View all attempts"

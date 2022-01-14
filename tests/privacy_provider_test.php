@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_quizgame;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\deletion_criteria;
 use mod_quizgame\privacy\provider;
