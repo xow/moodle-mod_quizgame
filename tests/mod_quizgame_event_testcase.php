@@ -37,7 +37,7 @@ require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
  * @copyright  2015 Stephen Bourget
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_quizgame_event_testcase extends advanced_testcase {
+class mod_quizgame_event_testcase extends \advanced_testcase {
 
     /**
      * Test setup.
@@ -59,7 +59,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
 
         $dbcourse = $DB->get_record('course', array('id' => $course->id));
         $dbquizgame = $DB->get_record('quizgame', array('id' => $quizgame->id));
-        $context = context_module::instance($quizgame->cmid);
+        $context = \context_module::instance($quizgame->cmid);
 
         $event = \mod_quizgame\event\course_module_viewed::create(array(
             'objectid' => $dbquizgame->id,
@@ -84,7 +84,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $expected = array($course->id, 'quizgame', 'view', 'view.php?id=' . $quizgame->cmid,
             $quizgame->id, $quizgame->cmid);
 
-        $this->assertEquals(new moodle_url('/mod/quizgame/view.php', array('id' => $quizgame->cmid)), $event->get_url());
+        $this->assertEquals(new \moodle_url('/mod/quizgame/view.php', array('id' => $quizgame->cmid)), $event->get_url());
         $this->assertEventContextNotUsed($event);
     }
 
@@ -98,7 +98,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         $event = \mod_quizgame\event\course_module_instance_list_viewed::create(array(
-            'context' => context_course::instance($course->id)
+            'context' => \context_course::instance($course->id)
         ));
 
         // Triggering and capturing the event.
@@ -125,7 +125,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
         $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
-        $context = context_module::instance($quizgame->cmid);
+        $context = \context_module::instance($quizgame->cmid);
         $score = mt_rand (0, 50000);
 
         $sink = $this->redirectEvents();
@@ -150,7 +150,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
         $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
-        $context = context_module::instance($quizgame->cmid);
+        $context = \context_module::instance($quizgame->cmid);
 
         $sink = $this->redirectEvents();
         $result = quizgame_log_game_start($quizgame);
@@ -175,7 +175,7 @@ class mod_quizgame_event_testcase extends advanced_testcase {
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
         $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
-        $context = context_module::instance($quizgame->cmid);
+        $context = \context_module::instance($quizgame->cmid);
 
         $quizgamegenerator = $this->getDataGenerator()->get_plugin_generator('mod_quizgame');
         $scores = $quizgamegenerator->create_content($quizgame);

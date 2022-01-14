@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2018 Stephen Bourget
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_quizgame_generator_testcase extends advanced_testcase {
+class mod_quizgame_generator_testcase extends \advanced_testcase {
 
     public function test_create_instance() {
         global $DB;
