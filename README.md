@@ -11,7 +11,10 @@ Module Installation
 
 To install, go to the [Quizventure page](https://moodle.org/plugins/view.php?plugin=mod_quizgame) on the plugins DB.
 
-Alternatively, to install from [github](https://github.com/xow/moodle-mod_quizgame) click "Download ZIP" on the right, then extract the contents into mod/quizgame. Login to your moodle site as admin, go to Site Administration>Notifications and follow the prompts
+Alternatively, to install from [github](https://github.com/xow/moodle-mod_quizgame) click "Download ZIP" on the right, then extract the contents into mod/quizgame.
+Login to your moodle site as admin, go to Site Administration -> Notifications and follow the prompts
+
+This version of the plugin works with Moodle 4.0 and later.
 
 Details and Setup
 =================
