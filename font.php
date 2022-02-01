@@ -18,12 +18,13 @@
  * Workaround to serve out fonts used by plugin since serving from Google causes GDPR issues.
  *
  * @package   mod_quizgame
- * @category  fonts
- * @copyright 2022 Stephen Bourget 
+ * @copyright 2022 Stephen Bourget
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+$PAGE->set_url('/mod/quizgame/font.php');
+require_login();
 
 // Echo out a CSS file with the font path.
 
