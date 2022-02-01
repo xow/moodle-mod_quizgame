@@ -88,7 +88,7 @@ $activitydates = \core\activity_dates::get_dates_for_module($cm, $USER->id);
 echo $OUTPUT->activity_information($cm, $completiondetails, $activitydates);
 
 // Game here.
-echo "<link href='https://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>";
+echo "<link href='$CFG->wwwroot/mod/quizgame/font.php' rel='stylesheet' type='text/css'>";
 echo $renderer->render_game($quizgame, $context);
 echo "<div class=fontloader>Loading game</div>";
 

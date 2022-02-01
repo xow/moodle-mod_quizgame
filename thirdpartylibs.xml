@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>lib/arimo</location>
+    <name>Arimo Font</name>
+    <version>17</version>
+    <license>Apache</license>
+    <licenseversion>2.0</licenseversion>
+  </library>
+</libraries>
+

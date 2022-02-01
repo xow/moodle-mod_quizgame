@@ -217,7 +217,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         context.clearRect(0, 0, displayRect.width, displayRect.height);
 
         context.fillStyle = '#FFFFFF';
-        context.font = "18px Audiowide";
+        context.font = "18px Arimo";
         context.textAlign = 'center';
 
         if (questions !== null && questions.length > 0) {
@@ -412,7 +412,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
 
         if (player.alive) {
             context.fillStyle = '#FFFFFF';
-            context.font = "18px Audiowide";
+            context.font = "18px Arimo";
             context.textAlign = 'left';
             context.fillText(M.util.get_string('score', 'mod_quizgame',
                                                {
@@ -424,7 +424,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
             wrapText(context, question, false, 20, displayRect.width * 0.9, displayRect.width / 2, 20);
         } else {
             context.fillStyle = '#FFFFFF';
-            context.font = "18px Audiowide";
+            context.font = "18px Arimo";
             context.textAlign = 'center';
             context.fillText(M.util.get_string('endofgame', 'mod_quizgame',
                                                Math.round(player.lastScore)),
@@ -711,7 +711,7 @@ define(['jquery', 'core/yui', 'core/notification', 'core/ajax'], function($, Y, 
         GameObject.prototype.draw.call(this, context);
 
         context.fillStyle = '#FFFFFF';
-        context.font = "15px Audiowide";
+        context.font = "15px Arimo";
         context.textAlign = 'center';
 
         wrapText(context, this.text, true, 17, displayRect.width * 0.2, this.x + this.image.width / 2, this.y - 5);
