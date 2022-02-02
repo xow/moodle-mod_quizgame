@@ -27,7 +27,7 @@ $PAGE->set_url('/mod/quizgame/font.php');
 require_login();
 
 // Echo out a CSS file with the font path.
-Header("Content-Type: text/css");
+header("Content-Type: text/css");
 echo "/* audiowide-regular - latin */";
 echo "@font-face {";
 echo "  font-family: 'Audiowide';";
