@@ -38,10 +38,9 @@ class mod_quizgame_renderer extends plugin_renderer_base {
      * @return string The HTML code of the game
      */
     public function render_game($quizgame, $context) {
-        global $DB;
 
         $categoryid = explode(',', $quizgame->questioncategory)[0];
-        $questionids = array_keys($DB->get_records('question', array('category' => intval($categoryid)), '', 'id'));
+        $questionids = question_bank::get_finder()->get_questions_from_categories(intval($categoryid), '');
         $questions = question_load_questions($questionids);
 
         $this->page->requires->strings_for_js(array(
