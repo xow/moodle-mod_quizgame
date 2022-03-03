@@ -38,7 +38,6 @@ class mod_quizgame_renderer extends plugin_renderer_base {
      * @return string The HTML code of the game
      */
     public function render_game($quizgame, $context) {
-        global $OUTPUT;
 
         $categoryid = explode(',', $quizgame->questioncategory)[0];
         $questionids = question_bank::get_finder()->get_questions_from_categories(intval($categoryid), '');
@@ -83,7 +82,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson, $quizgame->id));
 
         $display = '<div>';
-        $display .= get_string('howtoplay', 'mod_quizgame') . $OUTPUT->help_icon('howtoplay', 'mod_quizgame', '');
+        $display .= get_string('howtoplay', 'mod_quizgame') . $this->output->help_icon('howtoplay', 'mod_quizgame', '');
         $display .= '</div>';
 
         $display .= '<canvas id="mod_quizgame_game"></canvas>';
@@ -108,7 +107,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
                                           get_string('sound', 'mod_quizgame'),
                                           array('id' => 'mod_quizgame_sound_on'));
         $display .= '</div>';
-        
+
         return $display;
     }
 
