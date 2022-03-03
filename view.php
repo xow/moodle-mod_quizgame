@@ -64,7 +64,6 @@ $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
 
 // Print the page header.
-
 $PAGE->set_url('/mod/quizgame/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($quizgame->name));
 $PAGE->set_heading(format_string($course->fullname));
@@ -74,18 +73,6 @@ $renderer = $PAGE->get_renderer('mod_quizgame');
 
 // Output starts here.
 echo $OUTPUT->header();
-
-if ($quizgame->intro) {
-    echo $OUTPUT->box(format_module_intro('quizgame', $quizgame, $cm->id), 'generalbox mod_introbox', 'quizgameintro');
-}
-
-// Output header and directions.
-echo $OUTPUT->heading_with_help(get_string('modulename', 'mod_quizgame'), 'howtoplay', 'mod_quizgame');
-
-// Render the activity information.
-$completiondetails = \core_completion\cm_completion_details::get_instance($cm, $USER->id);
-$activitydates = \core\activity_dates::get_dates_for_module($cm, $USER->id);
-echo $OUTPUT->activity_information($cm, $completiondetails, $activitydates);
 
 // Game here.
 echo "<link href='$CFG->wwwroot/mod/quizgame/font.php' rel='stylesheet' type='text/css'>";
