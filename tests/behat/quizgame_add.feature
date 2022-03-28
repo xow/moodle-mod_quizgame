@@ -30,7 +30,8 @@ Feature: Teachers can create a quizgame activity for students to review content
     When I add a "Quizventure" to section "1" and I fill the form with:
       | Quizventure name  | Test quizventure name        |
       | Description       | Test quizventure description |
+      | ID number         | Test quizventure name        |
       | Question category | Test questions               |
-    And I follow "Test quizventure name"
+    And I am on the "Test quizventure name" Activity page
     Then I should see "Test quizventure description"
     And I should see "View all attempts"

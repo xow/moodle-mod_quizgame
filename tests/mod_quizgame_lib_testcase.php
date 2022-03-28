@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_quizgame;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -36,7 +37,11 @@ require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
  * @copyright  2019 Stephen Bourget
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_quizgame_lib_testcase extends advanced_testcase {
+class mod_quizgame_lib_testcase extends \advanced_testcase {
+
+    /**
+     * Test calendar event creation.
+     */
     public function test_quizgame_core_calendar_provide_event_action() {
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -57,6 +62,10 @@ class mod_quizgame_lib_testcase extends advanced_testcase {
         $this->assertEquals(1, $actionevent->get_item_count());
         $this->assertTrue($actionevent->is_actionable());
     }
+
+    /**
+     * Test calendar event read as a non-user.
+     */
     public function test_quizgame_core_calendar_provide_event_action_for_non_user() {
         global $CFG;
         $this->resetAfterTest();
@@ -77,6 +86,10 @@ class mod_quizgame_lib_testcase extends advanced_testcase {
         // Confirm the event is not shown at all.
         $this->assertNull($actionevent);
     }
+
+    /**
+     * Test calendar event read as a user.
+     */
     public function test_quizgame_core_calendar_provide_event_action_for_user() {
         global $CFG;
         $this->resetAfterTest();
@@ -102,6 +115,10 @@ class mod_quizgame_lib_testcase extends advanced_testcase {
         $this->assertEquals(1, $actionevent->get_item_count());
         $this->assertTrue($actionevent->is_actionable());
     }
+
+    /**
+     * Test calendar event read for an activity already completed.
+     */
     public function test_quizgame_core_calendar_provide_event_action_already_completed() {
         global $CFG;
         $this->resetAfterTest();
@@ -117,7 +134,7 @@ class mod_quizgame_lib_testcase extends advanced_testcase {
         $event = $this->create_action_event($course->id, $quizgame->id,
             \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
         // Mark the activity as completed.
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
         $completion->set_module_viewed($cm);
         // Create an action factory.
         $factory = new \core_calendar\action_factory();
@@ -126,6 +143,10 @@ class mod_quizgame_lib_testcase extends advanced_testcase {
         // Ensure result was null.
         $this->assertNull($actionevent);
     }
+
+    /**
+     * Test calendar event read for an activity already completed by user.
+     */
     public function test_quizgame_core_calendar_provide_event_action_already_completed_for_user() {
         global $CFG;
         $this->resetAfterTest();
@@ -144,7 +165,7 @@ class mod_quizgame_lib_testcase extends advanced_testcase {
         $event = $this->create_action_event($course->id, $quizgame->id,
                 \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
         // Mark the activity as completed for the $student1.
-        $completion = new completion_info($course);
+        $completion = new \completion_info($course);
         $completion->set_module_viewed($cm, $student1->id);
         // Now log in as $student2.
         $this->setUser($student2);
@@ -164,7 +185,7 @@ class mod_quizgame_lib_testcase extends advanced_testcase {
      * @return bool|calendar_event
      */
     private function create_action_event($courseid, $instanceid, $eventtype) {
-        $event = new stdClass();
+        $event = new \stdClass();
         $event->name = 'Calendar event';
         $event->modulename  = 'quizgame';
         $event->courseid = $courseid;
@@ -172,6 +193,6 @@ class mod_quizgame_lib_testcase extends advanced_testcase {
         $event->type = CALENDAR_EVENT_TYPE_ACTION;
         $event->eventtype = $eventtype;
         $event->timestart = time();
-        return calendar_event::create($event);
+        return \calendar_event::create($event);
     }
 }

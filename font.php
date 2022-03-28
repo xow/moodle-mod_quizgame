@@ -15,24 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Redirect the user to the appropriate submission related page
+ * Workaround to serve out fonts used by plugin since serving from Google causes GDPR issues.
  *
  * @package   mod_quizgame
- * @category  grade
- * @copyright 2014 John Okely <john@moodle.com>
+ * @copyright 2022 Stephen Bourget
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+$PAGE->set_url('/mod/quizgame/font.php');
+require_login();
 
-$id = required_param('id', PARAM_INT); // Course module ID.
-// Item number, may be != 0 for activities that allow more than one grade per user.
-$itemnumber = optional_param('itemnumber', 0, PARAM_INT);
-$userid = optional_param('userid', 0, PARAM_INT); // Graded user ID (optional).
-
-$cm = get_coursemodule_from_id('quizgame', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-require_login($course, false, $cm);
-
-// In the simplest case just redirect to the view page.
-redirect('view.php?id='.$id);
+// Echo out a CSS file with the font path.
+header("Content-Type: text/css");
+echo "/* audiowide-regular - latin */";
+echo "@font-face {";
+echo "  font-family: 'Audiowide';";
+echo "  font-style: normal;";
+echo "  font-weight: 400;";
+echo "  src: local(''),";
+// Modern Browser Support - Chrome 26+, Opera 23+, Firefox 39+.
+echo "       url('$CFG->wwwroot/mod/quizgame/lib/audiowide/audiowide-v14-latin-ext_latin-regular.woff2') format('woff2'),";
+// Older Browser Support -  Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+.
+echo "       url('$CFG->wwwroot/mod/quizgame/lib/audiowide/audiowide-v14-latin-ext_latin-regular.woff') format('woff');";
+echo "}";

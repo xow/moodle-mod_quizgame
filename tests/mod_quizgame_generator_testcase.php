@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_quizgame;
 
 /**
  * Genarator tests class for mod_quizgame.
@@ -33,8 +33,11 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2018 Stephen Bourget
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_quizgame_generator_testcase extends advanced_testcase {
+class mod_quizgame_generator_testcase extends \advanced_testcase {
 
+    /**
+     * test creating module instance.
+     */
     public function test_create_instance() {
         global $DB;
         $this->resetAfterTest();
@@ -55,6 +58,9 @@ class mod_quizgame_generator_testcase extends advanced_testcase {
         $this->assertEquals('Another quizgame', $records[$quizgame->id]->name);
     }
 
+    /**
+     * test creating module content.
+     */
     public function test_create_content() {
         global $DB;
         $this->resetAfterTest();

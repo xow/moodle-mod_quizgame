@@ -15,17 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * mod_quizgame data generator.
- *
- * @package    mod_quizgame
- * @category   test
- * @copyright  2018 Stephen Bourget
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
  * mod_quizgame data generator class.
  *
  * @package    mod_quizgame

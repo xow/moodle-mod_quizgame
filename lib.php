@@ -28,8 +28,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Returns the information on whether the module supports a feature
  *
@@ -51,6 +49,8 @@ function quizgame_supports($feature) {
             return true;
         case FEATURE_BACKUP_MOODLE2:
             return true;
+        case FEATURE_MOD_PURPOSE:
+            return MOD_PURPOSE_ASSESSMENT;
         default:
             return null;
     }
@@ -441,20 +441,6 @@ function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $fo
 }
 
 // Navigation API.
-
-/**
- * Extends the global navigation tree by adding quizgame nodes if there is a relevant content
- *
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
- * @param navigation_node $navref An object representing the navigation tree node of the quizgame module instance
- * @param stdclass $course The course in which navigation is currently being extended
- * @param stdclass $module The module in which navigation is currently being extended
- * @param cm_info $cm The course module info
- * @return void
- */
-function quizgame_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm) {
-}
 
 /**
  * Extends the settings navigation with the quizgame settings

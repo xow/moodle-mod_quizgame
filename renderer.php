@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The main renderer for mod_quizgame
  *
@@ -40,10 +38,9 @@ class mod_quizgame_renderer extends plugin_renderer_base {
      * @return string The HTML code of the game
      */
     public function render_game($quizgame, $context) {
-        global $DB;
 
         $categoryid = explode(',', $quizgame->questioncategory)[0];
-        $questionids = array_keys($DB->get_records('question', array('category' => intval($categoryid)), '', 'id'));
+        $questionids = question_bank::get_finder()->get_questions_from_categories(intval($categoryid), '');
         $questions = question_load_questions($questionids);
 
         $this->page->requires->strings_for_js(array(
@@ -84,7 +81,11 @@ class mod_quizgame_renderer extends plugin_renderer_base {
 
         $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson, $quizgame->id));
 
-        $display = '<canvas id="mod_quizgame_game"></canvas>';
+        $display = '<div>';
+        $display .= get_string('howtoplay', 'mod_quizgame') . $this->output->help_icon('howtoplay', 'mod_quizgame', '');
+        $display .= '</div>';
+
+        $display .= '<canvas id="mod_quizgame_game"></canvas>';
         $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">'.
                     '<source src="sound/Laser.wav" type="audio/wav" />'.
                     '</audio>';
@@ -101,6 +102,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         $display .= '<div id="button_container">';
         $display .= '<input id="mod_quizgame_fullscreen_button" class= "btn btn-secondary" type="button" value="' .
                     get_string('fullscreen', 'mod_quizgame') . '">';
+        $display .= ' &nbsp ';
         $display .= html_writer::checkbox('sound', '', false,
                                           get_string('sound', 'mod_quizgame'),
                                           array('id' => 'mod_quizgame_sound_on'));

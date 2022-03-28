@@ -23,7 +23,6 @@
  */
 
 namespace mod_quizgame\event;
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * The mod_quizgame game_started event class.

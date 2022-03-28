@@ -67,7 +67,7 @@ class mod_quizgame_mod_form extends moodleform_mod {
         }
 
         $context = context_course::instance($COURSE->id);
-        $categories = question_category_options(array($context), false, 0);
+        $categories = qbank_managecategories\helper::question_category_options(array($context), false, 0);
 
         $mform->addElement('selectgroups', 'questioncategory', get_string('questioncategory', 'quizgame'), $categories);
         $mform->addHelpButton('questioncategory', 'questioncategory', 'quizgame');

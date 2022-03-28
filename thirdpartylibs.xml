@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>lib/audiowide</location>
+    <name>Audiowide Font</name>
+    <version>14</version>
+    <license>SIL OFL</license>
+    <licenseversion>1.1</licenseversion>
+  </library>
+</libraries>
+

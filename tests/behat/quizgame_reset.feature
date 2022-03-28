@@ -39,14 +39,14 @@ Feature: Quizgame reset
     And I should see "10110" in the "Student 1" "table_row"
     And I should see "20202" in the "Student 2" "table_row"
     And I am on "Course 1" course homepage
-    And I navigate to "Reset" in current page administration
+    And I am on the "Course 1" "reset" page
     And I set the following fields to these values:
         | id_reset_quizgame_scores | 1 |
     And I press "Reset course"
     And I should see "Remove all user scores"
     Then I should see "OK"
     And I press "Continue"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test quizgame name"
     And I follow "View all attempts"
     And I should not see "10110"
