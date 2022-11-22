@@ -317,7 +317,7 @@ function quizgame_get_extra_capabilities() {
 function quizgame_scale_used($quizgameid, $scaleid) {
     global $DB;
 
-    if ($scaleid and $DB->record_exists('quizgame', array('id' => $quizgameid, 'grade' => -$scaleid))) {
+    if ($scaleid && $DB->record_exists('quizgame', array('id' => $quizgameid, 'grade' => -$scaleid))) {
         return true;
     } else {
         return false;
