@@ -43,14 +43,14 @@ class backup_quizgame_activity_structure_step extends backup_activity_structure_
         $userinfo = $this->get_setting_value('userinfo');
 
         // Define each element separated.
-        $quizgame = new backup_nested_element('quizgame', array('id'), array(
-            'course', 'name', 'intro', 'introformat', 'timecreated',
-            'timemodified', 'questioncategory', 'grade', 'completionscore'));
+        $quizgame = new backup_nested_element('quizgame', ['id'],
+            ['course', 'name', 'intro', 'introformat', 'timecreated',
+            'timemodified', 'questioncategory', 'grade', 'completionscore', ]);
 
         $scores = new backup_nested_element('scores');
 
-        $score = new backup_nested_element('score', array('id'), array(
-            'quizgameid', 'userid', 'score', 'timecreated'));
+        $score = new backup_nested_element('score', ['id'],
+            ['quizgameid', 'userid', 'score', 'timecreated']);
         // Build the tree.
 
         $quizgame->add_child($scores);
@@ -58,7 +58,7 @@ class backup_quizgame_activity_structure_step extends backup_activity_structure_
 
         // Define sources.
 
-        $quizgame->set_source_table('quizgame', array('id' => backup::VAR_ACTIVITYID));
+        $quizgame->set_source_table('quizgame', ['id' => backup::VAR_ACTIVITYID]);
 
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
@@ -67,7 +67,7 @@ class backup_quizgame_activity_structure_step extends backup_activity_structure_
             SELECT *
               FROM {quizgame_scores}
              WHERE quizgameid = ?',
-            array(backup::VAR_PARENTID));
+            [backup::VAR_PARENTID]);
 
         }
 

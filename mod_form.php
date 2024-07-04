@@ -49,7 +49,7 @@ class mod_quizgame_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('quizgamename', 'quizgame'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('quizgamename', 'quizgame'), ['size' => '64']);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -67,7 +67,7 @@ class mod_quizgame_mod_form extends moodleform_mod {
         }
 
         $context = context_course::instance($COURSE->id);
-        $categories = qbank_managecategories\helper::question_category_options(array($context), false, 0);
+        $categories = qbank_managecategories\helper::question_category_options([$context], false, 0);
 
         $mform->addElement('selectgroups', 'questioncategory', get_string('questioncategory', 'quizgame'), $categories);
         $mform->addHelpButton('questioncategory', 'questioncategory', 'quizgame');
@@ -84,16 +84,16 @@ class mod_quizgame_mod_form extends moodleform_mod {
      */
     public function add_completion_rules() {
         $mform =& $this->_form;
-        $group = array();
+        $group = [];
         $group[] =& $mform->createElement('checkbox', 'completionscoreenabled', '',
                 get_string('completionscore', 'quizgame'));
-        $group[] =& $mform->createElement('text', 'completionscore', '', array('size' => 3));
+        $group[] =& $mform->createElement('text', 'completionscore', '', ['size' => 3]);
         $mform->setType('completionscore', PARAM_INT);
         $mform->addGroup($group, 'completionscoregroup',
-                get_string('completionscoregroup', 'quizgame'), array(' '), false);
+                get_string('completionscoregroup', 'quizgame'), [' '], false);
         $mform->disabledIf('completionscore', 'completionscoreenabled', 'notchecked');
         $mform->addHelpButton('completionscoregroup', 'completionscoregroup', 'quizgame');
-        return array('completionscoregroup');
+        return ['completionscoregroup'];
     }
 
     /**

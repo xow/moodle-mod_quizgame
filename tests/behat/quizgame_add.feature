@@ -26,8 +26,7 @@ Feature: Teachers can create a quizgame activity for students to review content
   @javascript
   Scenario: Create the activity.
     Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    When I add a "Quizventure" to section "1" and I fill the form with:
+    And I add a quizgame activity to course "Course 1" section "1" and I fill the form with:
       | Quizventure name  | Test quizventure name        |
       | Description       | Test quizventure description |
       | ID number         | Test quizventure name        |

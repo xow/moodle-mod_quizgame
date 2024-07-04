@@ -26,22 +26,22 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$functions = array(
+$functions = [
 
-    'mod_quizgame_update_score' => array(
+    'mod_quizgame_update_score' => [
         'classname'     => 'mod_quizgame_external',
         'methodname'    => 'update_score',
         'description'   => 'Record the score and write to the database.',
         'type'          => 'write',
         'ajax'          => true,
         'capabilities'  => 'mod/quizgame:view',
-    ),
-        'mod_quizgame_start_game' => array(
+    ],
+        'mod_quizgame_start_game' => [
         'classname'     => 'mod_quizgame_external',
         'methodname'    => 'start_game',
         'description'   => 'Log the player starting the game',
         'type'          => 'write',
         'ajax'          => true,
         'capabilities'  => 'mod/quizgame:view',
-    )
-);
+    ],
+];

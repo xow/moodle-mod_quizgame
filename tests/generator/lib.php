@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Let codechecker ignore the sniff for this file for nullable types since the super method of
+// create_instance is not yet rewritten and mod_quizgame_generator::create_instance must have an identical signature.
+// phpcs:disable PHPCompatibility.FunctionDeclarations.RemovedImplicitlyNullableParam.Deprecated
+
 /**
  * mod_quizgame data generator class.
  *
@@ -26,17 +30,17 @@ class mod_quizgame_generator extends testing_module_generator {
 
     /**
      * Create an instance of mod_quizgame with some default settings
-     * @param object $record
-     * @param array $options
+     * @param array|stdClass $record quizgame settings
+     * @param null|array $options quizgame options
      */
     public function create_instance($record = null, array $options = null) {
 
         // Add default values for quizgame.
-        $record = (array)$record + array(
+        $record = (array)$record + [
             'questioncategory' => 0,
             'grade' => 100,
             'completionscore' => 0,
-        );
+        ];
 
         return parent::create_instance($record, (array)$options);
     }
@@ -47,18 +51,18 @@ class mod_quizgame_generator extends testing_module_generator {
      * @param array $record quizgame settings
      * @return object
      */
-    public function create_content($quizgame, $record = array()) {
+    public function create_content($quizgame, $record = []) {
         global $DB, $USER;
         $now = time();
-        $record = (array)$record + array(
+        $record = (array)$record + [
             'quizgameid' => $quizgame->id,
             'timecreated' => $now,
             'userid' => $USER->id,
             'score' => mt_rand (0, 50000),
-        );
+        ];
 
         $id = $DB->insert_record('quizgame_scores', $record);
 
-        return $DB->get_record('quizgame_scores', array('id' => $id), '*', MUST_EXIST);
+        return $DB->get_record('quizgame_scores', ['id' => $id], '*', MUST_EXIST);
     }
 }

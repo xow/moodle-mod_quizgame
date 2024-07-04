@@ -37,7 +37,7 @@ require_once($CFG->libdir . '/tablelib.php');
 class table_scores extends table_sql {
 
     /** @var array list of user fullnames shown in report */
-    private $userfullnames = array();
+    private $userfullnames = [];
 
     /**
      * Constructor
@@ -47,11 +47,11 @@ class table_scores extends table_sql {
     public function __construct($uniqueid) {
         parent::__construct($uniqueid);
         // Define the list of columns to show.
-        $columns = array('userid', 'score', 'timecreated');
+        $columns = ['userid', 'score', 'timecreated'];
         $this->define_columns($columns);
 
         // Define the titles of columns to show in header.
-        $headers = array(get_string('user'), get_string('scoreheader', 'mod_quizgame'), get_string('date'));
+        $headers = [get_string('user'), get_string('scoreheader', 'mod_quizgame'), get_string('date')];
         $this->define_headers($headers);
     }
 

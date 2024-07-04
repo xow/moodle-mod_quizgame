@@ -50,9 +50,9 @@ class mod_quizgame_external extends external_api {
         // The external_function_parameters constructor expects an array of external_description.
         return new external_function_parameters(
             // An external_description can be: external_value, external_single_structure or external_multiple structure.
-            array('quizgameid' => new external_value(PARAM_INT, 'quizgame instance ID'),
+            ['quizgameid' => new external_value(PARAM_INT, 'quizgame instance ID'),
                 'score' => new external_value(PARAM_INT, 'Player final score'),
-                )
+                ]
         );
     }
 
@@ -65,18 +65,18 @@ class mod_quizgame_external extends external_api {
     public static function update_score($quizgameid, $score) {
 
         global $DB;
-        $warnings = array();
+        $warnings = [];
         $params = self::validate_parameters(self::update_score_parameters(),
-                                            array(
+                                            [
                                                 'quizgameid' => $quizgameid,
-                                                'score' => $score
-                                            ));
-        if (!$quizgame = $DB->get_record("quizgame", array("id" => $params['quizgameid']))) {
+                                                'score' => $score,
+                                            ]);
+        if (!$quizgame = $DB->get_record("quizgame", ["id" => $params['quizgameid']])) {
             throw new moodle_exception("invalidcoursemodule", "error");
         }
 
         $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, 0, false, MUST_EXIST);
-        $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
         // Validate the context and check capabilities.
         $context = context_module::instance($cm->id);
@@ -109,7 +109,7 @@ class mod_quizgame_external extends external_api {
         // The external_function_parameters constructor expects an array of external_description.
         return new external_function_parameters(
             // An external_description can be: external_value, external_single_structure or external_multiple structure.
-            array('quizgameid' => new external_value(PARAM_INT, 'quizgame instance ID'))
+            ['quizgameid' => new external_value(PARAM_INT, 'quizgame instance ID')]
         );
     }
 
@@ -121,16 +121,16 @@ class mod_quizgame_external extends external_api {
     public static function start_game($quizgameid) {
 
         global $DB;
-        $warnings = array();
+        $warnings = [];
         $params = self::validate_parameters(self::start_game_parameters(),
-                                            array('quizgameid' => $quizgameid)
+                                            ['quizgameid' => $quizgameid]
                                             );
-        if (!$quizgame = $DB->get_record("quizgame", array("id" => $params['quizgameid']))) {
+        if (!$quizgame = $DB->get_record("quizgame", ["id" => $params['quizgameid']])) {
             throw new moodle_exception("invalidcoursemodule", "error");
         }
 
         $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, 0, false, MUST_EXIST);
-        $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 
         // Validate the context and check capabilities.
         $context = context_module::instance($cm->id);

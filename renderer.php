@@ -43,12 +43,12 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         $questionids = question_bank::get_finder()->get_questions_from_categories(intval($categoryid), '');
         $questions = question_load_questions($questionids);
 
-        $this->page->requires->strings_for_js(array(
-                'score',
+        $this->page->requires->strings_for_js(
+                ['score',
                 'emptyquiz',
                 'endofgame',
-                'spacetostart'
-            ), 'mod_quizgame');
+                'spacetostart',
+                ], 'mod_quizgame');
 
         $qjson = [];
         foreach ($questions as $question) {
@@ -65,7 +65,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
                     $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype];
                 } else {
                     $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype,
-                        "single" => $question->qtype == "multichoice" && $question->options->single == 1];
+                        "single" => $question->qtype == "multichoice" && $question->options->single == 1, ];
                 }
             }
             if ($question->qtype == "match") {
@@ -79,7 +79,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
             }
         }
 
-        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', array($qjson, $quizgame->id));
+        $this->page->requires->js_call_amd('mod_quizgame/quizgame', 'init', [$qjson, $quizgame->id]);
 
         $display = '<div>';
         $display .= get_string('howtoplay', 'mod_quizgame') . $this->output->help_icon('howtoplay', 'mod_quizgame', '');
@@ -105,7 +105,7 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         $display .= ' &nbsp ';
         $display .= html_writer::checkbox('sound', '', false,
                                           get_string('sound', 'mod_quizgame'),
-                                          array('id' => 'mod_quizgame_sound_on'));
+                                          ['id' => 'mod_quizgame_sound_on']);
         $display .= '</div>';
 
         return $display;
@@ -118,11 +118,11 @@ class mod_quizgame_renderer extends plugin_renderer_base {
      */
     public function render_score_link($quizgame) {
 
-        $url = new moodle_url('/mod/quizgame/scores.php', array('id' => $quizgame->id));
+        $url = new moodle_url('/mod/quizgame/scores.php', ['id' => $quizgame->id]);
         $scorestring = get_string('scoreslink', 'quizgame');
         $scorestringhelp = get_string('scoreslinkhelp', 'quizgame');
-        $display = html_writer::start_tag('div', array('class' => 'quizgame-scores'));
-        $display .= html_writer::tag('a', $scorestring, array('title' => $scorestringhelp, 'href' => $url));
+        $display = html_writer::start_tag('div', ['class' => 'quizgame-scores']);
+        $display .= html_writer::tag('a', $scorestring, ['title' => $scorestringhelp, 'href' => $url]);
         $display .= html_writer::end_tag('div');
         return $display;
     }

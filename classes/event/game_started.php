@@ -57,7 +57,7 @@ class game_started extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/quizgame/view.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/quizgame/view.php', ['id' => $this->contextinstanceid]);
     }
 
     /**
@@ -74,6 +74,6 @@ class game_started extends \core\event\base {
      * @return array
      */
     public static function get_objectid_mapping() {
-        return array('db' => 'quizgame', 'restore' => 'quizgame');
+        return ['db' => 'quizgame', 'restore' => 'quizgame'];
     }
 }

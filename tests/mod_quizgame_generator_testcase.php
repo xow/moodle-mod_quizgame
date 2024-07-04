@@ -45,15 +45,15 @@ class mod_quizgame_generator_testcase extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
 
-        $this->assertFalse($DB->record_exists('quizgame', array('course' => $course->id)));
-        $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
-        $records = $DB->get_records('quizgame', array('course' => $course->id), 'id');
+        $this->assertFalse($DB->record_exists('quizgame', ['course' => $course->id]));
+        $quizgame = $this->getDataGenerator()->create_module('quizgame', ['course' => $course]);
+        $records = $DB->get_records('quizgame', ['course' => $course->id], 'id');
         $this->assertCount(1, $records);
         $this->assertTrue(array_key_exists($quizgame->id, $records));
 
-        $params = array('course' => $course->id, 'name' => 'Another quizgame');
+        $params = ['course' => $course->id, 'name' => 'Another quizgame'];
         $quizgame = $this->getDataGenerator()->create_module('quizgame', $params);
-        $records = $DB->get_records('quizgame', array('course' => $course->id), 'id');
+        $records = $DB->get_records('quizgame', ['course' => $course->id], 'id');
         $this->assertCount(2, $records);
         $this->assertEquals('Another quizgame', $records[$quizgame->id]->name);
     }
@@ -67,12 +67,12 @@ class mod_quizgame_generator_testcase extends \advanced_testcase {
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();
-        $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
+        $quizgame = $this->getDataGenerator()->create_module('quizgame', ['course' => $course]);
         $quizgamegenerator = $this->getDataGenerator()->get_plugin_generator('mod_quizgame');
 
         $playthrough1 = $quizgamegenerator->create_content($quizgame);
-        $playthrough2 = $quizgamegenerator->create_content($quizgame, array('score' => 3550));
-        $records = $DB->get_records('quizgame_scores', array('quizgameid' => $quizgame->id), 'id');
+        $playthrough2 = $quizgamegenerator->create_content($quizgame, ['score' => 3550]);
+        $records = $DB->get_records('quizgame_scores', ['quizgameid' => $quizgame->id], 'id');
         $this->assertCount(2, $records);
         $this->assertEquals($playthrough1->id, $records[$playthrough1->id]->id);
         $this->assertEquals($playthrough2->id, $records[$playthrough2->id]->id);
