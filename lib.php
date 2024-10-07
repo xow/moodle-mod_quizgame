@@ -65,10 +65,10 @@ function quizgame_supports($feature) {
  * of the new instance.
  *
  * @param stdClass $quizgame An object from the form in mod_form.php
- * @param mod_quizgame_mod_form $mform The add instance form
+ * @param ?mod_quizgame_mod_form $mform The add instance form
  * @return int The id of the newly inserted quizgame record
  */
-function quizgame_add_instance(stdClass $quizgame, mod_quizgame_mod_form $mform = null) {
+function quizgame_add_instance(stdClass $quizgame, ?mod_quizgame_mod_form $mform = null) {
     global $DB;
 
     $quizgame->timecreated = time();
@@ -86,10 +86,10 @@ function quizgame_add_instance(stdClass $quizgame, mod_quizgame_mod_form $mform 
  * will update an existing instance with new data.
  *
  * @param stdClass $quizgame An object from the form in mod_form.php
- * @param mod_quizgame_mod_form $mform
+ * @param ?mod_quizgame_mod_form $mform The add instance form
  * @return boolean Success/Fail
  */
-function quizgame_update_instance(stdClass $quizgame, mod_quizgame_mod_form $mform = null) {
+function quizgame_update_instance(stdClass $quizgame, ?mod_quizgame_mod_form $mform = null) {
     global $DB;
 
     $quizgame->timemodified = time();
@@ -111,12 +111,12 @@ function quizgame_update_instance(stdClass $quizgame, mod_quizgame_mod_form $mfo
 function quizgame_delete_instance($id) {
     global $DB;
 
-    if (! $quizgame = $DB->get_record('quizgame', array('id' => $id))) {
+    if (! $quizgame = $DB->get_record('quizgame', ['id' => $id])) {
         return false;
     }
 
-    $DB->delete_records('quizgame', array('id' => $quizgame->id));
-    $DB->delete_records('quizgame_scores', array('quizgameid' => $quizgame->id));
+    $DB->delete_records('quizgame', ['id' => $quizgame->id]);
+    $DB->delete_records('quizgame_scores', ['quizgameid' => $quizgame->id]);
 
     return true;
 }
@@ -137,12 +137,12 @@ function quizgame_delete_instance($id) {
 function quizgame_user_outline($course, $user, $mod, $quizgame) {
 
     global $DB;
-    if ($game = $DB->count_records('quizgame_scores', array('quizgameid' => $quizgame->id, 'userid' => $user->id))) {
+    if ($game = $DB->count_records('quizgame_scores', ['quizgameid' => $quizgame->id, 'userid' => $user->id])) {
         $result = new stdClass();
 
         if ($game > 0) {
             $games = $DB->get_records('quizgame_scores',
-                    array('quizgameid' => $quizgame->id, 'userid' => $user->id), 'timecreated DESC', '*', 0, 1);
+                    ['quizgameid' => $quizgame->id, 'userid' => $user->id], 'timecreated DESC', '*', 0, 1);
             foreach ($games as $last) {
                 $data = new stdClass();
                 $data->score = $last->score;
@@ -175,7 +175,7 @@ function quizgame_user_complete($course, $user, $mod, $quizgame) {
     global $DB;
 
     if ($games = $DB->get_records('quizgame_scores',
-            array('quizgameid' => $quizgame->id, 'userid' => $user->id),
+            ['quizgameid' => $quizgame->id, 'userid' => $user->id],
             'timecreated ASC')) {
         $attempt = 1;
         foreach ($games as $game) {
@@ -205,7 +205,7 @@ function quizgame_get_completion_state($course, $cm, $userid, $type) {
     global $DB;
 
     // Get quizgame details.
-    if (!($quizgame = $DB->get_record('quizgame', array('id' => $cm->instance)))) {
+    if (!($quizgame = $DB->get_record('quizgame', ['id' => $cm->instance]))) {
         throw new Exception("Can't find quizgame {$cm->instance}");
     }
 
@@ -213,11 +213,11 @@ function quizgame_get_completion_state($course, $cm, $userid, $type) {
     $result = $type;
     if ($quizgame->completionscore) {
         $where = ' quizgameid = :quizgameid AND userid = :userid AND score >= :score';
-        $params = array(
+        $params = [
             'quizgameid' => $quizgame->id,
             'userid' => $userid,
             'score' => $quizgame->completionscore,
-        );
+        ];
         $value = $DB->count_records_select('quizgame_scores', $where, $params) > 0;
         if ($type == COMPLETION_AND) {
             $result = $result && $value;
@@ -292,11 +292,11 @@ function quizgame_cron () {
 /**
  * Returns all other caps used in the module
  *
- * e.g. array('moodle/site:accessallgroups');
+ * e.g. ['moodle/site:accessallgroups'];
  * @return array of capabilities used in the module
  */
 function quizgame_get_extra_capabilities() {
-    return array();
+    return [];
 }
 
 // Gradebook API.
@@ -317,7 +317,7 @@ function quizgame_get_extra_capabilities() {
 function quizgame_scale_used($quizgameid, $scaleid) {
     global $DB;
 
-    if ($scaleid && $DB->record_exists('quizgame', array('id' => $quizgameid, 'grade' => -$scaleid))) {
+    if ($scaleid && $DB->record_exists('quizgame', ['id' => $quizgameid, 'grade' => -$scaleid])) {
         return true;
     } else {
         return false;
@@ -350,7 +350,7 @@ function quizgame_grade_item_update(stdClass $quizgame, $grades=null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
-    $item = array();
+    $item = [];
     $item['itemname'] = clean_param($quizgame->name, PARAM_NOTAGS);
     $item['gradetype'] = GRADE_TYPE_VALUE;
     $item['grademax']  = $quizgame->grade;
@@ -372,7 +372,7 @@ function quizgame_update_grades(stdClass $quizgame, $userid = 0) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
-    $grades = array(); // Populate array of grade objects indexed by userid.
+    $grades = []; // Populate array of grade objects indexed by userid.
 
     grade_update('mod/quizgame', $quizgame->course, 'mod', 'quizgame', $quizgame->id, 0, $grades);
 }
@@ -391,7 +391,7 @@ function quizgame_update_grades(stdClass $quizgame, $userid = 0) {
  * @return array of [(string)filearea] => (string)description
  */
 function quizgame_get_file_areas($course, $cm, $context) {
-    return array();
+    return [];
 }
 
 /**
@@ -429,7 +429,7 @@ function quizgame_get_file_info($browser, $areas, $course, $cm, $context, $filea
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
  */
-function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
+function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=[]) {
 
     if ($context->contextlevel != CONTEXT_MODULE) {
         send_file_not_found();
@@ -449,9 +449,9 @@ function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $fo
  * so it is safe to rely on the $PAGE.
  *
  * @param settings_navigation $settingsnav {settings_navigation}
- * @param navigation_node $quizgamenode {navigation_node}
+ * @param ?navigation_node $quizgamenode {navigation_node}
  */
-function quizgame_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $quizgamenode=null) {
+function quizgame_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $quizgamenode=null) {
 }
 
 /**
@@ -472,7 +472,7 @@ function quizgame_reset_course_form_definition(&$mform) {
  * @return array
  */
 function quizgame_reset_course_form_defaults($course) {
-    return array('reset_quizgame_scores' => 1);
+    return ['reset_quizgame_scores' => 1];
 
 }
 
@@ -486,15 +486,15 @@ function quizgame_reset_course_form_defaults($course) {
 function quizgame_reset_userdata($data) {
     global $DB;
         $componentstr = get_string('modulenameplural', 'quizgame');
-        $status = array();
+        $status = [];
 
     if (!empty($data->reset_quizgame_scores)) {
         $scoresql = "SELECT qg.id
                      FROM {quizgame} qg
                      WHERE qg.course=?";
 
-        $DB->delete_records_select('quizgame_scores', "quizgameid IN ($scoresql)", array($data->courseid));
-        $status[] = array('component' => $componentstr, 'item' => get_string('removescores', 'quizgame'), 'error' => false);
+        $DB->delete_records_select('quizgame_scores', "quizgameid IN ($scoresql)", [$data->courseid]);
+        $status[] = ['component' => $componentstr, 'item' => get_string('removescores', 'quizgame'), 'error' => false];
     }
 
     return $status;
@@ -514,7 +514,7 @@ function quizgame_reset_gradebook($courseid, $type='') {
               FROM {quizgame} g, {course_modules} cm, {modules} m
              WHERE m.name='quizgame' AND m.id=cm.module AND cm.instance=g.id AND g.course=?";
 
-    if ($quizgames = $DB->get_records_sql($sql, array($courseid))) {
+    if ($quizgames = $DB->get_records_sql($sql, [$courseid])) {
         foreach ($quizgames as $quizgame) {
             quizgame_grade_item_update($quizgame, 'reset');
         }

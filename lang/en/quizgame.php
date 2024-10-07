@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * English strings for quizgame
  *
@@ -27,6 +26,10 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+// Let codechecker ignore some sniffs for this file as it is perfectly well ordered, just not alphabetically.
+// phpcs:disable moodle.Files.LangFilesOrdering.UnexpectedComment
+// phpcs:disable moodle.Files.LangFilesOrdering.IncorrectOrder
 
 $string['achievedhighscoreof'] = 'Achieved a high score of {$a}';
 $string['attempt'] = 'Attempt #{$a}';
@@ -60,7 +63,6 @@ Quizventure is an activity module that loads quiz questions from the course it\'
 $string['modulenameplural'] = 'Quizventure games';
 $string['modulename'] = 'Quizventure';
 $string['notyetplayed'] = 'Not yet played';
-$string['achievedhighscoreof'] = 'Achieved a high score of {$a}';
 $string['playedxtimeswithhighscore'] = 'Played {$a->times} times. The last game ended with a high score of {$a->score}';
 $string['pluginadministration'] = 'Quizventure administration';
 $string['pluginname'] = 'Quizventure';

@@ -35,7 +35,7 @@ use mod_quizgame\privacy\provider;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \mod_quizgame\privacy\provider
  */
-class provider_test extends \core_privacy\tests\provider_testcase {
+final class provider_test extends \core_privacy\tests\provider_testcase {
     /** @var stdClass The student object. */
     protected $student;
 
@@ -49,12 +49,13 @@ class provider_test extends \core_privacy\tests\provider_testcase {
      * {@inheritdoc}
      */
     protected function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
 
         global $DB;
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
-        $quizgame = $this->getDataGenerator()->create_module('quizgame', array('course' => $course));
+        $quizgame = $this->getDataGenerator()->create_module('quizgame', ['course' => $course]);
 
         // Create a quizgame activity.
         $quizgamegenerator = $this->getDataGenerator()->get_plugin_generator('mod_quizgame');
@@ -65,7 +66,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         $generator->enrol_user($student->id,  $course->id, $studentrole->id);
 
         // Have the student play through the game.
-        $playthrough = $quizgamegenerator->create_content($quizgame, array('userid' => $student->id, 'score' => '9999'));
+        $playthrough = $quizgamegenerator->create_content($quizgame, ['userid' => $student->id, 'score' => '9999']);
 
         $this->student = $student;
         $this->quizgame = $quizgame;
@@ -75,7 +76,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::get_metadata().
      */
-    public function test_get_metadata() {
+    public function test_get_metadata(): void {
         $collection = new collection('mod_quizgame');
         $newcollection = provider::get_metadata($collection);
         $itemcollection = $newcollection->get_collection();
@@ -96,7 +97,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::get_contexts_for_userid().
      */
-    public function test_get_contexts_for_userid() {
+    public function test_get_contexts_for_userid(): void {
         $cm = get_coursemodule_from_instance('quizgame', $this->quizgame->id);
 
         $contextlist = provider::get_contexts_for_userid($this->student->id);
@@ -109,7 +110,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::export_user_data().
      */
-    public function test_export_for_context() {
+    public function test_export_for_context(): void {
         $cm = get_coursemodule_from_instance('quizgame', $this->quizgame->id);
         $cmcontext = \context_module::instance($cm->id);
 
@@ -122,7 +123,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::delete_data_for_all_users_in_context().
      */
-    public function test_delete_data_for_all_users_in_context() {
+    public function test_delete_data_for_all_users_in_context(): void {
         global $DB;
 
         $quizgame = $this->quizgame;
@@ -134,7 +135,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         $student = $generator->create_user();
         $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $generator->enrol_user($student->id, $this->course->id, $studentrole->id);
-        $playthrough = $quizgamegenerator->create_content($quizgame, array('userid' => $student->id, 'score' => '100001'));
+        $playthrough = $quizgamegenerator->create_content($quizgame, ['userid' => $student->id, 'score' => '100001']);
 
         // Before deletion, we should have 2 responses.
         $count = $DB->count_records('quizgame_scores', ['quizgameid' => $quizgame->id]);
@@ -152,7 +153,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
     /**
      * Test for provider::delete_data_for_user().
      */
-    public function test_delete_data_for_user_() {
+    public function test_delete_data_for_user_(): void {
         global $DB;
 
         $quizgame = $this->quizgame;
@@ -160,20 +161,20 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         $cm1 = get_coursemodule_from_instance('quizgame', $this->quizgame->id);
 
         // Create a second quizgame activity.
-        $params = array('course' => $this->course->id, 'name' => 'Another quizgame');
+        $params = ['course' => $this->course->id, 'name' => 'Another quizgame'];
         $plugingenerator = $generator->get_plugin_generator('mod_quizgame');
         $quizgame2 = $plugingenerator->create_instance($params);
         $plugingenerator->create_instance($params);
         $cm2 = get_coursemodule_from_instance('quizgame', $quizgame2->id);
 
         // Make a playthrough for the first student in the 2nd quizgame activity.
-        $playthrough = $plugingenerator->create_content($quizgame2, array('userid' => $this->student->id, 'score' => '100'));
+        $playthrough = $plugingenerator->create_content($quizgame2, ['userid' => $this->student->id, 'score' => '100']);
 
         // Create another student who will play the first quizgame activity.
         $otherstudent = $generator->create_user();
         $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $generator->enrol_user($otherstudent->id, $this->course->id, $studentrole->id);
-        $playthrough2 = $plugingenerator->create_content($quizgame, array('userid' => $otherstudent->id, 'score' => '999'));
+        $playthrough2 = $plugingenerator->create_content($quizgame, ['userid' => $otherstudent->id, 'score' => '999']);
 
         // Before deletion, we should have 2 responses.
         $count = $DB->count_records('quizgame_scores', ['quizgameid' => $quizgame->id]);

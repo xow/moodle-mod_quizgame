@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Steps definitions related to mod_quiz.
  *
@@ -52,7 +53,7 @@ class behat_mod_quizgame extends behat_base {
         $user = $DB->get_record('user', ['username' => $username], '*', MUST_EXIST);
 
         $this->set_user($user);
-        $attemptdata = array();
+        $attemptdata = [];
         if (isset($user->id)) {
             $attemptdata['userid'] = $user->id;
         }

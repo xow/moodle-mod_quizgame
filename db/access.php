@@ -46,39 +46,39 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
+$capabilities = [
 
-    'mod/quizgame:addinstance' => array(
+    'mod/quizgame:addinstance' => [
             'riskbitmask' => RISK_XSS,
             'captype' => 'write',
             'contextlevel' => CONTEXT_COURSE,
-            'archetypes' => array(
+            'archetypes' => [
                     'editingteacher' => CAP_ALLOW,
-                    'manager' => CAP_ALLOW
-            ),
-            'clonepermissionsfrom' => 'moodle/course:manageactivities'
-    ),
+                    'manager' => CAP_ALLOW,
+            ],
+            'clonepermissionsfrom' => 'moodle/course:manageactivities',
+    ],
 
-    'mod/quizgame:view' => array(
+    'mod/quizgame:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
+        'legacy' => [
             'guest' => CAP_ALLOW,
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 
-    'mod/quizgame:viewallscores' => array(
+    'mod/quizgame:viewallscores' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
                 'editingteacher' => CAP_ALLOW,
                 'teacher' => CAP_ALLOW,
-                'manager' => CAP_ALLOW
-        ),
-    ),
-);
+                'manager' => CAP_ALLOW,
+        ],
+    ],
+];
 

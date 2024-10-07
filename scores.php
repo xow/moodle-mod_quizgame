@@ -30,8 +30,8 @@ $id = optional_param('id', 0, PARAM_INT); // The Quizgame instance.
 $download = optional_param('download', '', PARAM_ALPHA);
 
 if ($id) {
-    $quizgame  = $DB->get_record('quizgame', array('id' => $id), '*', MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $quizgame->course), '*', MUST_EXIST);
+    $quizgame  = $DB->get_record('quizgame', ['id' => $id], '*', MUST_EXIST);
+    $course     = $DB->get_record('course', ['id' => $quizgame->course], '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('quizgame', $quizgame->id, $course->id, false, MUST_EXIST);
 } else {
     error('You must specify a course_module ID or an instance ID');
@@ -43,16 +43,18 @@ require_capability('mod/quizgame:viewallscores', $context);
 
 
 // Trigger scores viewed event.
-$event = \mod_quizgame\event\game_scores_viewed::create(array(
+$event = \mod_quizgame\event\game_scores_viewed::create(
+    [
     'objectid' => $quizgame->id,
     'context' => $context,
-));
+    ]
+);
 
 $event->add_record_snapshot('quizgame', $quizgame);
 $event->trigger();
 
 // Print the page header.
-$PAGE->set_url('/mod/quizgame/scores.php', array('id' => $quizgame->id));
+$PAGE->set_url('/mod/quizgame/scores.php', ['id' => $quizgame->id]);
 $PAGE->set_context($context);
 
 // Generate the table.
@@ -63,7 +65,7 @@ if (!$table->is_downloading()) {
     // Print the page header.
     $PAGE->set_title(format_string($quizgame->name));
     $PAGE->set_heading(format_string($course->fullname));
-    $url = new moodle_url('/mod/quizgame/scores.php', array('id' => $quizgame->id));
+    $url = new moodle_url('/mod/quizgame/scores.php', ['id' => $quizgame->id]);
     $PAGE->navbar->add(get_string('playerscores', 'mod_quizgame'), $url);
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('modulename', 'mod_quizgame'));
@@ -71,12 +73,12 @@ if (!$table->is_downloading()) {
 
 // Work out the sql for the table.
 $sqlconditions = 'quizgameid = :quizgameid';
-$sqlparams = array('quizgameid' => $quizgame->id);
+$sqlparams = ['quizgameid' => $quizgame->id];
 $table->set_sql('*', "{quizgame_scores}", $sqlconditions, $sqlparams);
 
 $table->define_baseurl($PAGE->url);
-$columns = array('userid', 'score', 'timecreated');
-$headers = array(get_string('user'), get_string('scoreheader', 'mod_quizgame'), get_string('date'));
+$columns = ['userid', 'score', 'timecreated'];
+$headers = [get_string('user'), get_string('scoreheader', 'mod_quizgame'), get_string('date')];
 $table->define_columns($columns);
 $table->define_headers($headers);
 $table->sortable(true, 'timecreated', SORT_DESC);

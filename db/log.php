@@ -30,9 +30,9 @@ defined('MOODLE_INTERNAL') || die();
 
 global $DB;
 
-$logs = array(
-    array('module' => 'quizgame', 'action' => 'add', 'mtable' => 'quizgame', 'field' => 'name'),
-    array('module' => 'quizgame', 'action' => 'update', 'mtable' => 'quizgame', 'field' => 'name'),
-    array('module' => 'quizgame', 'action' => 'view', 'mtable' => 'quizgame', 'field' => 'name'),
-    array('module' => 'quizgame', 'action' => 'view all', 'mtable' => 'quizgame', 'field' => 'name')
-);
+$logs = [
+    ['module' => 'quizgame', 'action' => 'add', 'mtable' => 'quizgame', 'field' => 'name'],
+    ['module' => 'quizgame', 'action' => 'update', 'mtable' => 'quizgame', 'field' => 'name'],
+    ['module' => 'quizgame', 'action' => 'view', 'mtable' => 'quizgame', 'field' => 'name'],
+    ['module' => 'quizgame', 'action' => 'view all', 'mtable' => 'quizgame', 'field' => 'name'],
+];

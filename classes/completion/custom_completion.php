@@ -48,11 +48,11 @@ class custom_completion extends activity_custom_completion {
         $completionscore = $this->cm->customdata['customcompletionrules']['completionscore'];
 
         $where = ' quizgameid = :quizgameid AND userid = :userid AND score >= :score';
-        $params = array(
+        $params = [
             'quizgameid' => $quizgameid,
             'userid' => $userid,
             'score' => $completionscore,
-        );
+        ];
             $highscore = $DB->count_records_select('quizgame_scores', $where, $params) > 0;
 
         return ($highscore >= 1) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;

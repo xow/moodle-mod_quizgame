@@ -38,7 +38,7 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
      */
     protected function define_structure() {
 
-        $paths = array();
+        $paths = [];
         $userinfo = $this->get_setting_value('userinfo');
 
         $paths[] = new restore_path_element('quizgame', '/activity/quizgame');
@@ -70,10 +70,10 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
             // Get the new mapping to the category.
             $newcat = $this->get_mappingid('question_category', $category[0]);
             // Now get the context for this category.
-            $newcontext = $DB->get_field('question_categories', 'contextid', array('id' => $newcat));
+            $newcontext = $DB->get_field('question_categories', 'contextid', ['id' => $newcat]);
             // Assemble the field data.
             if (!empty($newcat)) {
-                $data->questioncategory = implode(',', array($newcat, $newcontext));
+                $data->questioncategory = implode(',', [$newcat, $newcontext]);
             } else {
                 if (!$this->task->is_samesite() || $data->course != $oldcourse) {
                     // We cannot map to the question category.

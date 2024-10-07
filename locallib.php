@@ -53,7 +53,7 @@ function quizgame_add_highscore($quizgame, $score) {
     global $USER, $DB;
 
     $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, 0, false, MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+    $course     = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
     $context = context_module::instance($cm->id);
 
     // Write the high score to the DB.
@@ -65,11 +65,12 @@ function quizgame_add_highscore($quizgame, $score) {
     $record->id = $DB->insert_record('quizgame_scores', $record);
 
     // Trigger the game score added event.
-    $event = \mod_quizgame\event\game_score_added::create(array(
-        'objectid' => $record->id,
+    $event = \mod_quizgame\event\game_score_added::create(
+        ['objectid' => $record->id,
         'context' => $context,
-        'other' => array('score' => $score)
-    ));
+        'other' => ['score' => $score],
+        ]
+    );
 
     $event->add_record_snapshot('quizgame', $quizgame);
     $event->add_record_snapshot('quizgame_scores', $record);
@@ -93,14 +94,15 @@ function quizgame_log_game_start($quizgame) {
     global $DB;
 
     $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, 0, false, MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+    $course     = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
     $context = context_module::instance($cm->id);
 
     // Trigger the game score added event.
-    $event = \mod_quizgame\event\game_started::create(array(
-        'objectid' => $quizgame->id,
+    $event = \mod_quizgame\event\game_started::create(
+        ['objectid' => $quizgame->id,
         'context' => $context,
-    ));
+        ]
+    );
 
     $event->add_record_snapshot('quizgame', $quizgame);
     $event->trigger();

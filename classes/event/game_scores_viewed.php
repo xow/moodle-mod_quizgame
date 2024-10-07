@@ -57,7 +57,7 @@ class game_scores_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/quizgame/scores.php', array('id' => $this->objectid));
+        return new \moodle_url('/mod/quizgame/scores.php', ['id' => $this->objectid]);
     }
 
     /**
@@ -75,6 +75,6 @@ class game_scores_viewed extends \core\event\base {
      * @return array
      */
     public static function get_objectid_mapping() {
-        return array('db' => 'quizgame', 'restore' => 'quizgame');
+        return ['db' => 'quizgame', 'restore' => 'quizgame'];
     }
 }

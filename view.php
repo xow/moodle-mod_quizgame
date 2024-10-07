@@ -34,11 +34,11 @@ $n  = optional_param('q', 0, PARAM_INT);  // ...quizgame instance ID - it should
 
 if ($id) {
     $cm         = get_coursemodule_from_id('quizgame', $id, 0, false, MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $quizgame  = $DB->get_record('quizgame', array('id' => $cm->instance), '*', MUST_EXIST);
+    $course     = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $quizgame  = $DB->get_record('quizgame', ['id' => $cm->instance], '*', MUST_EXIST);
 } else if ($n) {
-    $quizgame  = $DB->get_record('quizgame', array('id' => $n), '*', MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $quizgame->course), '*', MUST_EXIST);
+    $quizgame  = $DB->get_record('quizgame', ['id' => $n], '*', MUST_EXIST);
+    $course     = $DB->get_record('course', ['id' => $quizgame->course], '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('quizgame', $quizgame->id, $course->id, false, MUST_EXIST);
 } else {
     throw new moodle_exception('invalidcmorid', 'quizgame');
@@ -49,10 +49,11 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 // Trigger module viewed event.
-$event = \mod_quizgame\event\course_module_viewed::create(array(
-    'objectid' => $quizgame->id,
+$event = \mod_quizgame\event\course_module_viewed::create(
+    ['objectid' => $quizgame->id,
     'context' => $context,
-));
+    ]
+);
 
 $event->add_record_snapshot('course', $course);
 $event->add_record_snapshot('course_modules', $cm);
@@ -64,7 +65,7 @@ $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
 
 // Print the page header.
-$PAGE->set_url('/mod/quizgame/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/quizgame/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($quizgame->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
