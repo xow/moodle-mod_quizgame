@@ -63,7 +63,7 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         // Create a student which will make a quizgame.
         $student = $generator->create_user();
         $studentrole = $DB->get_record('role', ['shortname' => 'student']);
-        $generator->enrol_user($student->id,  $course->id, $studentrole->id);
+        $generator->enrol_user($student->id, $course->id, $studentrole->id);
 
         // Have the student play through the game.
         $playthrough = $quizgamegenerator->create_content($quizgame, ['userid' => $student->id, 'score' => '9999']);
@@ -183,8 +183,11 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         // Now delete the user's data.
         $context1 = \context_module::instance($cm1->id);
         $context2 = \context_module::instance($cm2->id);
-        $contextlist = new \core_privacy\local\request\approved_contextlist($this->student, 'quizgame',
-            [\context_system::instance()->id, $context1->id, $context2->id]);
+        $contextlist = new \core_privacy\local\request\approved_contextlist(
+            $this->student,
+            'quizgame',
+            [\context_system::instance()->id, $context1->id, $context2->id]
+        );
         provider::delete_data_for_user($contextlist);
 
         // After deletion, the quizgame answers for the first student should have been deleted.

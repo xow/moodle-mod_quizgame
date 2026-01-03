@@ -44,11 +44,14 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         $questions = question_load_questions($questionids);
 
         $this->page->requires->strings_for_js(
-                ['score',
+            [
+                'score',
                 'emptyquiz',
                 'endofgame',
                 'spacetostart',
-                ], 'mod_quizgame');
+            ],
+            'mod_quizgame'
+        );
 
         $qjson = [];
         foreach ($questions as $question) {
@@ -64,8 +67,12 @@ class mod_quizgame_renderer extends plugin_renderer_base {
                 if ($question->qtype == "truefalse") {
                     $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype];
                 } else {
-                    $qjson[] = ["question" => $questiontext, "answers" => $answers, "type" => $question->qtype,
-                        "single" => $question->qtype == "multichoice" && $question->options->single == 1, ];
+                    $qjson[] = [
+                        "question" => $questiontext,
+                        "answers" => $answers,
+                        "type" => $question->qtype,
+                        "single" => $question->qtype == "multichoice" && $question->options->single == 1,
+                    ];
                 }
             }
             if ($question->qtype == "match") {
@@ -86,26 +93,30 @@ class mod_quizgame_renderer extends plugin_renderer_base {
         $display .= '</div>';
 
         $display .= '<canvas id="mod_quizgame_game"></canvas>';
-        $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">'.
-                    '<source src="sound/Laser.wav" type="audio/wav" />'.
-                    '</audio>';
-        $display .= '<audio id="mod_quizgame_sound_explosion" preload="auto">'.
-                    '<source src="sound/Explosion.wav" type="audio/wav" />'.
-                    '</audio>';
-        $display .= '<audio id="mod_quizgame_sound_deflect" preload="auto">'.
-                    '<source src="sound/Deflect.wav" type="audio/wav" />'.
-                    '</audio>';
-        $display .= '<audio id="mod_quizgame_sound_enemylaser" preload="auto">'.
-                    '<source src="sound/EnemyLaser.wav" type="audio/wav" />'.
-                    '</audio>';
+        $display .= '<audio id="mod_quizgame_sound_laser" preload="auto">' .
+            '<source src="sound/Laser.wav" type="audio/wav" />' .
+            '</audio>';
+        $display .= '<audio id="mod_quizgame_sound_explosion" preload="auto">' .
+            '<source src="sound/Explosion.wav" type="audio/wav" />' .
+            '</audio>';
+        $display .= '<audio id="mod_quizgame_sound_deflect" preload="auto">' .
+            '<source src="sound/Deflect.wav" type="audio/wav" />' .
+            '</audio>';
+        $display .= '<audio id="mod_quizgame_sound_enemylaser" preload="auto">' .
+            '<source src="sound/EnemyLaser.wav" type="audio/wav" />' .
+            '</audio>';
 
         $display .= '<div id="button_container">';
         $display .= '<input id="mod_quizgame_fullscreen_button" class= "btn btn-secondary" type="button" value="' .
-                    get_string('fullscreen', 'mod_quizgame') . '">';
+            get_string('fullscreen', 'mod_quizgame') . '">';
         $display .= ' &nbsp ';
-        $display .= html_writer::checkbox('sound', '', false,
-                                          get_string('sound', 'mod_quizgame'),
-                                          ['id' => 'mod_quizgame_sound_on']);
+        $display .= html_writer::checkbox(
+            'sound',
+            '',
+            false,
+            get_string('sound', 'mod_quizgame'),
+            ['id' => 'mod_quizgame_sound_on']
+        );
         $display .= '</div>';
 
         return $display;

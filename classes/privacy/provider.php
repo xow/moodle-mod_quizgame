@@ -40,12 +40,9 @@ use core_privacy\local\request\writer;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-        // This plugin stores personal data.
-        \core_privacy\local\metadata\provider,
-        // This plugin is capable of determining which users have data within it.
-        \core_privacy\local\request\core_userlist_provider,
-        // This plugin is a core_user_data_provider.
-        \core_privacy\local\request\plugin\provider {
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Return the fields which contain personal data.
      *
@@ -136,7 +133,7 @@ class provider implements
         $context = $userlist->get_context();
         $userids = $userlist->get_userids();
         $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
-        list($userinsql, $userinparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$userinsql, $userinparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         $quizgamescoreswhere = "quizgameid = :instanceid AND userid {$userinsql}";
         $userinstanceparams = $userinparams + ['instanceid' => $instanceid];
@@ -154,7 +151,7 @@ class provider implements
             return;
         }
 
-        list($insql, $inparams) = $DB->get_in_or_equal($scores, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($scores, SQL_PARAMS_NAMED);
 
         // Now delete all user related scores.
         $deletewhere = "quizgameid = :instanceid AND userid {$userinsql}";
@@ -175,7 +172,7 @@ class provider implements
 
         $user = $contextlist->get_user();
 
-        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
+        [$contextsql, $contextparams] = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
 
         $sql = "SELECT cm.id AS cmid,
                        qgs.score,
@@ -272,7 +269,6 @@ class provider implements
 
         $userid = $contextlist->get_user()->id;
         foreach ($contextlist->get_contexts() as $context) {
-
             if (!$context instanceof \context_module) {
                 continue;
             }

@@ -35,7 +35,6 @@ require_once($CFG->dirroot . '/mod/quizgame/backup/moodle2/restore_quizgame_step
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_quizgame_activity_task extends restore_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -74,7 +73,6 @@ class restore_quizgame_activity_task extends restore_activity_task {
         $rules[] = new restore_decode_rule('QUIZVENTUREINDEX', '/mod/quizgame/index.php?id=$1', 'course');
 
         return $rules;
-
     }
 
     /**
@@ -91,11 +89,17 @@ class restore_quizgame_activity_task extends restore_activity_task {
         $rules = [];
 
         // Fix old wrong uses (missing extension).
-        $rules[] = new restore_log_rule('quizgame', 'view all', 'index?id={course}', null,
-                                        null, null, 'index.php?id={course}');
+        $rules[] = new restore_log_rule(
+            'quizgame',
+            'view all',
+            'index?id={course}',
+            null,
+            null,
+            null,
+            'index.php?id={course}'
+        );
         $rules[] = new restore_log_rule('quizgame', 'view all', 'index.php?id={course}', null);
 
         return $rules;
     }
-
 }

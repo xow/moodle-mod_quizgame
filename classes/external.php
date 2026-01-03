@@ -39,8 +39,6 @@ require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
  * @since      Moodle 3.5
  */
 class mod_quizgame_external extends external_api {
-
-
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -66,11 +64,13 @@ class mod_quizgame_external extends external_api {
 
         global $DB;
         $warnings = [];
-        $params = self::validate_parameters(self::update_score_parameters(),
-                                            [
+        $params = self::validate_parameters(
+            self::update_score_parameters(),
+            [
                                                 'quizgameid' => $quizgameid,
                                                 'score' => $score,
-                                            ]);
+            ]
+        );
         if (!$quizgame = $DB->get_record("quizgame", ["id" => $params['quizgameid']])) {
             throw new moodle_exception("invalidcoursemodule", "error");
         }
@@ -122,9 +122,10 @@ class mod_quizgame_external extends external_api {
 
         global $DB;
         $warnings = [];
-        $params = self::validate_parameters(self::start_game_parameters(),
-                                            ['quizgameid' => $quizgameid]
-                                            );
+        $params = self::validate_parameters(
+            self::start_game_parameters(),
+            ['quizgameid' => $quizgameid]
+        );
         if (!$quizgame = $DB->get_record("quizgame", ["id" => $params['quizgameid']])) {
             throw new moodle_exception("invalidcoursemodule", "error");
         }
@@ -151,5 +152,4 @@ class mod_quizgame_external extends external_api {
     public static function start_game_returns() {
         return new external_value(PARAM_BOOL, 'Result of logging game start');
     }
-
 }

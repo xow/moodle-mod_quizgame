@@ -36,7 +36,7 @@
  * @return mixed true if the feature is supported, null if unknown
  */
 function quizgame_supports($feature) {
-    switch($feature) {
+    switch ($feature) {
         case FEATURE_COMPLETION_TRACKS_VIEWS:
             return true;
         case FEATURE_COMPLETION_HAS_RULES:
@@ -73,7 +73,7 @@ function quizgame_add_instance(stdClass $quizgame, ?mod_quizgame_mod_form $mform
 
     $quizgame->timecreated = time();
 
-    // TODO: Highscores.
+    // TODO #14: Implement highscores functionality.
 
     return $DB->insert_record('quizgame', $quizgame);
 }
@@ -141,8 +141,14 @@ function quizgame_user_outline($course, $user, $mod, $quizgame) {
         $result = new stdClass();
 
         if ($game > 0) {
-            $games = $DB->get_records('quizgame_scores',
-                    ['quizgameid' => $quizgame->id, 'userid' => $user->id], 'timecreated DESC', '*', 0, 1);
+            $games = $DB->get_records(
+                'quizgame_scores',
+                ['quizgameid' => $quizgame->id, 'userid' => $user->id],
+                'timecreated DESC',
+                '*',
+                0,
+                1
+            );
             foreach ($games as $last) {
                 $data = new stdClass();
                 $data->score = $last->score;
@@ -152,13 +158,11 @@ function quizgame_user_outline($course, $user, $mod, $quizgame) {
             }
         } else {
             $result->info = get_string("notyetplayed", "quizgame");
-
         }
 
         return $result;
     }
     return null;
-
 }
 
 /**
@@ -174,20 +178,22 @@ function quizgame_user_outline($course, $user, $mod, $quizgame) {
 function quizgame_user_complete($course, $user, $mod, $quizgame) {
     global $DB;
 
-    if ($games = $DB->get_records('quizgame_scores',
+    if (
+        $games = $DB->get_records(
+            'quizgame_scores',
             ['quizgameid' => $quizgame->id, 'userid' => $user->id],
-            'timecreated ASC')) {
+            'timecreated ASC'
+        )
+    ) {
         $attempt = 1;
         foreach ($games as $game) {
-
             echo get_string('attempt', 'quizgame', $attempt++) . ': ';
             echo get_string('achievedhighscoreof', 'quizgame', $game->score);
-            echo ' - '.userdate($game->timecreated).'<br />';
+            echo ' - ' . userdate($game->timecreated) . '<br />';
         }
     } else {
         print_string("notyetplayed", "quizgame");
     }
-
 }
 
 /**
@@ -259,7 +265,7 @@ function quizgame_print_recent_activity($course, $viewfullnames, $timestart) {
  * @param int $groupid check for a particular group's activity only, defaults to 0 (all groups)
  * @return void adds items into $activities and increases $index
  */
-function quizgame_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
+function quizgame_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
 }
 
 /**
@@ -283,9 +289,8 @@ function quizgame_print_recent_mod_activity($activity, $courseid, $detail, $modn
  * as sending out mail, toggling flags etc ...
  *
  * @return boolean
- * @todo Finish documenting this function
- **/
-function quizgame_cron () {
+ */
+function quizgame_cron() {
     return true;
 }
 
@@ -346,9 +351,9 @@ function quizgame_scale_used_anywhere($scaleid) {
  * @param mixed $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
  * @return void
  */
-function quizgame_grade_item_update(stdClass $quizgame, $grades=null) {
+function quizgame_grade_item_update(stdClass $quizgame, $grades = null) {
     global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     $item = [];
     $item['itemname'] = clean_param($quizgame->name, PARAM_NOTAGS);
@@ -370,7 +375,7 @@ function quizgame_grade_item_update(stdClass $quizgame, $grades=null) {
  */
 function quizgame_update_grades(stdClass $quizgame, $userid = 0) {
     global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     $grades = []; // Populate array of grade objects indexed by userid.
 
@@ -429,7 +434,7 @@ function quizgame_get_file_info($browser, $areas, $course, $cm, $context, $filea
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
  */
-function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=[]) {
+function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = []) {
 
     if ($context->contextlevel != CONTEXT_MODULE) {
         send_file_not_found();
@@ -451,7 +456,7 @@ function quizgame_pluginfile($course, $cm, $context, $filearea, array $args, $fo
  * @param settings_navigation $settingsnav {settings_navigation}
  * @param ?navigation_node $quizgamenode {navigation_node}
  */
-function quizgame_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $quizgamenode=null) {
+function quizgame_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $quizgamenode = null) {
 }
 
 /**
@@ -463,7 +468,6 @@ function quizgame_reset_course_form_definition(&$mform) {
 
     $mform->addElement('header', 'quizgameheader', get_string('modulenameplural', 'quizgame'));
     $mform->addElement('advcheckbox', 'reset_quizgame_scores', get_string('removescores', 'quizgame'));
-
 }
 
 /**
@@ -473,7 +477,6 @@ function quizgame_reset_course_form_definition(&$mform) {
  */
 function quizgame_reset_course_form_defaults($course) {
     return ['reset_quizgame_scores' => 1];
-
 }
 
 /**
@@ -506,8 +509,8 @@ function quizgame_reset_userdata($data) {
  * @param int $courseid
  * @param string $type (Optional)
  */
-function quizgame_reset_gradebook($courseid, $type='') {
-    // TODO: LOOK AT AFTER GRADES ARE IMPLEMENTED!
+function quizgame_reset_gradebook($courseid, $type = '') {
+    // TODO #12: Review and update after grade implementation.
     global $DB;
 
     $sql = "SELECT g.*, cm.idnumber as cmidnumber, g.course as courseid
@@ -532,9 +535,11 @@ function quizgame_reset_gradebook($courseid, $type='') {
  * @param int $userid User id to use for all capability checks, etc. Set to 0 for current user (default).
  * @return \core_calendar\local\event\entities\action_interface|null
  */
-function mod_quizgame_core_calendar_provide_event_action(calendar_event $event,
-                                                    \core_calendar\action_factory $factory,
-                                                    int $userid = 0) {
+function mod_quizgame_core_calendar_provide_event_action(
+    calendar_event $event,
+    \core_calendar\action_factory $factory,
+    int $userid = 0
+) {
     global $USER;
     if (!$userid) {
         $userid = $USER->id;
@@ -565,8 +570,10 @@ function mod_quizgame_core_calendar_provide_event_action(calendar_event $event,
  */
 function mod_quizgame_get_completion_active_rule_descriptions($cm) {
     // Values will be present in cm_info, and we assume these are up to date.
-    if (!$cm instanceof cm_info || !isset($cm->customdata['customcompletionrules'])
-        || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+    if (
+        !$cm instanceof cm_info || !isset($cm->customdata['customcompletionrules'])
+        || $cm->completion != COMPLETION_TRACKING_AUTOMATIC
+    ) {
         return [];
     }
 

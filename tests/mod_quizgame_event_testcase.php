@@ -38,7 +38,6 @@ require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_quizgame_event_testcase extends \advanced_testcase {
-
     /**
      * Test setup.
      */
@@ -112,7 +111,7 @@ class mod_quizgame_event_testcase extends \advanced_testcase {
         $this->assertInstanceOf('\mod_quizgame\event\course_module_instance_list_viewed', $event);
         $this->assertEquals(CONTEXT_COURSE, $event->contextlevel);
         $this->assertEquals($course->id, $event->contextinstanceid);
-        $expected = [$course->id, 'quizgame', 'view all', 'index.php?id='.$course->id, ''];
+        $expected = [$course->id, 'quizgame', 'view all', 'index.php?id=' . $course->id, ''];
         $this->assertEventLegacyLogData($expected, $event);
         $this->assertEventContextNotUsed($event);
     }
@@ -126,7 +125,7 @@ class mod_quizgame_event_testcase extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $quizgame = $this->getDataGenerator()->create_module('quizgame', ['course' => $course]);
         $context = \context_module::instance($quizgame->cmid);
-        $score = mt_rand (0, 50000);
+        $score = mt_rand(0, 50000);
 
         $sink = $this->redirectEvents();
         $result = quizgame_add_highscore($quizgame, $score);

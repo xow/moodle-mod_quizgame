@@ -22,20 +22,20 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 $PAGE->set_url('/mod/quizgame/font.php');
 require_login();
 
 // Echo out a CSS file with the font path.
-header("Content-Type: text/css");
-echo "/* audiowide-regular - latin */";
-echo "@font-face {";
-echo "  font-family: 'Audiowide';";
-echo "  font-style: normal;";
-echo "  font-weight: 400;";
-echo "  src: local(''),";
+header('Content-Type: text/css');
+echo '/* audiowide-regular - latin */';
+echo '@font-face {';
+echo '  font-family: "Audiowide";';
+echo '  font-style: normal;';
+echo '  font-weight: 400;';
+echo '  src: local(""),';
 // Modern Browser Support - Chrome 26+, Opera 23+, Firefox 39+.
-echo "       url('$CFG->wwwroot/mod/quizgame/lib/audiowide/audiowide-v14-latin-ext_latin-regular.woff2') format('woff2'),";
+echo '       url("' . $CFG->wwwroot . '/mod/quizgame/lib/audiowide/audiowide-v14-latin-ext_latin-regular.woff2") format("woff2"),';
 // Older Browser Support -  Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+.
-echo "       url('$CFG->wwwroot/mod/quizgame/lib/audiowide/audiowide-v14-latin-ext_latin-regular.woff') format('woff');";
-echo "}";
+echo '       url("' . $CFG->wwwroot . '/mod/quizgame/lib/audiowide/audiowide-v14-latin-ext_latin-regular.woff") format("woff");';
+echo '}';

@@ -32,7 +32,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_quizgame_activity_structure_step extends backup_activity_structure_step {
-
     /**
      * Defines structure for data backup.
      * @return object
@@ -43,14 +42,24 @@ class backup_quizgame_activity_structure_step extends backup_activity_structure_
         $userinfo = $this->get_setting_value('userinfo');
 
         // Define each element separated.
-        $quizgame = new backup_nested_element('quizgame', ['id'],
+        $quizgame = new backup_nested_element(
+            'quizgame',
+            ['id'],
             ['course', 'name', 'intro', 'introformat', 'timecreated',
-            'timemodified', 'questioncategory', 'grade', 'completionscore', ]);
+            'timemodified',
+            'questioncategory',
+            'grade',
+            'completionscore',
+            ]
+        );
 
         $scores = new backup_nested_element('scores');
 
-        $score = new backup_nested_element('score', ['id'],
-            ['quizgameid', 'userid', 'score', 'timecreated']);
+        $score = new backup_nested_element(
+            'score',
+            ['id'],
+            ['quizgameid', 'userid', 'score', 'timecreated']
+        );
         // Build the tree.
 
         $quizgame->add_child($scores);
@@ -62,13 +71,13 @@ class backup_quizgame_activity_structure_step extends backup_activity_structure_
 
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
-
-            $score->set_source_sql('
+            $score->set_source_sql(
+                '
             SELECT *
               FROM {quizgame_scores}
              WHERE quizgameid = ?',
-            [backup::VAR_PARENTID]);
-
+                [backup::VAR_PARENTID]
+            );
         }
 
         // Define id annotations.
@@ -79,6 +88,5 @@ class backup_quizgame_activity_structure_step extends backup_activity_structure_
 
         // Return the root element (quizgame), wrapped into standard activity structure.
         return $this->prepare_activity_structure($quizgame);
-
     }
 }

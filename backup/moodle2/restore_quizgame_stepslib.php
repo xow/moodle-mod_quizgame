@@ -32,7 +32,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_quizgame_activity_structure_step extends restore_activity_structure_step {
-
     /**
      * DB structure for a quizgame.
      */
@@ -87,7 +86,6 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
                     $data->questioncategory = "";
                 }
             }
-
         } else {
             // The qustion category was just stored as an ID, so find the new mapping.
             $data->questioncategory = $this->get_mappingid('question_category', $category);
@@ -122,6 +120,5 @@ class restore_quizgame_activity_structure_step extends restore_activity_structur
     protected function after_execute() {
         // Add quizgame related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_quizgame', 'intro', null);
-
     }
 }

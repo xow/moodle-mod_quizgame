@@ -28,7 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/questionlib.php');
-require_once($CFG->dirroot.'/lib/completionlib.php');
+require_once($CFG->dirroot . '/lib/completionlib.php');
 
 /**
  * Function to prepare strings to be printed out as JSON.
