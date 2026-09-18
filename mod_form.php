@@ -67,98 +67,35 @@ class mod_quizgame_mod_form extends moodleform_mod
             $this->add_intro_editor();
         }
 
-        // Get question categories for this course with proper hierarchy.
+        // Restrict selectable categories to this course/activity contexts only.
+        $contexts = [];
+        $coursecontext = context_course::instance($COURSE->id);
+        $contexts[$coursecontext->id] = $coursecontext;
         if (!empty($this->_cm)) {
-            $context = context_module::instance($this->_cm->id);
-        } else {
-            $context = context_course::instance($COURSE->id);
+            $modulecontext = context_module::instance($this->_cm->id);
+            $contexts[$modulecontext->id] = $modulecontext;
         }
-        $editcontexts = new \core_question\local\bank\question_edit_contexts($context);
-        $contexts = $editcontexts->all();
 
-        // For Moodle 5.0+, try to use the new question bank API if available.
+        // Include any shareable question-bank instances configured for this course (Moodle 5.0+).
+        if (class_exists('core_question\local\bank\question_bank_helper')) {
+            $sharedbanks = \core_question\local\bank\question_bank_helper::get_activity_instances_with_shareable_questions([$COURSE->id]);
+            foreach ($sharedbanks as $bank) {
+                $sharedcontext = \context_module::instance($bank->modid);
+                $contexts[$sharedcontext->id] = $sharedcontext;
+            }
+        }
+
         $options = ['' => get_string('choosedots')];
-        if ($CFG->branch >= 500 && class_exists('qbank_managecategories\helper')) {
-            // Use the new Moodle 5.0+ question bank API.
-            // This properly scopes categories to the provided contexts.
-            if (class_exists('core_question\local\bank\question_bank_helper')) {
-                $sharedbanks = \core_question\local\bank\question_bank_helper::get_activity_instances_with_shareable_questions([$COURSE->id]);
-                foreach ($sharedbanks as $bank) {
-                    $contexts[] = \context_module::instance($bank->modid);
-                }
-            }
-            $categoryoptions = \qbank_managecategories\helper::question_category_options($contexts, false, 0);
-            if (!empty($categoryoptions)) {
-                foreach ($categoryoptions as $contextname => $opts) {
-                    if (is_array($opts)) {
-                        foreach ($opts as $id => $name) {
-                            $options[$id] = $name;
-                        }
-                    } else {
-                        $options[$contextname] = $opts;
+        if (class_exists('qbank_managecategories\helper')) {
+            $categoryoptions = \qbank_managecategories\helper::question_category_options(array_values($contexts), false, 0);
+            foreach ($categoryoptions as $contextname => $opts) {
+                if (is_array($opts)) {
+                    foreach ($opts as $id => $name) {
+                        $options[$id] = $name;
                     }
+                    continue;
                 }
-            }
-        } else {
-            // For older Moodle versions, use the properly scoped query.
-            // Get question categories scoped to this course context and its accessible parents/children.
-            // This includes: the course context itself, module contexts within this course,
-            // the parent course category context (if exists), and system context.
-            // We exclude other course contexts to prevent cross-course access.
-            $contextpath = $context->path . '/%';
-            $parentcontext = $context->get_parent_context();
-            $parentcontextid = ($parentcontext && $parentcontext->contextlevel == CONTEXT_COURSECAT) ? $parentcontext->id : null;
-
-            $params = [
-                'coursecontextid' => $context->id,
-                'contextpath' => $contextpath,
-                'modulelevel' => CONTEXT_MODULE,
-                'systemlevel' => CONTEXT_SYSTEM,
-            ];
-
-            $whereconditions = [
-                'ctx.id = :coursecontextid',
-                '(ctx.path LIKE :contextpath AND ctx.contextlevel = :modulelevel)',
-                '(ctx.contextlevel = :systemlevel AND ctx.depth = 1)',
-            ];
-
-            // If editing an existing activity, include its module context.
-            if (!empty($this->_cm)) {
-                $modulecontext = context_module::instance($this->_cm->id);
-                $params['modulecontextid'] = $modulecontext->id;
-                $whereconditions[] = 'ctx.id = :modulecontextid';
-            }
-
-            if ($parentcontextid !== null) {
-                $params['parentcontextid'] = $parentcontextid;
-                $params['categorylevel'] = CONTEXT_COURSECAT;
-                $whereconditions[] = '(ctx.id = :parentcontextid AND ctx.contextlevel = :categorylevel)';
-            }
-
-            $categories = $DB->get_records_sql(
-                "SELECT DISTINCT c.id, c.name, c.parent, c.sortorder, c.contextid
-                   FROM {question_categories} c
-                   JOIN {context} ctx ON c.contextid = ctx.id
-                  WHERE (" . implode(' OR ', $whereconditions) . ")
-               ORDER BY c.parent, c.sortorder, c.name ASC",
-                $params
-            );
-
-            // Build hierarchical options array.
-            $categorytree = [];
-
-            // First pass: organize categories by parent.
-            foreach ($categories as $category) {
-                $categorytree[$category->parent][] = $category;
-            }
-
-            // Second pass: build hierarchical display, starting from the children of the 'top' categories
-            // to prevent the 'top' categories from appearing in the dropdown.
-            if (isset($categorytree[0])) {
-                foreach ($categorytree[0] as $topcategory) {
-                    // We are not displaying the top category itself, but its children.
-                    $this->build_category_options($categorytree, $options, $topcategory->id, $context, 0);
-                }
+                $options[$contextname] = $opts;
             }
         }
 
