@@ -112,30 +112,6 @@ class mod_quizgame_mod_form extends moodleform_mod
     }
 
     /**
-     * Build hierarchical category options with proper indentation
-     * @param array $categorytree Categories organized by parent
-     * @param array $options Reference to options array to populate
-     * @param int $parentid Parent category ID
-     * @param context $context Course context
-     * @param int $level Current indentation level
-     */
-    private function build_category_options($categorytree, &$options, $parentid, $context, $level = 0)
-    {
-        if (!isset($categorytree[$parentid])) {
-            return;
-        }
-
-        foreach ($categorytree[$parentid] as $category) {
-            $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
-            $name = format_string($category->name, true, ['context' => $context]);
-            $options[$category->id] = $indent . $name;
-
-            // Recursively add child categories.
-            $this->build_category_options($categorytree, $options, $category->id, $context, $level + 1);
-        }
-    }
-
-    /**
      * Define custom completion rules
      * @return array
      */
