@@ -42,7 +42,7 @@ class mod_quizgame_mod_form extends moodleform_mod
      */
     public function definition()
     {
-        global $CFG, $COURSE, $DB;
+        global $CFG, $COURSE;
 
         $mform = $this->_form;
 
