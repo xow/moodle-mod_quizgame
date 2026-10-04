@@ -27,7 +27,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_quizgame_generator extends testing_module_generator {
-
     /**
      * Create an instance of mod_quizgame with some default settings
      * @param array|stdClass $record quizgame settings
@@ -58,7 +57,7 @@ class mod_quizgame_generator extends testing_module_generator {
             'quizgameid' => $quizgame->id,
             'timecreated' => $now,
             'userid' => $USER->id,
-            'score' => mt_rand (0, 50000),
+            'score' => mt_rand(0, 50000),
         ];
 
         $id = $DB->insert_record('quizgame_scores', $record);

@@ -25,8 +25,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(dirname(__FILE__) . '/lib.php');
 
 $id = required_param('id', PARAM_INT); // Course.
 
@@ -69,11 +69,13 @@ foreach ($quizgames as $quizgame) {
         $link = html_writer::link(
             new moodle_url('/mod/quizgame/view.php', ['id' => $quizgame->coursemodule]),
             format_string($quizgame->name, true),
-            ['class' => 'dimmed']);
+            ['class' => 'dimmed']
+        );
     } else {
         $link = html_writer::link(
             new moodle_url('/mod/quizgame/view.php', ['id' => $quizgame->coursemodule]),
-            format_string($quizgame->name, true));
+            format_string($quizgame->name, true)
+        );
     }
 
     if ($course->format == 'weeks' || $course->format == 'topics') {

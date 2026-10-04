@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * The main quizgame configuration form
@@ -27,20 +27,21 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
-require_once($CFG->dirroot.'/lib/questionlib.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/lib/questionlib.php');
 
 /**
  * Module instance settings form
  * @copyright  2014 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_quizgame_mod_form extends moodleform_mod {
-
+class mod_quizgame_mod_form extends moodleform_mod
+{
     /**
      * Defines forms elements
      */
-    public function definition() {
+    public function definition()
+    {
         global $CFG, $COURSE;
 
         $mform = $this->_form;
@@ -66,11 +67,43 @@ class mod_quizgame_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        $context = context_course::instance($COURSE->id);
-        $categories = qbank_managecategories\helper::question_category_options([$context], false, 0);
+        // Restrict selectable categories to this course/activity contexts only.
+        $contexts = [];
+        $coursecontext = context_course::instance($COURSE->id);
+        $contexts[$coursecontext->id] = $coursecontext;
+        if (!empty($this->_cm)) {
+            $modulecontext = context_module::instance($this->_cm->id);
+            $contexts[$modulecontext->id] = $modulecontext;
+        }
 
-        $mform->addElement('selectgroups', 'questioncategory', get_string('questioncategory', 'quizgame'), $categories);
+        // Include any shareable question-bank instances configured for this course (Moodle 5.0+).
+        if (class_exists('core_question\local\bank\question_bank_helper')) {
+            $sharedbanks = \core_question\local\bank\question_bank_helper::get_activity_instances_with_shareable_questions([$COURSE->id]);
+            foreach ($sharedbanks as $bank) {
+                $sharedcontext = \context_module::instance($bank->modid);
+                $contexts[$sharedcontext->id] = $sharedcontext;
+            }
+        }
+
+        $options = ['' => get_string('choosedots')];
+        if (class_exists('qbank_managecategories\helper')) {
+            $categoryoptions = \qbank_managecategories\helper::question_category_options(array_values($contexts), false, 0);
+            foreach ($categoryoptions as $contextname => $opts) {
+                if (is_array($opts)) {
+                    foreach ($opts as $id => $name) {
+                        $options[$id] = $name;
+                    }
+                    continue;
+                }
+                $options[$contextname] = $opts;
+            }
+        }
+
+        // If no categories found, keep the empty "Choose..." option; admins can create categories later.
+
+        $mform->addElement('select', 'questioncategory', get_string('questioncategory', 'quizgame'), $options);
         $mform->addHelpButton('questioncategory', 'questioncategory', 'quizgame');
+        $mform->addRule('questioncategory', null, 'required', null, 'client');
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
@@ -82,15 +115,25 @@ class mod_quizgame_mod_form extends moodleform_mod {
      * Define custom completion rules
      * @return array
      */
-    public function add_completion_rules() {
+    public function add_completion_rules()
+    {
         $mform =& $this->_form;
         $group = [];
-        $group[] =& $mform->createElement('checkbox', 'completionscoreenabled', '',
-                get_string('completionscore', 'quizgame'));
+        $group[] =& $mform->createElement(
+            'checkbox',
+            'completionscoreenabled',
+            '',
+            get_string('completionscore', 'quizgame')
+        );
         $group[] =& $mform->createElement('text', 'completionscore', '', ['size' => 3]);
         $mform->setType('completionscore', PARAM_INT);
-        $mform->addGroup($group, 'completionscoregroup',
-                get_string('completionscoregroup', 'quizgame'), [' '], false);
+        $mform->addGroup(
+            $group,
+            'completionscoregroup',
+            get_string('completionscoregroup', 'quizgame'),
+            [' '],
+            false
+        );
         $mform->disabledIf('completionscore', 'completionscoreenabled', 'notchecked');
         $mform->addHelpButton('completionscoregroup', 'completionscoregroup', 'quizgame');
         return ['completionscoregroup'];
@@ -101,7 +144,8 @@ class mod_quizgame_mod_form extends moodleform_mod {
      * @param array $data
      * @return bool
      */
-    public function completion_rule_enabled($data) {
+    public function completion_rule_enabled($data)
+    {
         return (!empty($data['completionscoreenabled']) && $data['completionscore'] != 0);
     }
 
@@ -109,7 +153,8 @@ class mod_quizgame_mod_form extends moodleform_mod {
      * Loads custom completion data.
      * @return boolean
      */
-    public function get_data() {
+    public function get_data()
+    {
         $data = parent::get_data();
         if (!$data) {
             return false;
@@ -128,7 +173,8 @@ class mod_quizgame_mod_form extends moodleform_mod {
      * Used to pre-populate mform.
      * @param array $defaultvalues
      */
-    public function data_preprocessing(&$defaultvalues) {
+    public function data_preprocessing(&$defaultvalues)
+    {
         parent::data_preprocessing($defaultvalues);
 
         // Set up the completion checkboxes which aren't part of standard data.

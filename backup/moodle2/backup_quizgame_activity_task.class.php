@@ -35,7 +35,6 @@ require_once($CFG->dirroot . '/mod/quizgame/backup/moodle2/backup_quizgame_steps
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_quizgame_activity_task extends backup_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -63,11 +62,11 @@ class backup_quizgame_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot, "/");
 
         // Link to the list of quizgames.
-        $search = "/(".$base."\/mod\/quizgame\/index.php\?id\=)([0-9]+)/";
+        $search = "/(" . $base . "\/mod\/quizgame\/index.php\?id\=)([0-9]+)/";
         $content = preg_replace($search, '$@QUIZGAMEINDEX*$2@$', $content);
 
         // Link to quizgame view by moduleid.
-        $search = "/(".$base."\/mod\/quizgame\/view.php\?id\=)([0-9]+)/";
+        $search = "/(" . $base . "\/mod\/quizgame\/view.php\?id\=)([0-9]+)/";
         $content = preg_replace($search, '$@QUIZGAMEVIEWBYID*$2@$', $content);
 
         return $content;

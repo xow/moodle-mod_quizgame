@@ -46,7 +46,6 @@ require_once($CFG->libdir . '/completionlib.php');
  * @covers    \mod_quizgame\completion\custom_completion
  */
 final class custom_completion_test extends advanced_testcase {
-
     /**
      * Data provider for get_state().
      *

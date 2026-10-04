@@ -41,7 +41,6 @@ function xmldb_quizgame_upgrade($oldversion) {
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
     if ($oldversion < 2014091101) {
-
         // Define field quizgameid to be added to quizgame_scores.
         $table = new xmldb_table('quizgame_scores');
         $field = new xmldb_field('quizgameid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'id');
@@ -56,7 +55,6 @@ function xmldb_quizgame_upgrade($oldversion) {
     }
 
     if ($oldversion < 2015011300) {
-
         // Define field questioncategory to be added to quizgame.
         $table = new xmldb_table('quizgame');
         $field = new xmldb_field('questioncategory', XMLDB_TYPE_TEXT, null, null, null, null, null, 'timemodified');
@@ -71,7 +69,6 @@ function xmldb_quizgame_upgrade($oldversion) {
     }
 
     if ($oldversion < 2017011100) {
-
         // Define field grade to be added to quizgame.
         $table = new xmldb_table('quizgame');
         $field = new xmldb_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '100', 'questioncategory');
@@ -86,7 +83,6 @@ function xmldb_quizgame_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018062000) {
-
         // Define field timecreated to be added to quizgame_scores.
         $table = new xmldb_table('quizgame_scores');
         $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'score');
@@ -101,7 +97,6 @@ function xmldb_quizgame_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018062001) {
-
         // Define field completionscore to be added to quizgame.
         $table = new xmldb_table('quizgame');
         $field = new xmldb_field('completionscore', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'grade');

@@ -1,1 +1,38 @@
-/nbproject/private/
+# IDE and editor files
+.idea/
+.vscode/
+
+*.swp
+*.swo
+*~
+
+# Composer dependencies
+/vendor/
+/ci/
+
+# Node.js dependencies
+/node_modules/
+
+# Build artifacts
+*.min.js
+*.min.css
+*.map
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Moodle development files
+/moodle/
+/moodledata/
+
+# Logs and debug files
+*.log
+behat_*.txt
+behat_debug*.txt
+
+# Local configuration and temporary files
+.php-ci.ini
+.phpcs-ini
+phpcs.xml
+setup-behat.md

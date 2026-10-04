@@ -32,7 +32,6 @@ namespace mod_quizgame\event;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class game_started extends \core\event\base {
-
     /**
      * Set basic properties for the event.
      */

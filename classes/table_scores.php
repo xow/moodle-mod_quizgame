@@ -35,7 +35,6 @@ require_once($CFG->libdir . '/tablelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class table_scores extends table_sql {
-
     /** @var array list of user fullnames shown in report */
     private $userfullnames = [];
 
@@ -85,7 +84,7 @@ class table_scores extends table_sql {
         }
 
         // If we reach that point new users logs have been generated since the last users db query.
-        list($usql, $uparams) = $DB->get_in_or_equal($record->userid);
+        [$usql, $uparams] = $DB->get_in_or_equal($record->userid);
         $userfieldsapi = \core_user\fields::for_name();
         $allusernames = $userfieldsapi->get_sql('', false, '', '', false)->selects;
         $sql = "SELECT id," . $allusernames . " FROM {user} WHERE id " . $usql;

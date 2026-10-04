@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Prints a particular instance of quizgame
@@ -25,21 +25,21 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(dirname(__FILE__) . '/lib.php');
 require_once($CFG->dirroot . '/mod/quizgame/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Either course_module ID, or ...
-$n  = optional_param('q', 0, PARAM_INT);  // ...quizgame instance ID - it should be named as the first character of the module.
+$n = optional_param('q', 0, PARAM_INT);  // ...quizgame instance ID - it should be named as the first character of the module.
 
 if ($id) {
-    $cm         = get_coursemodule_from_id('quizgame', $id, 0, false, MUST_EXIST);
-    $course     = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-    $quizgame  = $DB->get_record('quizgame', ['id' => $cm->instance], '*', MUST_EXIST);
+    $cm = get_coursemodule_from_id('quizgame', $id, 0, false, MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $quizgame = $DB->get_record('quizgame', ['id' => $cm->instance], '*', MUST_EXIST);
 } else if ($n) {
-    $quizgame  = $DB->get_record('quizgame', ['id' => $n], '*', MUST_EXIST);
-    $course     = $DB->get_record('course', ['id' => $quizgame->course], '*', MUST_EXIST);
-    $cm         = get_coursemodule_from_instance('quizgame', $quizgame->id, $course->id, false, MUST_EXIST);
+    $quizgame = $DB->get_record('quizgame', ['id' => $n], '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $quizgame->course], '*', MUST_EXIST);
+    $cm = get_coursemodule_from_instance('quizgame', $quizgame->id, $course->id, false, MUST_EXIST);
 } else {
     throw new moodle_exception('invalidcmorid', 'quizgame');
 }
@@ -50,8 +50,9 @@ $context = context_module::instance($cm->id);
 
 // Trigger module viewed event.
 $event = \mod_quizgame\event\course_module_viewed::create(
-    ['objectid' => $quizgame->id,
-    'context' => $context,
+    [
+        'objectid' => $quizgame->id,
+        'context' => $context,
     ]
 );
 
@@ -74,6 +75,11 @@ $renderer = $PAGE->get_renderer('mod_quizgame');
 
 // Output starts here.
 echo $OUTPUT->header();
+
+// Display the description.
+if (trim($quizgame->intro)) {
+    echo $OUTPUT->box(format_text($quizgame->intro, $quizgame->introformat, ['context' => $context]), 'generalbox', 'intro');
+}
 
 // Game here.
 echo "<link href='$CFG->wwwroot/mod/quizgame/font.php' rel='stylesheet' type='text/css'>";
